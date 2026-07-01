@@ -1,25 +1,29 @@
 using EchoesOfAsh.Base;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "Category", menuName = "EchoesOfAsh/Base/Category")]
-public class Category : IdentifiedObject
+
+namespace EchoesOfAsh.Base
 {
-    public override bool Equals(object other)
-        => base.Equals(other);
-
-    public override int GetHashCode()
-        => base.GetHashCode();
-
-    public static bool operator ==(Category lhs, string rhs)
+    [CreateAssetMenu(fileName = "Category", menuName = "EchoesOfAsh/Base/Category")]
+    public class Category : IdentifiedObject
     {
-        if (lhs is null)
+        public override bool Equals(object other)
+            => base.Equals(other);
+
+        public override int GetHashCode()
+            => base.GetHashCode();
+
+        public static bool operator ==(Category lhs, string rhs)
         {
-            return rhs is null;
+            if (lhs is null)
+            {
+                return rhs is null;
+            }
+
+            return lhs.CodeName == rhs;
         }
 
-        return lhs.CodeName == rhs;
+        public static bool operator !=(Category lhs, string rhs)
+            => !(lhs == rhs);
     }
-
-    public static bool operator !=(Category lhs, string rhs)
-        => !(lhs == rhs);
 }
