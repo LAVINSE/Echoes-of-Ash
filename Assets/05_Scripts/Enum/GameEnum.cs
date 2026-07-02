@@ -52,11 +52,12 @@ namespace EchoesOfAsh.Enum
     public enum ERelicTriggerType
     {
         [InspectorName("패시브")] Passive,
-        [InspectorName("전투 시작 시 1회")] BattleStart,
+        [InspectorName("전투 시작 시 1회")] OnBattleStart,
         [InspectorName("매 턴 시작 시")] TurnStart,
         [InspectorName("카드 사용할 때마다")] OnCardPlay,
         [InspectorName("피격당할 때마다")] OnTakeDamage,
         [InspectorName("피해를 입힐 때마다")] OnDealDamage,
+        [InspectorName("전투 종료 시 1회")] OnBattleEnd,
     }
 
     /// <summary>
