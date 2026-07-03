@@ -1,11 +1,12 @@
 using System;
 using System.Linq;
+using SWTools;
 using UnityEngine;
 
 namespace EchoesOfAsh.Base
 {
     [CreateAssetMenu(fileName = "IdentifiedObject", menuName = "EchoesOfAsh/Base/IdentifiedObject")]
-    public class IdentifiedObject : ScriptableObject, ICloneable
+    public class IdentifiedObject : SWScriptableObject, ICloneable
     {
         #region 필드
         [SerializeField] private Category[] categories;

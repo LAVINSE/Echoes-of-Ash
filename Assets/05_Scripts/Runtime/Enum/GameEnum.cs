@@ -71,4 +71,37 @@ namespace EchoesOfAsh.Enum
         [InspectorName("출혈")] Bleed,
         [InspectorName("중독")] Poison,
     }
+
+    /// <summary>
+    /// 카드 대상 지정 방식
+    /// </summary>
+    public enum ETargetingType
+    {
+        [InspectorName("단일 (드래그 지정)")] Single,
+        [InspectorName("적 전체")] AllEnemies,
+        [InspectorName("무작위 적")] RandomEnemy,
+        [InspectorName("자신/아군")] Self,
+    }
+
+    /// <summary>
+    /// 적 공격 대상 선정 규칙
+    /// </summary>
+    public enum EEnemyTargetRuleType
+    {
+        [InspectorName("무작위")] Random,
+        [InspectorName("어그로 기반")] Aggro,
+        [InspectorName("지정 고정")] Fixed,
+    }
+
+    /// <summary>
+    /// 의도 표시 타입
+    /// </summary>
+    public enum EIntentType
+    {
+        [InspectorName("공격")] Attack,
+        [InspectorName("방어")] Defense,
+        [InspectorName("버프/디버프")] Buff,
+        [InspectorName("정신력")] SanityPressure,
+        [InspectorName("특수")] Special,
+    }
 }
