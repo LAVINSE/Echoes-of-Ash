@@ -1,3 +1,4 @@
+using EchoesOfAsh.Enum;
 using UnityEngine;
 
 namespace EchoesOfAsh.Effect
@@ -5,6 +6,8 @@ namespace EchoesOfAsh.Effect
     [System.Serializable]
     public abstract class EffectBlock
     {
+        public virtual EIntentType? IntentContribution => null;
+
         /// <summary>
         /// 효과를 실행한다
         /// </summary>
