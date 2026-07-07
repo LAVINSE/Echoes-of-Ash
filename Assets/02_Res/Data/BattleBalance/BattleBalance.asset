@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EchoesOfAsh.Data.BattleBalanceData
   drawPerTurn: 5
   maxHandSize: 10
-  sanityEvent: {fileID: 0}
+  sanityEvent: {fileID: 11400000, guid: c02924ba5deb559429b5c47020db2ddb, type: 2}
