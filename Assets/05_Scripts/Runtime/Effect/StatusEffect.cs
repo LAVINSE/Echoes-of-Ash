@@ -1,6 +1,6 @@
 using EchoesOfAsh.Enum;
 using EchoesOfAsh.Interface;
-using SWTools;
+using SW.Attributes;
 using UnityEngine;
 
 namespace EchoesOfAsh.Effect

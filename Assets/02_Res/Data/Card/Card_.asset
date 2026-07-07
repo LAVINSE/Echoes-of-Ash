@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca360e868a5482b4ba66271865e2847e, type: 3}
+  m_Name: Card_
+  m_EditorClassIdentifier: Assembly-CSharp::EchoesOfAsh.Data.CardData
+  categories: []
+  id: 0
+  codeName: 
+  displayName: 
+  description: 
+  cardType: 0
+  rarityType: 0
+  isCharacterCard: 0
+  ownerCharacter: {fileID: 0}
+  apCost: 0
+  targetingType: 0
+  effects: []
+  isSanityEffect: 0
+  sanityEffects: []
+  isUpgrade: 0
+  upgradeCard: {fileID: 0}
+  unlockType: 0
+  cardIconSprite: {fileID: 0}
+  references:
+    version: 2
+    RefIds: []

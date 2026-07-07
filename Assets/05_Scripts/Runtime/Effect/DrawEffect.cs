@@ -1,5 +1,4 @@
-using EchoesOfAsh.Effect;
-using SWTools;
+using SW.Attributes;
 using UnityEngine;
 
 namespace EchoesOfAsh.Effect

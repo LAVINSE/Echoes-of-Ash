@@ -1,6 +1,6 @@
 using EchoesOfAsh.Interface;
-using SWTools;
-using SWUtils;
+using SW.Attributes;
+using SW.Util;
 using UnityEngine;
 
 namespace EchoesOfAsh.Effect
@@ -27,7 +27,7 @@ namespace EchoesOfAsh.Effect
                 }
                 else
                 {
-                    SWUtilsLog.LogError($"[SanityDamageEffect] {target.DisplayName}: ISanityHolder 미구현");
+                    SWLog.LogError($"[SanityDamageEffect] {target.DisplayName}: ISanityHolder 미구현");
                 }
             }
         }

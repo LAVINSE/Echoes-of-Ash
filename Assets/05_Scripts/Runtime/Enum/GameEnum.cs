@@ -127,6 +127,19 @@ namespace EchoesOfAsh.Enum
     }
 
     /// <summary>
+    /// 적 종류
+    /// </summary>
+    public enum EEnemyType
+    {
+        /// <summary>일반</summary>
+        [InspectorName("일반")] Noraml,
+        /// <summary>엘리트</summary>
+        [InspectorName("엘리트")] Elite,
+        /// <summary>보스</summary>
+        [InspectorName("보스")] Boss,
+    }
+
+    /// <summary>
     /// 적 공격 대상 선정 규칙
     /// </summary>
     public enum EEnemyTargetRuleType

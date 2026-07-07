@@ -6,6 +6,7 @@ namespace EchoesOfAsh.Effect
     [System.Serializable]
     public abstract class EffectBlock
     {
+        /// <summary>의도 타입</summary>
         public virtual EIntentType? IntentContribution => null;
 
         /// <summary>

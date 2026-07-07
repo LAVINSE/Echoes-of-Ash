@@ -1,5 +1,5 @@
 using EchoesOfAsh.Enum;
-using SWTools;
+using SW.Attributes;
 using UnityEngine;
 
 namespace EchoesOfAsh.Effect
