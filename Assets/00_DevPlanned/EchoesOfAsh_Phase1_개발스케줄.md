@@ -12,6 +12,8 @@
 | 구분 | 내용 |
 |------|------|
 | 데이터 구조 | `CardData` / `CharacterData` / `EnemyData` / `MadnessEventData` / `PartyData` / `BattleBalanceData` (전부 `SWIdentifiedObject`·`SWScriptableObject` 기반, 수치 외부화 완료). 경계 원칙: **전투 규칙 = BattleBalanceData, 전투 주체 속성 = 각자의 Data SO** (파티 SAN은 `PartyData`, 적 SAN은 `EnemyData` — 대칭 구조) |
+| 정신력 모듈 | `Sanity/SanityHolder.cs` (`ISanityHolder` 구현체 — 파티/적 공용, SWStat 클론 래핑,
+임계값 교차 판정, 이벤트 발화 순서 결정성 보장) + `SanityHolderTest` 검증 완료 (M1 DoD 통과) |
 | 효과 시스템 | `EffectBlock` 추상 베이스 + 기본 블록 9종 + `EffectContext` (카드/적/광기 이벤트 공용 파이프라인) |
 | 인터페이스 | `ITargetable` / `IDamageable` / `ISanityHolder` / `IStatusReceiver` **정의** (구현체 없음) |
 | 스탯 | HP/SAN을 `SWStatOverride`로 전환 (SWStat 채택 확정) |
@@ -20,7 +22,7 @@
 
 ### 미구현 (이 문서의 대상)
 
-정신력 모듈(**SanityGauge — `ISanityHolder` 구현체**), 전투원(인터페이스 구현체 전부), **`CardInstance` 런타임 래퍼**, 효과 실행기, 덱/손패/AP, 턴 흐름, 적 AI/의도, 타겟팅, 승패 판정, 전투 UI, 광기 이벤트 러너, 테스트 콘텐츠 데이터.
+전투원(인터페이스 구현체 전부), **`CardInstance` 런타임 래퍼**, 효과 실행기, 덱/손패/AP, 턴 흐름, 적 AI/의도, 타겟팅, 승패 판정, 전투 UI, 광기 이벤트 러너, 테스트 콘텐츠 데이터.
 
 ---
 
@@ -53,18 +55,14 @@ M0 준비 ─▶ M1 정신력 ─▶ M2 전투원 ─▶ M3 카드 실행 ─▶
 
 ---
 
-### M1 — 정신력 모듈 (1주) ★ 다음 작업
+### M1 — 정신력 모듈 ✅ 완료 (2026-07-08)
 
-기획서 15-2 "정신력 모듈은 파티/적 공용" 의 구현. 이 게임 차별점의 심장부라 가장 먼저, 단독으로 만든다.
-
-| # | 산출물 | 책임 |
-|---|--------|------|
-| 1-1 | `Sanity/SanityGauge.cs` — **`ISanityHolder` 구현체** | SWStat 클론(STAT_MAX_SAN) 래핑 + 0~Max 클램프 + **임계값 교차 판정** + `OnSanityChanged`/`OnSanityTypeChanged` 이벤트 발화. 파티(공유 1개)/적(개체당 1개)이 동일 클래스 사용 |
-| 1-2 | 생성 경로 2종 | `new SanityGauge(SWStatOverride, threshold, startValue)` — `PartyData.MaxSanityStat`(파티) / `EnemyData.SanityStat`(적) 양쪽에서 호출 (완전 대칭). 거점 영구 강화는 생성된 스탯 클론에 `SetBonusValue`로 부착 |
-| 1-3 | 턴 경계 판정 대응 | 즉시 전환(파티용)과 "전환 보류 → 턴 경계 확정"(적 패턴용, 기획서 3-2) 중 어디서 처리할지 결정 — 권장: SanityGauge는 즉시 이벤트 발화, **턴 경계 지연은 적 AI(M4) 책임** (게이지는 순수하게 유지) |
-| 1-4 | 단독 테스트 씬 `Test_Sanity` | 버튼으로 SAN ± 조작 → 구간 전환 이벤트 로그 확인 |
-
-**DoD:** 테스트 씬에서 SAN 45→35 감소 시 `OnSanityTypeChanged(Madness)` 1회 발화, 35→45 회복 시 `Calm` 1회 발화, 경계 위에서 진동해도 중복 발화 없음.
+- 1-1 ✅ `Sanity/SanityHolder.cs` (구 SanityGauge에서 명명 변경 — UI 뉘앙스 배제)
+- 1-2 ✅ 생성 경로 2종 (PartyData/EnemyData 대칭) — 거점 강화는 `MaxSanityStatClone`에 SetBonusValue 부착
+- 1-3 ✅ D2 확정: SanityHolder는 즉시 발화, 턴 경계 지연은 적 AI(M4) 책임
+- 1-4 ✅ `SanityHolderTest` — DoD 통과 (구간 전환 1회 발화, 경계 진동 중복 발화 없음)
+- 추가 확정: 구간 판정 규칙 = SAN < 임계값 → 광기 (임계값 정확히 = 평정),
+  `OnSanityChanged` 시그니처 = (현재값, 최대값)
 
 ---
 

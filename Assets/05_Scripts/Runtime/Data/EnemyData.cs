@@ -29,6 +29,8 @@ namespace EchoesOfAsh.Data
         [SWGroup("정신력 전환")]
         [Tooltip("정신력 전환 값")]
         [SerializeField, Min(0)] private int sanityThreshold;
+        [Tooltip("전투 시작 시 정신력 값")]
+        [SerializeField, Min(0)] private int startSanity;
 
         [SWGroup("대상 선정 규칙")]
         [SerializeField] private EEnemyTargetRuleType targetRuleType = EEnemyTargetRuleType.Random;
@@ -66,6 +68,8 @@ namespace EchoesOfAsh.Data
 
         /// <summary>정신력 전환 값</summary>
         public int SanityThreshold => sanityThreshold;
+        /// <summary>전투 시작 정신력 값</summary>
+        public int StartSanity => startSanity;
 
         /// <summary>대상 선정 규칙</summary>
         public EEnemyTargetRuleType TargetRuleType => targetRuleType;

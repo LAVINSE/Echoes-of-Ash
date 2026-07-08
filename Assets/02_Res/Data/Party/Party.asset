@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Party
   m_EditorClassIdentifier: Assembly-CSharp::EchoesOfAsh.Data.PartyData
   maxSanityStat:
-    stat: {fileID: 0}
-    isUseOverride: 0
-    overrideDefaultValue: 0
-  sanityThreshold: 0
-  startSanity: 0
+    stat: {fileID: 11400000, guid: 847516e759e34a1418b8b6d112864270, type: 2}
+    isUseOverride: 1
+    overrideDefaultValue: 100
+  sanityThreshold: 50
+  startSanity: 100
