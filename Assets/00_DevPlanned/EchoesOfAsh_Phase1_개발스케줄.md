@@ -12,12 +12,17 @@
 | 구분 | 내용 |
 |------|------|
 | 데이터 구조 | `CardData` / `CharacterData` / `EnemyData` / `MadnessEventData` / `PartyData` / `BattleBalanceData` (전부 `SWIdentifiedObject`·`SWScriptableObject` 기반, 수치 외부화 완료). 경계 원칙: **전투 규칙 = BattleBalanceData, 전투 주체 속성 = 각자의 Data SO** (파티 SAN은 `PartyData`, 적 SAN은 `EnemyData` — 대칭 구조) |
-| 정신력 모듈 | `Sanity/SanityHolder.cs` (`ISanityHolder` 구현체 — 파티/적 공용, SWStat 클론 래핑,
-임계값 교차 판정, 이벤트 발화 순서 결정성 보장) + `SanityHolderTest` 검증 완료 (M1 DoD 통과) |
+| 정신력 모듈 | `Sanity/SanityHolder.cs` — `ISanityHolder` 구현체 (파티/적 공용, SWStat 클론 래핑,
+임계값 교차 판정: SAN < 임계값 = 광기). `Test/SanityHolderTest.cs` 검증 완료 (M1 DoD 통과) |
 | 효과 시스템 | `EffectBlock` 추상 베이스 + 기본 블록 9종 + `EffectContext` (카드/적/광기 이벤트 공용 파이프라인) |
 | 인터페이스 | `ITargetable` / `IDamageable` / `ISanityHolder` / `IStatusReceiver` **정의** (구현체 없음) |
 | 스탯 | HP/SAN을 `SWStatOverride`로 전환 (SWStat 채택 확정) |
 | 의도 시스템 데이터 | `EIntentType` + 블록별 `IntentContribution` 자동 유도, `EnemyActionData.GetIntentTypes()` |
+| 전투원 | `Battle/Base/BattleEntity.cs` (SWMonoBehaviour 기반 공통 베이스 — HP SWStat 클론 직접 보유,
+방어막 int, IDamageable/ITargetable/IStatusReceiver 구현, ResetEntity 정리 패턴) +
+`CharacterEntity` / `EnemyEntity`(개체별 SanityHolder 위임, ActionIndex) +
+`IDamageCalculator`/`DefaultDamageCalculator`. `Test/BattleEntityTest.cs` 검증 완료 (M2 DoD 통과) |
+| 데이터 보강 | `EnemyData.StartSanity` 필드 추가 — 광기 상태 등장 적 지원 (PartyData와 대칭) |
 | 인프라 | SWUtils v1.0.11 통합 (SWRandom 시드 고정, SWLog, SWSubClassSelector, SWIODatabase 사용 가능) |
 
 ### 미구현 (이 문서의 대상)
@@ -55,31 +60,17 @@ M0 준비 ─▶ M1 정신력 ─▶ M2 전투원 ─▶ M3 카드 실행 ─▶
 
 ---
 
-### M1 — 정신력 모듈 ✅ 완료 (2026-07-08)
+### M1 — 정신력 모듈 ✅ 완료
+- 명명: SanityGauge → `SanityHolder` (UI 뉘앙스 배제)
+- D2 확정: 홀더는 즉시 발화, 턴 경계 지연은 적 AI(M4) 책임
+- 확정 규칙: SAN < 임계값 → 광기 (임계값 = 평정) / OnSanityChanged(현재값, 최대값)
 
-- 1-1 ✅ `Sanity/SanityHolder.cs` (구 SanityGauge에서 명명 변경 — UI 뉘앙스 배제)
-- 1-2 ✅ 생성 경로 2종 (PartyData/EnemyData 대칭) — 거점 강화는 `MaxSanityStatClone`에 SetBonusValue 부착
-- 1-3 ✅ D2 확정: SanityHolder는 즉시 발화, 턴 경계 지연은 적 AI(M4) 책임
-- 1-4 ✅ `SanityHolderTest` — DoD 통과 (구간 전환 1회 발화, 경계 진동 중복 발화 없음)
-- 추가 확정: 구간 판정 규칙 = SAN < 임계값 → 광기 (임계값 정확히 = 평정),
-  `OnSanityChanged` 시그니처 = (현재값, 최대값)
-
----
-
-### M2 — 전투원 (1주)
-
-인터페이스 4종의 구현체. 파티/적이 같은 계약을 구현하는 구조 확립.
-
-| # | 산출물 | 책임 |
-|---|--------|------|
-| 2-1 | `Battle/Combatant.cs` (공통 베이스 or 컴포지션) | HP(SWStat 클론) + 방어막 + `IDamageable` 구현 (`TakeDamage`: 방어막 선차감, `OnDamaged` 발화), `ITargetable` 구현 |
-| 2-2 | `Battle/PlayerCombatant.cs` | `CharacterData` 기반 초기화. SAN은 보유하지 않음 — 파티 공유 게이지는 전투 상태(M4)가 보유 |
-| 2-3 | `Battle/EnemyCombatant.cs` | `EnemyData` 기반 초기화 + **개체별 `SanityGauge` 보유(`ISanityHolder` 위임 구현)** + 행동 패턴 인덱스 상태 |
-| 2-4 | `IStatusReceiver` 최소 구현 | Phase 1은 스택 저장/조회만 (틱 로직은 상태이상 모듈 단계로 이월) |
-| 2-5 | `Battle/IDamageCalculator.cs` + `DefaultDamageCalculator` | Phase 1은 pass-through(기본 피해 그대로). 공식 확장 지점만 확보 |
-| 2-6 | **결정 사항:** 스탯 보유를 `SWStats` 컴포넌트로 할지 직접 클론 보유로 할지 확정 | 0-4 오버로드 완성도에 따라 판단 |
-
-**DoD:** 테스트 씬에서 적 생성 → `TakeDamage(10)` 시 방어막→HP 순 차감 로그, `SanityDamageEffectBlock` 스타일 호출로 적 SAN 감소 확인.
+### M2 — 전투원 ✅ 완료
+- 명명: Combatant → `BattleEntity`, 파생 `CharacterEntity` / `EnemyEntity` (Entity 계열 채택)
+- D1 확정: SWStat 클론 직접 보유 (SWStats 컴포넌트 미사용 → 0-4 SWUtils 오버로드 작업 취소)
+- 방어막: SWStat화하지 않고 런타임 int (기본값·보너스 합산 개념 없음)
+- 피해 계산기: SO화하지 않고 인터페이스 유지 — 수치는 BattleBalanceData 담당
+- 정리 패턴: 파괴/재사용 공용 `ResetEntity()` 도입
 
 ---
 

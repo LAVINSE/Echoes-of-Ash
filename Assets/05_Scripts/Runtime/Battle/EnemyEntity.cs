@@ -107,6 +107,7 @@ namespace EchoesOfAsh.Battle
         {
             sanityHolder?.Dispose();
             sanityHolder = null;
+            base.ResetEntity();
         }
         #endregion // 초기화
 
