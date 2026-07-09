@@ -24,13 +24,23 @@ namespace EchoesOfAsh.Test
 
         private int partyTypeChangedCount;
         private int enemyTypeChangedCount;
+
+        private bool isRun = false;
         #endregion // 필드
 
         #region 프로퍼티
         #endregion // 프로퍼티
 
-        private void Start()
+        [SWButton("테스트 시작")]
+        private void TestRun()
         {
+            if (!Application.isPlaying)
+            {
+                return;
+            }
+
+            isRun = true;
+
             if (partyData != null)
             {
                 partySanityHolder = new SanityHolder(partyData.MaxSanityStat, partyData.SanityThreshold, partyData.StartSanity);
@@ -52,6 +62,20 @@ namespace EchoesOfAsh.Test
             }
         }
 
+        [SWButton("테스트 초기화")]
+        private void TestReset()
+        {
+            if (!Application.isPlaying)
+            {
+                return;
+            }
+
+            partySanityHolder?.Dispose();
+            enemySanityHolder?.Dispose();
+
+            isRun = false;
+        }
+
         private void OnDestroy()
         {
             partySanityHolder?.Dispose();
@@ -60,6 +84,11 @@ namespace EchoesOfAsh.Test
 
         private void OnGUI()
         {
+            if (!isRun)
+            {
+                return;
+            }
+            
             GUILayout.BeginArea(new Rect(20f, 20f, 420f, 600f));
 
             DrawGaugeControls("파티 (PartyData 경로)", partySanityHolder, partyTypeChangedCount);

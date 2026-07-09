@@ -23,7 +23,7 @@ namespace EchoesOfAsh.Data
         [SWGroup("스탯")]
         [SerializeField] private SWStatOverride maxHpStat;
         [SerializeField] private SWStatOverride maxSanityStat;
-        [SerializeField] private bool isOptionalStats;
+        [SerializeField] private bool isOptionalStat;
         [SerializeField, SWCondition("isOptionalStat", true)] private SWStatOverride[] optionalStats;
 
         [SWGroup("정신력 전환")]
@@ -64,7 +64,7 @@ namespace EchoesOfAsh.Data
         /// <summary>적 MaxSanity 스탯</summary>
         public SWStatOverride MaxSanityStat => maxSanityStat;
         /// <summary>추가 스탯 사용 여부</summary>
-        public bool IsOptionalStats => isOptionalStats;
+        public bool IsOptionalStat => isOptionalStat;
 
         /// <summary>정신력 전환 값</summary>
         public int SanityThreshold => sanityThreshold;
@@ -95,24 +95,24 @@ namespace EchoesOfAsh.Data
         {
             if (maxHpStat == null || maxHpStat.Stat == null)
             {
-                SWLog.LogWarning($"[EnemyData] '{name}': HP 스탯 에셋이 비어 있습니다.");
+                SWLog.LogError($"[EnemyData] '{name}': HP 스탯 에셋이 비어 있습니다.");
             }
 
             if (maxSanityStat == null || maxSanityStat.Stat == null)
             {
-                SWLog.LogWarning($"[EnemyData] '{name}': 정신력 스탯 에셋이 비어 있습니다.");
+                SWLog.LogError($"[EnemyData] '{name}': 정신력 스탯 에셋이 비어 있습니다.");
             }
 
             if (actions.Count == 0)
             {
-                SWLog.LogWarning($"[EnemyData] '{name}': 행동 패턴이 비어 있습니다.");
+                SWLog.LogError($"[EnemyData] '{name}': 행동 패턴이 비어 있습니다.");
             }
 
             foreach (var action in actions)
             {
                 if (action.Effects.Count == 0)
                 {
-                    SWLog.LogWarning($"[EnemyData] '{name}': 행동 '{action.ActionName}'의 효과가 비어 있습니다.");
+                    SWLog.LogError($"[EnemyData] '{name}': 행동 '{action.ActionName}'의 효과가 비어 있습니다.");
                 }
             }
         }

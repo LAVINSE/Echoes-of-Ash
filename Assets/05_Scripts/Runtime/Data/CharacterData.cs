@@ -15,7 +15,7 @@ namespace EchoesOfAsh.Data
         #region 필드
         [SWGroup("스탯")]
         [SerializeField] private SWStatOverride maxHpStat;
-        [SerializeField] private bool isOptionalStats;
+        [SerializeField] private bool isOptionalStat;
         [SerializeField, SWCondition("isOptionalStat", true)] private SWStatOverride[] optionalStats;
 
         [SWGroup("표시")]
@@ -26,7 +26,7 @@ namespace EchoesOfAsh.Data
         /// <summary>캐릭터 MaxHP 스탯</summary>
         public SWStatOverride MaxHpStat => maxHpStat;
         /// <summary>추가 스탯 사용 여부</summary>
-        public bool IsOptionalStats => isOptionalStats;
+        public bool IsOptionalStat => isOptionalStat;
 
         /// <summary>캐릭터 초상화 스프라이트</summary>
         public Sprite CharacterPortraitSprite => characterPortraitSprite;

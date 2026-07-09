@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5c67afc3da3b18645993d8c532db675e, type: 3}
-  m_Name: Enemy_
+  m_Name: Enemy_Test
   m_EditorClassIdentifier: Assembly-CSharp::EchoesOfAsh.Data.EnemyData
   categories: []
   id: 0
@@ -20,14 +20,14 @@ MonoBehaviour:
   spawnRange: {x: 0, y: 0}
   enemyType: 0
   maxHpStat:
-    stat: {fileID: 0}
-    isUseOverride: 0
-    overrideDefaultValue: 0
+    stat: {fileID: 11400000, guid: 02bb436d51c6a224dbccef6386d6d123, type: 2}
+    isUseOverride: 1
+    overrideDefaultValue: 100
   maxSanityStat:
     stat: {fileID: 11400000, guid: 847516e759e34a1418b8b6d112864270, type: 2}
     isUseOverride: 1
     overrideDefaultValue: 100
-  isOptionalStats: 0
+  isOptionalStat: 0
   optionalStats: []
   sanityThreshold: 50
   startSanity: 100
