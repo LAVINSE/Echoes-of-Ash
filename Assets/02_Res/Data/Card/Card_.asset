@@ -17,6 +17,7 @@ MonoBehaviour:
   codeName: 
   displayName: 
   description: 
+  spriteIcon: {fileID: 0}
   cardType: 0
   rarityType: 0
   isCharacterCard: 0

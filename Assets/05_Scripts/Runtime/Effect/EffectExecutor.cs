@@ -12,7 +12,7 @@ namespace EchoesOfAsh.Effect
     public class EffectExecutor
     {
         #region 필드
-        private static IReadOnlyList<ITargetable> emptyTargets = Array.Empty<ITargetable>();
+        private static readonly IReadOnlyList<ITargetable> emptyTargets = Array.Empty<ITargetable>();
 
         private readonly ISanityHolder partySanity;
         private readonly Action<int> drawRequest;
@@ -73,7 +73,7 @@ namespace EchoesOfAsh.Effect
             {
                 if (effectBlock == null)
                 {
-                    SWLog.LogWarning("[EffectExecute] null 효과 블록을 건너뜁니다");
+                    SWLog.LogWarning("[EffectExecutor] null 효과 블록을 건너뜁니다");
                     continue;
                 }
 

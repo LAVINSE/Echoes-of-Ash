@@ -43,7 +43,7 @@ namespace EchoesOfAsh.Battle
 
         /// <summary>
         /// 턴 시작 처리
-        /// 남은 AP를 이월 상환으로 턴당 지급량을 더한다
+        /// 남은 AP를 이월 상한으로 턴당 지급량을 더한다
         /// </summary>
         public void StartTurn()
         {
@@ -88,7 +88,7 @@ namespace EchoesOfAsh.Battle
         /// <param name="cost">비용</param>
         /// <returns>소모 가능 여부</returns>
         public bool CanSpend(int cost)
-            => cost >= 00 && currentAp >= cost;
+            => cost >= 0 && currentAp >= cost;
 
         /// <summary>
         /// AP를 0으로 초기화한다
@@ -102,7 +102,7 @@ namespace EchoesOfAsh.Battle
         /// AP를 지정 값으로 설정한다
         /// </summary>
         /// <param name="value">설정할 값</param>
-        public void SetAp(int value)
+        private void SetAp(int value)
         {
             int clampedValue = Mathf.Max(0, value);
 

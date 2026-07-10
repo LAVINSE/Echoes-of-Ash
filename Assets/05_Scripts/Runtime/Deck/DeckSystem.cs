@@ -141,7 +141,7 @@ namespace EchoesOfAsh.Deck
         }
 
         /// <summary>
-        /// 버림 더미를 덱으로 옮기로 셔플한다
+        /// 버림 더미를 덱으로 옮기고 셔플한다
         /// </summary>
         private void ReshuffleDiscardIntoDrawPile()
         {
