@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a440db9f38fab9b44ac9d0da287a9b3b, type: 3}
-  m_Name: BattleBalance
+  m_Name: BattleBalance_Test
   m_EditorClassIdentifier: Assembly-CSharp::EchoesOfAsh.Data.BattleBalanceData
   drawPerTurn: 5
   maxHandSize: 10

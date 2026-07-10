@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: da77f1974029f68478d4a7f523a4aef0, type: 3}
-  m_Name: Party
+  m_Name: Party_Test
   m_EditorClassIdentifier: Assembly-CSharp::EchoesOfAsh.Data.PartyData
   maxSanityStat:
     stat: {fileID: 11400000, guid: 847516e759e34a1418b8b6d112864270, type: 2}

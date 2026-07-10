@@ -15,6 +15,12 @@ namespace EchoesOfAsh.Data
         [SerializeField, Min(1)] private int drawPerTurn = 5;
         [SerializeField, Min(1)] private int maxHandSize = 10;
 
+        [SWGroup("AP")]
+        [Tooltip("턴 시작 시 지급하는 AP")]
+        [SerializeField, Min(0)] private int apPerTurn = 3;
+        [Tooltip("턴 종료 시 다음 턴으로 이월 가능한 AP 상한")]
+        [SerializeField, Min(0)] private int apCarryOverMax = 2; 
+
         [SWGroup("정신력 이벤트")]
         [SerializeField] private SanityEventData sanityEvent;
         #endregion // 필드
@@ -24,6 +30,11 @@ namespace EchoesOfAsh.Data
         public int DrawPerTurn => drawPerTurn;
         /// <summary>최대 손패 수</summary>
         public int MaxHandSize => maxHandSize;
+
+        /// <summary>턴당 AP 지급량</summary>
+        public int ApPerTurn => apPerTurn;
+        /// <summary>AP 이월 상한</summary>
+        public int ApCarryOverMax => apCarryOverMax;
 
         /// <summary>정신력 이벤트</summary>
         public SanityEventData SanityEvent => sanityEvent;

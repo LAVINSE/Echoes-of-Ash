@@ -17,6 +17,7 @@ MonoBehaviour:
   codeName: 
   displayName: 
   description: 
+  spriteIcon: {fileID: 0}
   spawnRange: {x: 0, y: 0}
   enemyType: 0
   maxHpStat:
