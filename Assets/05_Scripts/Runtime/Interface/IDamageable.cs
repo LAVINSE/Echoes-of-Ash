@@ -5,27 +5,27 @@ namespace EchoesOfAsh.Interface
 {
     public interface IDamageable
     {
-        /// <summary> 현재 HP </summary>
+        /// <summary> 현재 HP입니다.</summary>
         public int CurrentHp { get; }
-        /// <summary> 최대 HP </summary>
+        /// <summary> 최대 HP입니다.</summary>
         public int MaxHp { get; }
-        /// <summary> 현재 방어막 </summary>
+        /// <summary> 현재 방어막입니다.</summary>
         public int CurrentBlock { get; }
 
-        /// <summary> 피해가 적용된 이후 호출 (실제 HP 손실량, 피해 원본량)</summary>
+        /// <summary> 피해가 적용된 이후 호출 (실제 HP 손실량, 피해 원본량)입니다.</summary>
         public event Action<int, int> OnDamaged;
 
         /// <summary>
         /// 피해를 입는다. 방어막 먼저 소모
         /// </summary>
-        /// <param name="amount">피해량</param>
-        /// <returns>방어막을 제외하고 실제로 잃은 HP</returns>
+        /// <param name="amount">피해량입니다.</param>
+        /// <returns>방어막을 제외하고 실제로 잃은 HP입니다.</returns>
         public int TakeDamage(int amount);
 
         /// <summary>
         /// 방어막을 얻는다
         /// </summary>
-        /// <param name="amount">방어막 획득량</param>
+        /// <param name="amount">방어막 획득량입니다.</param>
         public void GainBlock(int amount);
     }
 }

@@ -9,7 +9,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Data
 {
     /// <summary>
-    /// 정신력 랜덤 이벤트 데이터
+    /// 정신력 무작위 이벤트 데이터
     /// 정신력 전환 시 확률적으로 발생
     /// 높은 확률로 부정효과 / 낮은 확률로 긍정효과
     /// </summary>
@@ -28,14 +28,14 @@ namespace EchoesOfAsh.Data
         #endregion // 필드
 
         #region 프로퍼티
-        /// <summary>긍정 효과 이벤트 여부</summary>
+        /// <summary>긍정 효과 이벤트 여부입니다.</summary>
         public bool IsPositiveEffect => isPositiveEffect;
-        /// <summary>긍정 효과 발생 확률</summary>
+        /// <summary>긍정 효과 발생 확률입니다.</summary>
         public float Weight => weight;
 
-        /// <summary>부정 효과 리스트</summary>
+        /// <summary>부정 효과 목록입니다.</summary>
         public IReadOnlyList<EffectBlock> Effects => effects;
-        /// <summary>긍정 효과 리스트</summary>
+        /// <summary>긍정 효과 목록입니다.</summary>
         public IReadOnlyList<EffectBlock> PositiveEffects => positiveEffects;
         #endregion // 프로퍼티
 

@@ -22,31 +22,31 @@ namespace EchoesOfAsh.Sanity
         #endregion // 필드
 
         #region 프로퍼티
-        /// <summary>현재 정신력</summary>
+        /// <summary>현재 정신력입니다.</summary>
         public int CurrentSanity => currentSanity;
-        /// <summary>현재 정신력 타입</summary>
+        /// <summary>현재 정신력 유형입니다.</summary>
         public ESanityType CurrentSanityType => currentSanityType;
 
-        /// <summary>최대 정신력 스탯 객체</summary>
+        /// <summary>최대 정신력 능력치 객체입니다.</summary>
         public SWStat MaxSanityStat => maxSanityStat;
-        /// <summary>최대 정신력</summary>
+        /// <summary>최대 정신력입니다.</summary>
         public int MaxSanity => maxSanityStat != null ? Mathf.RoundToInt(maxSanityStat.Value) : 0;
-        /// <summary>정신력 전환 임계값</summary>
+        /// <summary>정신력 전환 임계값입니다.</summary>
         public int SanityThreshold => sanityThreshold;
 
-        /// <summary>정신력 변경 시 호출</summary>
+        /// <summary>정신력 변경 시 호출됩니다.</summary>
         public event Action<int, int> OnSanityChanged;
-        /// <summary>정신력 타입 변경 시 호출</summary>
+        /// <summary>정신력 유형 변경 시 호출됩니다.</summary>
         public event Action<ESanityType> OnSanityTypeChanged;
         #endregion // 프로퍼티
 
         #region 생성자
         /// <summary>
-        /// 정신력 홀더를 생성한다
+        /// 정신력 홀더를 생성합니다.
         /// </summary>
-        /// <param name="maxSanityOverride">스탯 재정의 설정</param>
-        /// <param name="sanityThreshold">정신력 전환 임계값</param>
-        /// <param name="startSanity">시작 정신력 값</param>
+        /// <param name="maxSanityOverride">능력치 재정의 설정입니다.</param>
+        /// <param name="sanityThreshold">정신력 전환 임계값입니다.</param>
+        /// <param name="startSanity">시작 정신력 값입니다.</param>
         public SanityHolder(SWStatOverride maxSanityOverride, int sanityThreshold, int startSanity)
         {
             maxSanityStat = maxSanityOverride.CreateStat();
@@ -69,7 +69,7 @@ namespace EchoesOfAsh.Sanity
         /// <summary>
         /// 정신력 변화
         /// </summary>
-        /// <param name="delta">변화량</param>
+        /// <param name="delta">변화량입니다.</param>
         public void ChangeSanity(int delta)
         {
             if (isDisposed || maxSanityStat == null)
@@ -82,9 +82,9 @@ namespace EchoesOfAsh.Sanity
         }
 
         /// <summary>
-        /// 정신력을 지정 값으로 설정한다
+        /// 정신력을 지정 값으로 설정합니다.
         /// </summary>
-        /// <param name="value">설정할 값</param>
+        /// <param name="value">설정할 값입니다.</param>
         private void SetSanity(int value)
         {
             int clampedValue = Mathf.Clamp(value, 0, MaxSanity);
@@ -115,12 +115,12 @@ namespace EchoesOfAsh.Sanity
         }
 
         /// <summary>
-        /// 정신력 구간 타입을 반환한다
+        /// 정신력 값에 해당하는 정신력 유형을 반환합니다.
         /// 임계값 미만 - 광기
         /// 임계값 이상 - 평정
         /// </summary>
-        /// <param name="sanity">정신력</param>
-        /// <returns>정신력 타입</returns>
+        /// <param name="sanity">정신력입니다.</param>
+        /// <returns>정신력 유형입니다.</returns>
         private ESanityType GetSanityType(int sanity)
         {
             return sanity < sanityThreshold ? ESanityType.Madness : ESanityType.Calm;
@@ -129,11 +129,11 @@ namespace EchoesOfAsh.Sanity
 
         #region 핸들러
         /// <summary>
-        /// 최대 정신력 스탯 값 변경 콜백
+        /// 최대 정신력 능력치 값 변경 처리 메서드
         /// </summary>
-        /// <param name="stat">스탯</param>
-        /// <param name="currentValue">현재 값</param>
-        /// <param name="prevValue">이전 값</param>
+        /// <param name="stat">능력치입니다.</param>
+        /// <param name="currentValue">현재 값입니다.</param>
+        /// <param name="prevValue">이전 값입니다.</param>
         private void HandleMaxSanityValueChanged(SWStat stat, float currentValue, float prevValue)
         {
             if (currentSanity > MaxSanity)
@@ -149,7 +149,7 @@ namespace EchoesOfAsh.Sanity
         
         #region 해제
         /// <summary>
-        /// 스탯 객체 및 구독 해제
+        /// 능력치 객체 및 구독 해제
         /// </summary>
         public void Dispose()
         {

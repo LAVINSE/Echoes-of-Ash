@@ -15,9 +15,9 @@ namespace EchoesOfAsh.Effect
         #endregion // 필드
 
         #region 프로퍼티
-        /// <summary> 피해량 </summary>
+        /// <summary> 피해량입니다.</summary>
         public int Damage => damage;
-        /// <summary> 반복 횟수</summary>
+        /// <summary> 반복 횟수입니다.</summary>
         public int Times => times;
         public override EIntentType? IntentContribution => EIntentType.Attack;
         #endregion // 프로퍼티

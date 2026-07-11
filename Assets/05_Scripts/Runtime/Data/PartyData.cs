@@ -22,11 +22,11 @@ namespace EchoesOfAsh.Data
         #endregion // 필드
 
         #region 프로퍼티
-        /// <summary>파티 MaxSanity 스탯</summary>
+        /// <summary>파티 최대 정신력 능력치입니다.</summary>
         public SWStatOverride MaxSanityStat => maxSanityStat;
-        /// <summary>정신력 전환 값</summary>
+        /// <summary>정신력 전환 값입니다.</summary>
         public int SanityThreshold => sanityThreshold;
-        /// <summary>전투 시작 정신력 값</summary>
+        /// <summary>전투 시작 정신력 값입니다.</summary>
         public int StartSanity => startSanity;
         #endregion // 프로퍼티
 

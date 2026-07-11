@@ -21,30 +21,30 @@ namespace EchoesOfAsh.Deck
         #endregion // 필드
 
         #region 프로퍼티
-        /// <summary>현재 손패</summary>
+        /// <summary>현재 손패입니다.</summary>
         public IReadOnlyList<CardInstance> Hand => hand;
 
-        /// <summary>덱 남은 수 (뽑을 더미)</summary>
+        /// <summary>덱 남은 수 (뽑을 더미)입니다.</summary>
         public int DrawPileCount => drawPile.Count;
-        /// <summary>버림 더미 수</summary>
+        /// <summary>버림 더미 수입니다.</summary>
         public int DiscardPileCount => discardPile.Count;
-        /// <summary>최대 손패 수</summary>
+        /// <summary>최대 손패 수입니다.</summary>
         public int MaxHandSize => maxHandSize;
 
-        /// <summary>손패 변경 시 호출</summary>
+        /// <summary>손패 변경 시 호출됩니다.</summary>
         public event Action OnHandChanged;
-        /// <summary>덱/버림 더미 수 변경 시 호출 (덱 수, 버림 수)</summary>
+        /// <summary>덱/버림 더미 수 변경 시 호출 (덱 수, 버림 수)입니다.</summary>
         public event Action<int, int> OnPileChanged;
-        /// <summary>손패 초과로 카드가 버려질 때 호출</summary>
+        /// <summary>손패 초과로 카드가 버려질 때 호출됩니다.</summary>
         public event Action<CardInstance> OnOverdraw;
         #endregion // 프로퍼티
 
         #region 생성자
         /// <summary>
-        /// 덱 시스템을 생성한다
+        /// 덱 시스템을 생성합니다.
         /// </summary>
-        /// <param name="startingCards">시작 카드 목록</param>
-        /// <param name="balanceData">전투 규칙 데이터</param>
+        /// <param name="startingCards">시작 카드 목록입니다.</param>
+        /// <param name="balanceData">전투 규칙 데이터입니다.</param>
         public DeckSystem(IEnumerable<CardInstance> startingCards, BattleBalanceData balanceData)
         {
             if (balanceData == null)
@@ -98,11 +98,11 @@ namespace EchoesOfAsh.Deck
         #region 드로우
         /// <summary>
         /// 카드를 n장 뽑는다
-        /// 덱이 비면 버림 더미를 셔플해 이어서 뽑는다
+        /// 덱이 비면 버림 더미를 섞어 덱을 다시 구성한 뒤 계속 뽑습니다.
         /// 손패가 가득 차면 뽑은 카드는 버림 더미로 이동
         /// </summary>
-        /// <param name="count">수량</param>
-        /// <returns>실제 손패에 들어간 카드 수</returns>
+        /// <param name="count">수량입니다.</param>
+        /// <returns>실제 손패에 들어간 카드 수입니다.</returns>
         public int Draw(int count)
         {
             int drawToHand = 0;
@@ -141,7 +141,7 @@ namespace EchoesOfAsh.Deck
         }
 
         /// <summary>
-        /// 버림 더미를 덱으로 옮기고 셔플한다
+        /// 버림 더미의 카드를 덱으로 옮긴 뒤 순서를 무작위로 섞습니다.
         /// </summary>
         private void ReshuffleDiscardIntoDrawPile()
         {
@@ -161,8 +161,8 @@ namespace EchoesOfAsh.Deck
         /// <summary>
         /// 손패의 특정 카드를 버림 더미로 보낸다
         /// </summary>
-        /// <param name="card">버릴 카드</param>
-        /// <returns>성공 여부</returns>
+        /// <param name="card">버릴 카드입니다.</param>
+        /// <returns>성공 여부입니다.</returns>
         public bool Discard(CardInstance card)
         {
             if (!hand.Remove(card))
@@ -179,8 +179,8 @@ namespace EchoesOfAsh.Deck
         /// <summary>
         /// 손패에서 무작위로 n장을 버린다
         /// </summary>
-        /// <param name="count">버릴 수</param>
-        /// <returns>실제 버린 카드 수</returns>
+        /// <param name="count">버릴 수입니다.</param>
+        /// <returns>실제 버린 카드 수입니다.</returns>
         public int DiscardRandom(int count)
         {
             int discard = 0;
@@ -225,18 +225,18 @@ namespace EchoesOfAsh.Deck
 
         #region 카드 사용
         /// <summary>
-        /// 카드가 현재 손패에 있는지 확인한다
+        /// 카드가 현재 손패에 있는지 확인합니다.
         /// </summary>
-        /// <param name="card">확인할 카드</param>
-        /// <returns>손패 포함 여부</returns>
+        /// <param name="card">확인할 카드입니다.</param>
+        /// <returns>손패 포함 여부입니다.</returns>
         public bool IsInHand(CardInstance card)
             => hand.Contains(card);
 
         /// <summary>
-        /// 사용을 위해 카드를 손패에서 분리한다 (사용 중 상태)
+        /// 카드 사용을 시작할 수 있도록 카드를 손패에서 분리합니다.
         /// </summary>
-        /// <param name="card">사용할 카드</param>
-        /// <returns>분리 성공 여부</returns>
+        /// <param name="card">사용할 카드입니다.</param>
+        /// <returns>분리 성공 여부입니다.</returns>
         public bool BeginPlay(CardInstance card)
         {
             if (!hand.Remove(card))
@@ -265,7 +265,7 @@ namespace EchoesOfAsh.Deck
         #endregion // 카드 사용
 
         /// <summary>
-        /// 변경 이벤트를 실행한다
+        /// 변경 이벤트를 실행합니다.
         /// </summary>
         public void NotifyChanged()
         {

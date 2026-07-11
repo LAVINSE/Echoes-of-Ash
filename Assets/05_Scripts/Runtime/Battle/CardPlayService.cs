@@ -23,18 +23,18 @@ namespace EchoesOfAsh.Battle
         #endregion // 필드
 
         #region 프로퍼티
-        /// <summary>카드 사용 완료 시 호출 (사용 카드, 적용된 정신력 구간)</summary>
+        /// <summary>카드 사용 완료 시 호출 (사용 카드, 적용된 정신력 구간)입니다.</summary>
         public event Action<CardInstance, ESanityType> OnCardPlayed;
         #endregion // 프로퍼티
 
         #region 생성자
         /// <summary>
-        /// 카드 사용 파이프라인을 생성한다
+        /// 카드 사용 파이프라인을 생성합니다.
         /// </summary>
-        /// <param name="apSystem">AP 시스템</param>
-        /// <param name="deckSystem">덱 시스템</param>
-        /// <param name="effectExecutor">효과 실행기</param>
-        /// <param name="partySanityHolder">파티 정신력</param>
+        /// <param name="apSystem">AP 시스템입니다.</param>
+        /// <param name="deckSystem">덱 시스템입니다.</param>
+        /// <param name="effectExecutor">효과 실행기입니다.</param>
+        /// <param name="partySanityHolder">파티 정신력입니다.</param>
         public CardPlayService(ApSystem apSystem, DeckSystem deckSystem, EffectExecutor effectExecutor, ISanityHolder partySanityHolder)
         {
             if (apSystem == null || deckSystem == null || effectExecutor == null || partySanityHolder == null)
@@ -51,10 +51,10 @@ namespace EchoesOfAsh.Battle
 
         #region 판정
         /// <summary>
-        /// 카드 사용이 가능한지 확인한다
+        /// 카드 사용이 가능한지 확인합니다.
         /// </summary>
-        /// <param name="card">확인할 카드</param>
-        /// <returns>사용 가능 여부</returns>
+        /// <param name="card">확인할 카드입니다.</param>
+        /// <returns>사용 가능 여부입니다.</returns>
         public bool CanPlay(CardInstance card)
         {
             if (card == null)
@@ -66,11 +66,11 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 대상 목록이 카드 사용에 유효한지 확인한다
+        /// 대상 목록이 카드 사용에 유효한지 확인합니다.
         /// </summary>
-        /// <param name="card">사용할 카드</param>
-        /// <param name="targets">대상 목록</param>
-        /// <returns>대상 유효 여부</returns>
+        /// <param name="card">사용할 카드입니다.</param>
+        /// <param name="targets">대상 목록입니다.</param>
+        /// <returns>대상 유효 여부입니다.</returns>
         public bool AreTargetsValid(CardInstance card, IReadOnlyList<ITargetable> targets)
         {
             if (card == null)
@@ -102,12 +102,12 @@ namespace EchoesOfAsh.Battle
         
         #region 사용
         /// <summary>
-        /// 카드를 사용한다
+        /// 카드를 사용합니다.
         /// </summary>
-        /// <param name="card">사용할 카드</param>
-        /// <param name="caster">시전자</param>
-        /// <param name="targets">효과 대상 목록</param>
-        /// <returns>사용 성공 여부</returns>
+        /// <param name="card">사용할 카드입니다.</param>
+        /// <param name="caster">시전자입니다.</param>
+        /// <param name="targets">효과 대상 목록입니다.</param>
+        /// <returns>사용 성공 여부입니다.</returns>
         public bool Play(CardInstance card, ITargetable caster, IReadOnlyList<ITargetable> targets)
         {
             // 사용가능한 상태인지 확인

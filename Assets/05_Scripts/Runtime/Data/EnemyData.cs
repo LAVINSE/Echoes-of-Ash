@@ -54,38 +54,38 @@ namespace EchoesOfAsh.Data
         #endregion // 필드
 
         #region 프로퍼티
-        /// <summary>등장 구간</summary>
+        /// <summary>등장 구간입니다.</summary>
         public Vector2Int SpawnRange => spawnRange;
-        /// <summary>적 타입</summary>
+        /// <summary>적 유형입니다.</summary>
         public EEnemyType EnemyType => enemyType;
 
-        /// <summary>적 MaxHP 스탯</summary>
+        /// <summary>적 최대 HP 능력치입니다.</summary>
         public SWStatOverride MaxHpStat => maxHpStat;
-        /// <summary>적 MaxSanity 스탯</summary>
+        /// <summary>적 최대 정신력 능력치입니다.</summary>
         public SWStatOverride MaxSanityStat => maxSanityStat;
-        /// <summary>추가 스탯 사용 여부</summary>
+        /// <summary>추가 능력치 사용 여부입니다.</summary>
         public bool IsOptionalStat => isOptionalStat;
 
-        /// <summary>정신력 전환 값</summary>
+        /// <summary>정신력 전환 값입니다.</summary>
         public int SanityThreshold => sanityThreshold;
-        /// <summary>전투 시작 정신력 값</summary>
+        /// <summary>전투 시작 정신력 값입니다.</summary>
         public int StartSanity => startSanity;
 
-        /// <summary>대상 선정 규칙</summary>
+        /// <summary>대상 선정 규칙입니다.</summary>
         public EEnemyTargetRuleType TargetRuleType => targetRuleType;
 
-        /// <summary>정신력 반응 여부</summary>
+        /// <summary>정신력 반응 여부입니다.</summary>
         public bool IsSanityAction => isSanityAction;
 
-        /// <summary>행동 (일반) 목록</summary>
+        /// <summary>행동 (일반) 목록입니다.</summary>
         public IReadOnlyList<EnemyActionData> Actions => actions;
-        /// <summary>행동 (정신력) 목록</summary>
+        /// <summary>행동 (정신력) 목록입니다.</summary>
         public IReadOnlyList<EnemyActionData> SanityActions => sanityActions;
 
-        /// <summary>HP 페이즈 전환 목록</summary>
+        /// <summary>체력 단계 전환 목록입니다.</summary>
         public IReadOnlyList<EnemyPhasePatternData> PhasePatterns => phasePatterns;
 
-        /// <summary>적 초상화 스프라이트</summary>
+        /// <summary>적 초상화 스프라이트입니다.</summary>
         public Sprite EnemyPortraitSprite => enemyPortraitSprite;
         #endregion // 프로퍼티
 

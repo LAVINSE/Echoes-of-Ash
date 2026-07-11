@@ -23,12 +23,12 @@ namespace EchoesOfAsh.Data
         #endregion // 필드
 
         #region 프로퍼티
-        /// <summary>캐릭터 MaxHP 스탯</summary>
+        /// <summary>캐릭터 최대 HP 능력치입니다.</summary>
         public SWStatOverride MaxHpStat => maxHpStat;
-        /// <summary>추가 스탯 사용 여부</summary>
+        /// <summary>추가 능력치 사용 여부입니다.</summary>
         public bool IsOptionalStat => isOptionalStat;
 
-        /// <summary>캐릭터 초상화 스프라이트</summary>
+        /// <summary>캐릭터 초상화 스프라이트입니다.</summary>
         public Sprite CharacterPortraitSprite => characterPortraitSprite;
         #endregion // 프로퍼티
 

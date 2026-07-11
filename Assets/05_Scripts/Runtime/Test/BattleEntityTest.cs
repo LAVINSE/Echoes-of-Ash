@@ -10,7 +10,7 @@ namespace EchoesOfAsh.Test
 {
     /// <summary>
     /// Entity 테스트
-    /// 빈 Gameobject에 부착하고 EnemyData/CharacterData 에셋을 연결한 뒤 플레이
+    /// 빈 게임 오브젝트에 부착하고 적 및 캐릭터 데이터 에셋을 연결하여 전투 엔티티 기능을 검증합니다.
     /// </summary>
     public class BattleEntityTest : SWMonoBehaviour
     {

@@ -16,7 +16,7 @@ namespace EchoesOfAsh.Test
 {
     /// <summary>
     /// 카드 실행 테스트
-    /// 빈 Gameobject에 부착 + EnemyEntity, CharacterEntity 컴포넌트 오브젝트 연결
+    /// 빈 게임 오브젝트에 부착하고 적 및 캐릭터 엔티티 컴포넌트를 연결하여 카드 사용 흐름을 검증합니다.
     /// </summary>
     public class CardPlayTest : SWMonoBehaviour
     {
@@ -254,10 +254,10 @@ namespace EchoesOfAsh.Test
         }
 
         /// <summary>
-        /// 적을 대상으로 카드를 사용한다
-        /// Phase 1 단순화: 대상 해석은 M4 TargetingResolver 예정 — 여기서는 적 1체 고정
+        /// 적을 대상으로 카드를 사용합니다.
+        /// 현재 검증 단계에서는 별도의 대상 해석기를 사용하지 않고 적 하나를 대상으로 고정합니다.
         /// </summary>
-        /// <param name="card">사용할 카드</param>
+        /// <param name="card">사용할 카드입니다.</param>
         private void PlayCardOnEnemy(CardInstance card)
         {
             targetBuffer.Clear();

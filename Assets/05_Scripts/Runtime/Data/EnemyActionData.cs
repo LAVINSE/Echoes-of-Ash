@@ -18,17 +18,17 @@ namespace EchoesOfAsh.Data
         #endregion // 필드
 
         #region 프로퍼티
-        /// <summary>행동 이름</summary>
+        /// <summary>행동 이름입니다.</summary>
         public string ActionName => actionName;
 
         public IReadOnlyList<EffectBlock> Effects => effects;
         #endregion // 프로퍼티
 
         /// <summary>
-        /// 의도 타입 리스트를 반환한다
-        /// 의도가 없을 경우 특수타입으로 반환
+        /// 행동에 포함된 의도 유형 목록을 반환합니다.
+        /// 의도가 없을 경우 특수 유형으로 반환
         /// </summary>
-        /// <returns>의도 타입 목록</returns>
+        /// <returns>의도 유형 목록입니다.</returns>
         public List<EIntentType> GetIntentTypes()
         {
             List<EIntentType> result = new();
@@ -52,10 +52,10 @@ namespace EchoesOfAsh.Data
         }
 
         /// <summary>
-        /// 공격 의도 옆에 표시할 총 피해량을 계산한다
+        /// 공격 의도 옆에 표시할 총 피해량을 계산합니다.
         /// 피해 블록이 없으면 0을 반환
         /// </summary>
-        /// <returns>피해 블록 합산 값</returns>
+        /// <returns>피해 블록 합산 값입니다.</returns>
         public int GetIntentDamageValue()
         {
             int total = 0;
@@ -72,9 +72,9 @@ namespace EchoesOfAsh.Data
         }
 
         /// <summary>
-        /// 정신력 아이콘 옆에 표시할 총 감소량을 계산한다
+        /// 정신력 아이콘 옆에 표시할 총 감소량을 계산합니다.
         /// </summary>
-        /// <returns>정신력 감소량 합산</returns>
+        /// <returns>정신력 감소량 합산입니다.</returns>
         public int GetIntentSanityPressureValue()
         {
             int total = 0;

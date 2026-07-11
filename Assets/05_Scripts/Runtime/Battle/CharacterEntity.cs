@@ -15,7 +15,7 @@ namespace EchoesOfAsh.Battle
         #endregion // 필드
 
         #region 프로퍼티
-        /// <summary>캐릭터 데이터</summary>
+        /// <summary>캐릭터 데이터입니다.</summary>
         public CharacterData CharacterData => characterData;
 
         public override string DisplayName => characterData != null ? characterData.DisplayName : name;
@@ -25,7 +25,7 @@ namespace EchoesOfAsh.Battle
         /// <summary>
         /// 초기화
         /// </summary>
-        /// <param name="data">캐릭터 데이터</param>
+        /// <param name="data">캐릭터 데이터입니다.</param>
         public void Init(CharacterData data)
         {
             if (data == null)

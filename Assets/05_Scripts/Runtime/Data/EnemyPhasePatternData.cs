@@ -17,13 +17,13 @@ namespace EchoesOfAsh.Data
         #endregion // 필드
 
         #region 프로퍼티
-        /// <summary>페이즈 이름</summary>
+        /// <summary>페이즈 이름입니다.</summary>
         public string PhaseName => phaseName;
 
-        /// <summary>HP 전환 임계 비율</summary>
+        /// <summary>체력 전환 임계 비율입니다.</summary>
         public float HpThresholdRatio => hpThresholdRatio;
 
-        /// <summary>이 페이지의 행동 순환 패턴</summary>
+        /// <summary>이 단계의 행동 순환 패턴입니다.</summary>
         public IReadOnlyList<EnemyActionData> ActionPatterns => actionPatterns;
         #endregion // 프로퍼티
     }

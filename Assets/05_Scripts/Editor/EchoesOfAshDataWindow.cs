@@ -11,11 +11,9 @@ using EchoesOfAsh.Data;
 namespace EchoesOfAsh.EditorTools
 {
     /// <summary>
-    /// Echoes of Ash 게임 데이터 에셋을 한 화면에서 생성/삭제/편집하는 통합 에디터 윈도우
-    ///
-    /// 탭 구성: 카드 / 캐릭터 / 적 / 정신력 이벤트 (목록형) + 파티 / 밸런스 (단일) + 설정
-    /// SWUtils의 SWStatSystemWindow 패턴을 따른다 — 목록 행(아이콘·라벨·X삭제),
-    /// 정렬(코드명/표시명/ID), 표시 설정, 자동 ID(코드명=GUID, ID=최대+1)
+    /// 게임 데이터 에셋의 생성, 복제, 삭제 및 편집 기능을 제공하는 통합 에디터 창입니다.
+    /// 카드, 캐릭터, 적, 정신력 이벤트, 파티, 전투 균형 및 설정 탭을 제공합니다.
+    /// SWUtils의 데이터 관리 창 구성에 맞춰 목록 표시, 정렬, 검색 및 자동 식별자 부여 기능을 제공합니다.
     /// </summary>
     public class EchoesOfAshDataWindow : EditorWindow
     {
@@ -283,7 +281,7 @@ namespace EchoesOfAsh.EditorTools
 
         #region 목록형 탭
         /// <summary>
-        /// 타입별 데이터 탭(좌측 목록 + 우측 인스펙터)을 그립니다.
+        /// 유형별 데이터 탭(좌측 목록 + 우측 인스펙터)을 그립니다.
         /// </summary>
         private void DrawDataTab(Type dataType, int typeIndex)
         {
@@ -403,7 +401,7 @@ namespace EchoesOfAsh.EditorTools
         }
 
         /// <summary>
-        /// 검색 필드를 그립니다 (에셋 이름/코드명/표시명 검색)
+        /// 에셋 이름, 코드명 및 표시 이름을 조회하는 검색 필드를 그립니다.
         /// </summary>
         private void DrawSearchField(Type dataType)
         {
@@ -421,7 +419,7 @@ namespace EchoesOfAsh.EditorTools
         }
 
         /// <summary>
-        /// 에셋 목록을 그립니다 (행: 아이콘 + 라벨 + X 삭제 버튼)
+        /// 아이콘, 표시 이름 및 삭제 버튼으로 구성된 에셋 목록을 그립니다.
         /// </summary>
         private void DrawAssetList(Type dataType)
         {
@@ -503,7 +501,7 @@ namespace EchoesOfAsh.EditorTools
         /// <summary>
         /// 목록 행 하나를 현재 표시 설정으로 그립니다 (선택 강조 + 아이콘 + 라벨 + X 버튼)
         /// </summary>
-        /// <returns>삭제 버튼 클릭 여부</returns>
+        /// <returns>삭제 버튼 클릭 여부입니다.</returns>
         private bool DrawListRow(Rect rowRect, string label, bool isSelected, SWIdentifiedObject asset, out Rect deleteRect)
         {
             if (isSelected)
@@ -551,7 +549,7 @@ namespace EchoesOfAsh.EditorTools
         }
 
         /// <summary>
-        /// 행 아이콘을 그립니다 — SpriteIcon 있으면 스프라이트, 없으면 SO 기본 아이콘
+        /// 스프라이트 아이콘이 있으면 해당 이미지를 그리고, 없으면 스크립터블 오브젝트의 기본 아이콘을 그립니다.
         /// </summary>
         private static void DrawAssetIcon(Rect iconRect, SWIdentifiedObject asset)
         {
@@ -591,7 +589,7 @@ namespace EchoesOfAsh.EditorTools
         }
 
         /// <summary>
-        /// 행 툴팁 (ID / 코드명 / 표시명 요약)
+        /// 에셋의 식별자, 코드명 및 표시 이름을 요약한 도움말을 반환합니다.
         /// </summary>
         private static string GetRowTooltip(SWIdentifiedObject asset)
         {
@@ -599,7 +597,7 @@ namespace EchoesOfAsh.EditorTools
         }
 
         /// <summary>
-        /// 검색어와 일치하는지 확인합니다 (에셋 이름/코드명/표시명, 대소문자 무시)
+        /// 에셋 이름, 코드명 또는 표시 이름이 검색어와 일치하는지 대소문자를 구분하지 않고 확인합니다.
         /// </summary>
         private static bool MatchesSearch(SWIdentifiedObject asset, string searchText)
         {
@@ -617,7 +615,7 @@ namespace EchoesOfAsh.EditorTools
             => !string.IsNullOrEmpty(source) && source.IndexOf(value, StringComparison.OrdinalIgnoreCase) >= 0;
 
         /// <summary>
-        /// 선택한 에셋의 이름 변경과 Ping 도구를 그립니다.
+        /// 선택한 에셋의 이름 변경 및 프로젝트 창 위치 표시 도구를 그립니다.
         /// </summary>
         private void DrawSelectedObjectHeader(SWIdentifiedObject selectedObject)
         {
@@ -706,7 +704,7 @@ namespace EchoesOfAsh.EditorTools
         }
 
         /// <summary>
-        /// 단일 에셋들을 프로젝트에서 다시 찾습니다 (여러 개면 첫 번째 사용 + 경고)
+        /// 프로젝트에서 단일 에셋을 다시 찾고, 여러 개가 있으면 첫 번째 에셋을 사용하면서 경고를 기록합니다.
         /// </summary>
         private void RefreshSingletons()
         {
@@ -853,7 +851,7 @@ namespace EchoesOfAsh.EditorTools
 
         #region 에셋 관리
         /// <summary>
-        /// 프로젝트에서 타입의 모든 에셋을 다시 수집하고 정렬합니다.
+        /// 프로젝트에서 지정한 유형의 모든 에셋을 다시 수집하고 정렬합니다.
         /// </summary>
         private void RefreshAssets(Type dataType)
         {
@@ -905,7 +903,7 @@ namespace EchoesOfAsh.EditorTools
 
         /// <summary>
         /// 새 에셋을 생성합니다.
-        /// 임시 코드명은 GUID, ID는 옵션에 따라 자동 부여됩니다 (SWStatSystemWindow 방식)
+        /// 임시 코드명에는 전역 고유 식별자를 사용하며, 숫자 식별자는 설정에 따라 자동으로 부여합니다.
         /// </summary>
         private void CreateNewAsset(Type dataType, int typeIndex)
         {
@@ -922,7 +920,7 @@ namespace EchoesOfAsh.EditorTools
             var guid = Guid.NewGuid();
             var newData = CreateInstance(dataType) as SWIdentifiedObject;
 
-            // SerializedObject로 private 필드(codeName, id)를 설정
+            // SerializedObject로 비공개 필드(codeName, id)를 설정
             SerializedObject serializedData = new(newData);
             serializedData.FindProperty("codeName").stringValue = guid.ToString();
 
@@ -950,7 +948,7 @@ namespace EchoesOfAsh.EditorTools
         }
 
         /// <summary>
-        /// 현재 최대 ID + 1을 반환합니다.
+        /// 현재 가장 큰 숫자 식별자보다 하나 큰 값을 반환합니다.
         /// </summary>
         private int GetNextId(Type dataType)
         {
@@ -970,7 +968,7 @@ namespace EchoesOfAsh.EditorTools
 
         /// <summary>
         /// 선택 에셋을 복제합니다.
-        /// 복제본에는 새 코드명(GUID)과 새 ID를 부여해 SWIODatabase 중복 오류를 방지합니다.
+        /// 데이터베이스의 중복 오류를 방지하도록 복제본에 새 코드명과 숫자 식별자를 부여합니다.
         /// </summary>
         private void DuplicateAsset(Type dataType, SWIdentifiedObject source)
         {

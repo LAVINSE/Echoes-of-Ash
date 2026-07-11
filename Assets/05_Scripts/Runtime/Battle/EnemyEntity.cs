@@ -22,29 +22,29 @@ namespace EchoesOfAsh.Battle
         #endregion // 필드
 
         #region 프로퍼티
-        /// <summary>적 데이터</summary>
+        /// <summary>적 데이터입니다.</summary>
         public EnemyData EnemyData => enemyData;
 
-        /// <summary>표시 이름</summary>
+        /// <summary>표시 이름입니다.</summary>
         public override string DisplayName => enemyData != null ? enemyData.DisplayName : name;
 
-        /// <summary>행동 패턴 순환 인덱스</summary>
+        /// <summary>행동 패턴 순환 인덱스입니다.</summary>
         public int ActionIndex
         {
             get => actionIndex;
             set => actionIndex = Mathf.Max(0, value);
         }
 
-        /// <summary>현재 정신력</summary>
+        /// <summary>현재 정신력입니다.</summary>
         public int CurrentSanity => sanityHolder?.CurrentSanity ?? 0;
-        /// <summary>최대 정신력</summary>
+        /// <summary>최대 정신력입니다.</summary>
         public int MaxSanity => sanityHolder?.MaxSanity ?? 0;
-        /// <summary>정신력 전환 임계값</summary>
+        /// <summary>정신력 전환 임계값입니다.</summary>
         public int SanityThreshold => sanityHolder?.SanityThreshold ?? 0;
-        /// <summary>현재 정신력 타입</summary>
+        /// <summary>현재 정신력 유형입니다.</summary>
         public ESanityType CurrentSanityType => sanityHolder?.CurrentSanityType ?? ESanityType.Calm;
 
-        /// <summary>정신력 변경 시 호출</summary>
+        /// <summary>정신력 변경 시 호출됩니다.</summary>
         public event Action<int, int> OnSanityChanged
         {
             add
@@ -62,7 +62,7 @@ namespace EchoesOfAsh.Battle
                 }
             }
         }
-        /// <summary>정신력 타입 변경 시 호출</summary>
+        /// <summary>정신력 유형 변경 시 호출됩니다.</summary>
         public event Action<ESanityType> OnSanityTypeChanged
         {
             add
@@ -86,7 +86,7 @@ namespace EchoesOfAsh.Battle
         /// <summary>
         /// 초기화
         /// </summary>
-        /// <param name="data">적 데이터</param>
+        /// <param name="data">적 데이터입니다.</param>
         public void Init(EnemyData data)
         {
             if (data == null)
@@ -115,7 +115,7 @@ namespace EchoesOfAsh.Battle
         /// <summary>
         /// 정신력 변화
         /// </summary>
-        /// <param name="delta">변화량</param>
+        /// <param name="delta">변화량입니다.</param>
         public void ChangeSanity(int delta)
         {
             if (sanityHolder == null)

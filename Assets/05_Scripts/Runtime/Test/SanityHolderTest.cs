@@ -10,7 +10,7 @@ namespace EchoesOfAsh.Test
 {
     /// <summary>
     /// 정신력 모듈 테스트
-    /// 빈 GameObject에 부착하고 PartyData/EnemyData 에셋을 연결한 뒤 플레이
+    /// 빈 게임 오브젝트에 부착하고 파티 및 적 데이터 에셋을 연결하여 정신력 기능을 검증합니다.
     /// </summary>
     public class SanityHolderTest : SWMonoBehaviour
     {
@@ -131,9 +131,9 @@ namespace EchoesOfAsh.Test
         }
 
         /// <summary>
-        /// DoD 검증: 경계 위에서 진동해도 구간이 실제로 바뀔 때만 발화하는지 확인.
-        /// 임계값-1 ↔ 임계값 왕복 10회 → 전환은 매 왕복마다 2회씩(광기/평정) 발생하는 것이 정상.
-        /// 반대로 임계값 ↔ 임계값+1 왕복은 전환 0회여야 한다.
+        /// 정신력 값이 경계를 반복해서 오갈 때 실제 구간 변경에만 이벤트가 발생하는지 검증합니다.
+        /// 임계값 미만과 임계값 사이를 왕복하면 광기 및 평정 전환이 각각 한 번씩 발생해야 합니다.
+        /// 임계값과 임계값 초과 값 사이를 왕복하면 구간 전환이 발생하지 않아야 합니다.
         /// </summary>
         private void RunBoundaryOscillationTest(SanityHolder holder)
         {
