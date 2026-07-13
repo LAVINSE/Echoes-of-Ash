@@ -168,4 +168,36 @@ namespace EchoesOfAsh.Enum
         /// <summary>특수입니다.</summary>
         [InspectorName("특수")] Special,
     }
+
+    /// <summary>
+    /// 전투 턴 진행 단계
+    /// </summary>
+    public enum ETurnPhase
+    {
+        /// <summary>전투 X</summary>
+        [InspectorName("없음")] None,
+        /// <summary>턴 시작 처리 중입니다.</summary>
+        [InspectorName("턴 시작")] TurnStart,
+        /// <summary>플레이어 행동 대기입니다.</summary>
+        [InspectorName("플레이어 행동")] PlayerAction,
+        /// <summary>턴 종료 처리 중입니다.</summary>
+        [InspectorName("턴 종료")] TurnEnd,
+        /// <summary>적 행동 처리 중입니다.</summary>
+        [InspectorName("적 행동")] EnemyAction,
+        /// <summary>전투가 종료되었습니다.</summary>
+        [InspectorName("전투 종료")] BattleEnd,
+    }
+
+    /// <summary>
+    /// 전투 결과
+    /// </summary>
+    public enum EBattleResult
+    {
+        /// <summary>X</summary>
+        [InspectorName("X")] None,
+        /// <summary>승리입니다.</summary>
+        [InspectorName("승리")] Victory,
+        /// <summary>패배입니다.</summary>
+        [InspectorName("패배")] Defeat,
+    }
 }

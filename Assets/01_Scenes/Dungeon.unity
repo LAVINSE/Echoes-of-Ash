@@ -488,6 +488,30 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5175390344114790984, guid: 6e976311e3207b44b80c707a180bd8a7, type: 3}
+      propertyPath: startingCards.Array.size
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5175390344114790984, guid: 6e976311e3207b44b80c707a180bd8a7, type: 3}
+      propertyPath: 'startingCards.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 0abc4eeb025736a4e96c5502a058ae46, type: 2}
+    - target: {fileID: 5175390344114790984, guid: 6e976311e3207b44b80c707a180bd8a7, type: 3}
+      propertyPath: 'startingCards.Array.data[1]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 562e864da6f13724287c1b8ebb0a4db0, type: 2}
+    - target: {fileID: 5175390344114790984, guid: 6e976311e3207b44b80c707a180bd8a7, type: 3}
+      propertyPath: 'startingCards.Array.data[2]'
+      value: 
+      objectReference: {fileID: 11400000, guid: b654101b2c669ca428073aa97cfe1e2e, type: 2}
+    - target: {fileID: 5175390344114790984, guid: 6e976311e3207b44b80c707a180bd8a7, type: 3}
+      propertyPath: 'startingCards.Array.data[3]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 0abc4eeb025736a4e96c5502a058ae46, type: 2}
+    - target: {fileID: 5175390344114790984, guid: 6e976311e3207b44b80c707a180bd8a7, type: 3}
+      propertyPath: 'startingCards.Array.data[4]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 0abc4eeb025736a4e96c5502a058ae46, type: 2}
     - target: {fileID: 5958913491423351267, guid: 6e976311e3207b44b80c707a180bd8a7, type: 3}
       propertyPath: m_Name
       value: CardPlay_Test
