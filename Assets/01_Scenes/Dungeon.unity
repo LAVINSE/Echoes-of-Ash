@@ -119,6 +119,17 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!114 &161359733 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4730366564788561771, guid: 07cca6c37dfe6ac4e883c43672fb8f37, type: 3}
+  m_PrefabInstance: {fileID: 8075464818915553090}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e528c1647151b6e47a3f683db26c8e8c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EchoesOfAsh.Battle.BattleManager
 --- !u!1 &868137944
 GameObject:
   m_ObjectHideFlags: 0
@@ -510,6 +521,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 6568247025998541727, guid: e84f763522d0bb24aacebe2511b12a41, type: 3}
+      propertyPath: battleManager
+      value: 
+      objectReference: {fileID: 161359733}
     - target: {fileID: 7719398509449748717, guid: e84f763522d0bb24aacebe2511b12a41, type: 3}
       propertyPath: m_Name
       value: Battle_Test
@@ -648,6 +663,42 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4730366564788561771, guid: 07cca6c37dfe6ac4e883c43672fb8f37, type: 3}
+      propertyPath: partyData
+      value: 
+      objectReference: {fileID: 11400000, guid: c92d90a77174c324aa0f3cf68f68238e, type: 2}
+    - target: {fileID: 4730366564788561771, guid: 07cca6c37dfe6ac4e883c43672fb8f37, type: 3}
+      propertyPath: balanceData
+      value: 
+      objectReference: {fileID: 11400000, guid: 340c1977cd22bce458630f988a4f0e5b, type: 2}
+    - target: {fileID: 4730366564788561771, guid: 07cca6c37dfe6ac4e883c43672fb8f37, type: 3}
+      propertyPath: characterData
+      value: 
+      objectReference: {fileID: 11400000, guid: 25def2d2b6d4b1243b194ef875ac324f, type: 2}
+    - target: {fileID: 4730366564788561771, guid: 07cca6c37dfe6ac4e883c43672fb8f37, type: 3}
+      propertyPath: enemyDatas.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4730366564788561771, guid: 07cca6c37dfe6ac4e883c43672fb8f37, type: 3}
+      propertyPath: 'enemyDatas.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 6b36dbefcdeaaf14eb42c0fbfdaba7c0, type: 2}
+    - target: {fileID: 4730366564788561771, guid: 07cca6c37dfe6ac4e883c43672fb8f37, type: 3}
+      propertyPath: startingCards.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4730366564788561771, guid: 07cca6c37dfe6ac4e883c43672fb8f37, type: 3}
+      propertyPath: 'startingCards.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 0abc4eeb025736a4e96c5502a058ae46, type: 2}
+    - target: {fileID: 4730366564788561771, guid: 07cca6c37dfe6ac4e883c43672fb8f37, type: 3}
+      propertyPath: 'startingCards.Array.data[1]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 562e864da6f13724287c1b8ebb0a4db0, type: 2}
+    - target: {fileID: 4730366564788561771, guid: 07cca6c37dfe6ac4e883c43672fb8f37, type: 3}
+      propertyPath: 'startingCards.Array.data[2]'
+      value: 
+      objectReference: {fileID: 11400000, guid: b654101b2c669ca428073aa97cfe1e2e, type: 2}
     - target: {fileID: 8253593243724700799, guid: 07cca6c37dfe6ac4e883c43672fb8f37, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

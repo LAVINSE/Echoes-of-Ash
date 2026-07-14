@@ -1,36 +1,31 @@
 # Echoes of Ash — Phase 1 개발 스케줄
 
-> 기준 문서: 기획서 v3.2 (16장 Phase 1 체크리스트) · 작성일: 2026-07-07 (개정 2 — 2026-07-10, M3 카드 실행 계층 완료 반영)
+> 기준 문서: 기획서 v3.2 (16장 Phase 1 체크리스트) · 작성일: 2026-07-07 (개정 3 — 2026-07-14, M4 턴 흐름 + 적 AI 완료 반영)
 > 목표: **전투 1사이클 + 정신력이 플레이 가능한 상태 (1인 기준)** — 기간 잠정 8주
 
 ---
 
 ## 1. 현황 요약
 
-### 완료 (v5 적용 기준)
+### 완료 (v6 적용 기준)
 
 | 구분 | 내용 |
 |------|------|
 | 데이터 구조 | `CardData` / `CharacterData` / `EnemyData` / `MadnessEventData` / `PartyData` / `BattleBalanceData` (전부 `SWIdentifiedObject`·`SWScriptableObject` 기반, 수치 외부화 완료). 경계 원칙: **전투 규칙 = BattleBalanceData, 전투 주체 속성 = 각자의 Data SO** (파티 SAN은 `PartyData`, 적 SAN은 `EnemyData` — 대칭 구조) |
-| 정신력 모듈 | `Sanity/SanityHolder.cs` — `ISanityHolder` 구현체 (파티/적 공용, SWStat 클론 래핑,
-임계값 교차 판정: SAN < 임계값 = 광기). `Test/SanityHolderTest.cs` 검증 완료 (M1 DoD 통과) |
+| 정신력 모듈 | `Sanity/SanityHolder.cs` — `ISanityHolder` 구현체 (파티/적 공용, SWStat 클론 래핑, 임계값 교차 판정: SAN < 임계값 = 광기). `Test/SanityHolderTest.cs` 검증 완료 (M1 DoD 통과) |
 | 효과 시스템 | `EffectBlock` 추상 베이스 + 기본 블록 9종 + `EffectContext` (카드/적/광기 이벤트 공용 파이프라인) + **`EffectExecutor` 실행기 (M3)** |
 | 인터페이스 | `ITargetable` / `IDamageable` / `ISanityHolder` / `IStatusReceiver` 정의 + 전투원 구현 |
 | 스탯 | HP/SAN을 `SWStatOverride`로 전환 (SWStat 채택 확정) |
 | 의도 시스템 데이터 | `EIntentType` + 블록별 `IntentContribution` 자동 유도, `EnemyActionData.GetIntentTypes()` |
-| 전투원 | `Battle/Base/BattleEntity.cs` (SWMonoBehaviour 기반 공통 베이스 — HP SWStat 클론 직접 보유,
-방어막 int, IDamageable/ITargetable/IStatusReceiver 구현, ResetEntity 정리 패턴) +
-`CharacterEntity` / `EnemyEntity`(개체별 SanityHolder 위임, ActionIndex) +
-`IDamageCalculator`/`DefaultDamageCalculator`. `Test/BattleEntityTest.cs` 검증 완료 (M2 DoD 통과) |
-| **카드 실행 계층 (M3)** | `Card/CardInstance.cs` (런타임 래퍼) + `Deck/DeckSystem.cs` (3존 관리·SWRandom 셔플) +
-`Battle/ApSystem.cs` (지급/이월/클램프 — 수치는 BattleBalanceData) + `Effect/EffectExecutor.cs` (컨텍스트 조립·블록 순회 단일 창구) +
-`Battle/CardPlayService.cs` (사용 파이프라인). `Test/CardPlayTest.cs` 검증 완료 (M3 DoD 통과) |
-| 데이터 보강 | `EnemyData.StartSanity` 필드 추가 — 광기 상태 등장 적 지원 (PartyData와 대칭) / **`BattleBalanceData`에 AP 그룹 추가** (`apPerTurn` 3, `apCarryOverMax` 2) |
+| 전투원 | `Battle/Base/BattleEntity.cs` (SWMonoBehaviour 기반 공통 베이스 — HP SWStat 클론 직접 보유, 방어막 int, IDamageable/ITargetable/IStatusReceiver 구현, ResetEntity 정리 패턴) + `CharacterEntity` / `EnemyEntity`(개체별 SanityHolder 위임, ActionIndex) + `IDamageCalculator`/`DefaultDamageCalculator`. `Test/BattleEntityTest.cs` 검증 완료 (M2 DoD 통과) |
+| 카드 실행 계층 (M3) | `Card/CardInstance.cs` (런타임 래퍼) + `Deck/DeckSystem.cs` (3존 관리·SWRandom 셔플) + `Battle/ApSystem.cs` (지급/이월/클램프 — 수치는 BattleBalanceData) + `Effect/EffectExecutor.cs` (컨텍스트 조립·블록 순회 단일 창구) + `Battle/CardPlayService.cs` (사용 파이프라인). `Test/CardPlayTest.cs` 검증 완료 (M3 DoD 통과) |
+| **턴 흐름 + 적 AI (M4)** | `Battle/TurnManager.cs` (턴 상태 머신 — 발화 순서 고정) + `Battle/EnemyAI.cs` (패턴 순환·의도 선정·페이즈/광기 전환) + `Battle/TargetResolver.cs` (대상 목록 구성) + `Battle/BattleManager.cs` (조우 셋업·모듈 배선·승패 판정·종료 정리) + `ETurnPhase`/`EBattleResult` (`GameEnum.cs`에 병합). `Test/BattleTest.cs` (`Test_Battle` 씬) 검증 완료 (M4 DoD 통과) |
+| 데이터 보강 | `EnemyData.StartSanity` 필드 추가 — 광기 상태 등장 적 지원 (PartyData와 대칭) / `BattleBalanceData`에 AP 그룹 추가 (`apPerTurn` 3, `apCarryOverMax` 2) |
 | 인프라 | SWUtils v1.0.11 통합 (SWRandom 시드 고정, SWLog, SWSubClassSelector, SWIODatabase 사용 가능) |
 
 ### 미구현 (이 문서의 대상)
 
-턴 흐름(`TurnManager`), 적 AI/의도 선정(`EnemyAI`), 타겟팅(`TargetingResolver`), 전투 셋업·승패 판정(`BattleManager`), 전투 UI, 광기 이벤트 러너(`MadnessEventRunner`), 테스트 콘텐츠 데이터.
+전투 UI(손패/게이지/의도/툴팁/드래그 타겟팅), 광기 이벤트 러너(`MadnessEventRunner`), 테스트 콘텐츠 데이터(카드 15장·적 3종·광기 이벤트 4~6종).
 
 ---
 
@@ -41,7 +36,7 @@
 
 ```
 M0 준비 ─▶ M1 정신력 ─▶ M2 전투원 ─▶ M3 카드 실행 ─▶ M4 턴/적 AI ─▶ M5 UI/입력 ─▶ M6 광기 이벤트+통합
-(완료)     (완료)       (완료)       (완료)          (1.5주) ◀ 현재  (1.5주)       (1주)
+(완료)     (완료)       (완료)       (완료)          (완료)         (1.5주) ◀ 현재  (1주)
 ```
 
 ---
@@ -81,40 +76,42 @@ M0 준비 ─▶ M1 정신력 ─▶ M2 전투원 ─▶ M3 카드 실행 ─▶
 - 사용 파이프라인 격리 패턴: `BeginPlay`(손패 분리) → 효과 실행 → `EndPlay`(버림 이동) — 효과 실행 중 무작위 버림에 사용 카드가 휘말리지 않도록
 - 데이터 보강: `BattleBalanceData`에 **AP 그룹**(`apPerTurn` 3 / `apCarryOverMax` 2) 추가 — ApSystem은 수치를 전부 여기서 참조
 - DIP 배선: `EffectExecutor`는 덱/AP 구체 타입을 모름 — `EffectContext`의 델리게이트(`DrawRequest`/`DiscardRequest`/`ApChangeRequest`)에 생성자 주입으로만 연결. 카드/적 행동/광기 이벤트 3경로 공용 단일 창구
-- 전투 종료 정리: `DeckSystem.ResetDeckSystem()` — 3존 전체 카드의 전투 한정 상태 초기화 전파 (M4 `BattleManager`가 승패 판정 후 호출 예정)
+- 전투 종료 정리: `DeckSystem.ResetDeckSystem()` — 3존 전체 카드의 전투 한정 상태 초기화 전파 (M4 `BattleManager`가 승패 판정 후 호출)
 - **DoD 통과:** "어둠의 일격" 평정 6피해 / 광기 14피해+자해3 분기 실행 확인 — 반응형 카드 첫 실동작
 
 ---
 
-### M4 — 턴 흐름 + 적 AI (1.5주) ◀ 진행 예정
+### M4 — 턴 흐름 + 적 AI ✅ 완료
 
-| # | 산출물 | 책임 |
-|---|--------|------|
-| 4-1 | `Battle/TurnManager.cs` | 턴 상태 머신: 턴 시작(AP 지급·드로우·광기 이벤트 판정 훅) → 플레이어 행동 → 턴 종료 → 적 행동 → 판정. 이벤트 발화 순서 결정적 보장 (기획서 15-2) |
-| 4-2 | `Battle/EnemyAI.cs` | 행동 패턴 순환 인덱스, **다음 행동 예고(의도) 선정**, HP 페이즈 전환, SAN 광기 패턴 전환(**턴 경계 판정** — M1 D2 결정 반영, 빈 패턴이면 기본 유지) |
-| 4-3 | 대상 선정 규칙 기초 | Phase 1은 1인이라 실질 단일 대상이지만 `EEnemyTargetRuleType` 분기 구조만 구현 (Phase 2 확장 대비) |
-| 4-4 | `Battle/TargetingResolver.cs` | `ETargetingType` → `Targets` 리스트 해석 (단일=지정 적 / 전체 / 무작위=`SWRandom.Pick` / 자신) — `CardPlayService.AreTargetsValid`는 유효성만, 해석은 여기 책임 |
-| 4-5 | `Battle/BattleManager.cs` | 조우 셋업(적 1~3체 스폰), 파티 공유 SanityHolder 생성(`PartyData.MaxSanityStat` + `SanityThreshold` + `StartSanity`), 승리/패배 판정, 모듈 배선(컨텍스트 재료 주입), **전투 종료 시 `DeckSystem.ResetDeckSystem()`·`ApSystem.ResetAp()` 호출** |
-| 4-6 | 통합 테스트 씬 `Test_Battle` (UI 최소) | 디버그 버튼만으로 전투 1사이클 완주 |
-
-**DoD:** 코드 레벨에서 전투 시작→N턴 진행→승리/패배까지 완주. 적 3체가 각자 패턴 순환하고, 적 하나를 광기로 떨어뜨리면 다음 턴 경계에 패턴이 전환된다.
+- 산출물: `Battle/TurnManager.cs` / `Battle/EnemyAI.cs` / `Battle/TargetResolver.cs` / `Battle/BattleManager.cs` / `Test/BattleTest.cs` (`Test_Battle` 씬). `ETurnPhase`·`EBattleResult`는 별도 파일 대신 **`Enum/GameEnum.cs`에 병합** (기존 enum 단일 파일 원칙 유지)
+- **명명 확정:** 계획명 `TargetingResolver` → **`TargetResolver`** (M1 SanityGauge→SanityHolder와 같은 명명 개정 전례). 적 행동 실행은 `EnemyAI.PlayAction`, 적 행동 단계 이벤트는 `OnEnemyActionsStarted`(복수형)
+- **클래스 성격 경계 확정:** `TurnManager` / `EnemyAI` / `TargetResolver`는 **순수 C# 클래스** (생성자 주입 + 전투 1회 수명 — ApSystem/DeckSystem/CardPlayService 계열과 동일). 씬 부착 컴포넌트는 `BattleManager` / `BattleTest`(SWMonoBehaviour)만. ⚠️ 순수 클래스 3종에 MonoBehaviour 상속 금지 — `new` 생성 시 Unity fake null로 흐름 전체가 조용히 죽는다 (실제 발생 → 수정)
+- **용어 확정 ① — "턴 경계" 코드 매핑:** 기획 문서의 "턴 경계" 판정 지점은 코드에서 **라운드 종료**로 표기 — `TurnManager.OnRoundEnded` 이벤트 / `EnemyAI.PrepareNextTurn()` 메서드. 광기·HP 페이즈 패턴 전환은 이 지점에서만 반영 (D2 이행)
+- **용어 확정 ② — 대상 처리 3단계:** **구성**(`TargetResolver.Resolve` — 지정 방식 → 대상 목록 생성) / **검증**(`CardPlayService.AreTargetsValid` — 최종 유효성 관문) / **선정**(`EnemyAI.SelectTargets` — 규칙 기반 파티 대상 선택). 세 책임은 분리 유지하되 `BattleManager.PlayCard`가 구성 → 검증 → 실행의 단일 조립 지점
+- **발화 순서 고정 (기획서 15-2):** 턴 시작 = `OnTurnStarted`(엔티티 정리) → AP 지급 → 드로우 → `OnTurnStartHook`(광기 이벤트 판정 지점 — M6 `MadnessEventRunner` 구독 예정) / 턴 종료 = 손패 버림 → `OnTurnEnded` → 적 행동(`OnEnemyActionsStarted` — 스폰 순서 고정 순회) → `OnRoundEnded`(패턴 재평가·의도 선정). 각 이벤트 발화 후 `BattleEnd` 체크로 중간 승패 판정 시 즉시 중단
+- **적 패턴 우선순위:** 광기 패턴(비어 있으면 기본 유지) → HP 페이즈 패턴(조건 만족 중 최저 임계값 = 가장 진행된 페이즈) → 기본 패턴. 패턴 전환 시 `ActionIndex` 초기화. 의도는 예고대로 실행되고 전환은 다음 라운드 의도부터 반영
+- **잠정 규칙 (Balance 외부화 후보):** 방어막 소멸 — 파티는 자기 턴 시작 시, 적은 자기 행동 직전 (STS 표준)
+- **임시 조치 (Phase 2 대체 예정):** ① `BattleManager.startingCards` 인스펙터 주입 → 런 루프 도입 시 런 상태(RunState) 주입으로 변경 ② `EEnemyTargetRuleType.Aggro`는 무작위 폴백 (도발/어그로 수치는 Phase 2) ③ `characterData` 단수 필드 → 파티 3인 시 목록으로 변경
+- **DoD 통과:** 전투 시작 → N턴 → 승리/패배 완주 확인. 적 3체 각자 패턴 순환, 광기 전환 시 다음 라운드부터 패턴 교체 확인 (`Test_Battle`, 시드 고정)
 
 ---
 
-### M5 — 전투 UI / 입력 (1.5주)
+### M5 — 전투 UI / 입력 (1.5주) ◀ 진행 예정
 
 기획서 14-5 전투 화면의 Phase 1 범위 구현. 로직은 이미 완성 상태이므로 이 단계는 표시/입력만.
 
 | # | 산출물 | 책임 |
 |---|--------|------|
 | 5-1 | 손패 UI | 카드 표시(이름/AP/타입), 드로우·버림 반영(`OnHandChanged`/`OnPileChanged` 구독), 사용 불가(AP 부족) 표시(`CardPlayService.CanPlay`) |
-| 5-2 | **드래그 타겟팅** | 단일 대상 카드 드래그 → 적 위 드롭 (STS 표준 UX). `TargetingResolver` 연동 |
+| 5-2 | **드래그 타겟팅** | 단일 대상 카드 드래그 → 적 위 드롭 (STS 표준 UX). `TargetResolver` 연동 (`BattleManager.PlayCard`의 target 경로) |
 | 5-3 | 게이지 UI | 파티 HP/방어막, **공유 SAN(경계 표시 포함)**, 적별 HP + **얇은 SAN 보조 바** (기획서 3-2 UI 원칙) — `OnSanityChanged`/`OnDamaged` 이벤트 구독 |
-| 5-4 | 의도 표시 UI | `GetIntentTypes()` 복수 아이콘 + `GetIntentDamageValue()`/`GetIntentSanityPressureValue()` 수치 |
+| 5-4 | 의도 표시 UI | `EnemyAI.OnIntentChanged` 구독 — `GetIntentTypes()` 복수 아이콘 + `GetIntentDamageValue()`/`GetIntentSanityPressureValue()` 수치 |
 | 5-5 | 카드 툴팁 | 반응형 카드는 평정/광기 양쪽 효과 표시 (`GetDescription()` 조합), 현재 구간 강조 |
-| 5-6 | 턴 종료 버튼 / AP 표시(`OnApChanged` 구독) / 광기 진입 연출(채도·비네팅 가볍게) | 연출은 최소 — 아트 부담 억제 원칙 |
+| 5-6 | 턴 종료 버튼(`TurnManager.CurrentPhase` 연동) / AP 표시(`OnApChanged` 구독) / 광기 진입 연출(채도·비네팅 가볍게) | 연출은 최소 — 아트 부담 억제 원칙 |
 
 **DoD:** 마우스만으로 전투 1사이클 완주 가능. 광기 진입 시 반응형 카드의 표시가 실시간 전환된다.
+
+> M5 착수 노트: 적 행동 사이 연출 딜레이가 필요해지면 `TurnManager`를 Mono로 바꾸지 말고 **BattleManager(이미 Mono)가 코루틴으로 흐름을 구동**하는 방향 — 로직(상태 머신)과 타이밍(연출) 분리 유지.
 
 ---
 
@@ -122,7 +119,7 @@ M0 준비 ─▶ M1 정신력 ─▶ M2 전투원 ─▶ M3 카드 실행 ─▶
 
 | # | 산출물 | 책임 |
 |---|--------|------|
-| 6-1 | `Sanity/MadnessEventRunner.cs` | 턴 시작 훅에서 광기 구간이면 `GetMadnessEventChance(현재SAN, PartyData.SanityThreshold)` 판정(`SWRandom.Chance`) → `PickRandomMadnessEvent()` → Executor 실행 + UI 알림 (확률 곡선=룰은 Balance, 임계값=주체 속성은 PartyData에서 주입) |
+| 6-1 | `Sanity/MadnessEventRunner.cs` | **`TurnManager.OnTurnStartHook` 구독** — 광기 구간이면 `GetMadnessEventChance(현재SAN, PartyData.SanityThreshold)` 판정(`SWRandom.Chance`) → `PickRandomMadnessEvent()` → Executor 실행 + UI 알림 (확률 곡선=룰은 Balance, 임계값=주체 속성은 PartyData에서 주입) |
 | 6-2 | 광기 이벤트 데이터 4~6종 | 부정(자해 5 / 손패 1장 버림 / SAN -5) + 긍정(AP +1 / 드로우 +1) — 가중치는 부정 합 > 긍정 합 |
 | 6-3 | 콘텐츠 데이터 | **카드 15장**(반응형 5~6장 포함), **적 3종**(SAN 압박형 1종 포함, 광기 패턴 1종만 정의), 조우 1~3체 구성 |
 | 6-4 | 밸런스 1차 조정 | `BattleBalanceData` 수치만으로 튜닝 (코드 수정 0 확인 — 데이터 주도 검증 겸함) |
@@ -137,13 +134,13 @@ M0 준비 ─▶ M1 정신력 ─▶ M2 전투원 ─▶ M3 카드 실행 ─▶
 | 모듈 | Phase 1 산출물 | 폴더 |
 |------|----------------|------|
 | 정신력 | `SanityHolder` ✅, `MadnessEventRunner` | `05_Scripts/Sanity/` |
-| 전투 | `BattleEntity`(Character/Enemy) ✅, `ApSystem` ✅, `CardPlayService` ✅, `IDamageCalculator` ✅, `BattleManager`, `TurnManager` | `05_Scripts/Battle/` |
-| 덱·카드 | `DeckSystem` ✅, `CardInstance` ✅ | `05_Scripts/Deck/`, **`05_Scripts/Card/`** (계획 `Data/Runtime/`에서 변경 — 개정 2) |
-| 타겟팅 | `TargetingResolver` | `05_Scripts/Battle/` (Phase 2에 분리 검토) |
+| 전투 | `BattleEntity`(Character/Enemy) ✅, `ApSystem` ✅, `CardPlayService` ✅, `IDamageCalculator` ✅, `BattleManager` ✅, `TurnManager` ✅, `EnemyAI` ✅ | `05_Scripts/Battle/` |
+| 덱·카드 | `DeckSystem` ✅, `CardInstance` ✅ | `05_Scripts/Deck/`, `05_Scripts/Card/` (계획 `Data/Runtime/`에서 변경 — 개정 2) |
+| 타겟팅 | `TargetResolver` ✅ (계획명 `TargetingResolver`에서 개정 — `Resolve` = 대상 목록 **구성**) | `05_Scripts/Battle/` (Phase 2에 분리 검토) |
 | 효과 | `EffectExecutor` ✅ (+ 기존 Effect 모듈) | `05_Scripts/Effect/` |
 | UI | 손패/게이지/의도/툴팁 | `05_Scripts/UI/Battle/` |
 
-모듈 간 통신: 직접 참조 최소화 — 상태 변화 알림은 C# event(인터페이스에 이미 정의) 우선, 모듈 경계를 넘는 광역 알림(전투 종료 등)만 `SWEventBus` 사용 검토. **구독·발화 순서 결정성 유지** (기획서 15-2 — M3 적용 예: 덱 변경 알림은 항상 손패 → 더미 순 발화).
+모듈 간 통신: 직접 참조 최소화 — 상태 변화 알림은 C# event(인터페이스에 이미 정의) 우선, 모듈 경계를 넘는 광역 알림(전투 종료 등)만 `SWEventBus` 사용 검토. **구독·발화 순서 결정성 유지** (기획서 15-2 — M3 적용 예: 덱 변경 알림은 항상 손패 → 더미 순 발화 / M4 적용 예: 턴 이벤트 발화 순서 고정 + 적 행동 스폰 순서 고정 순회).
 
 ---
 
@@ -152,8 +149,8 @@ M0 준비 ─▶ M1 정신력 ─▶ M2 전투원 ─▶ M3 카드 실행 ─▶
 | # | 결정 | 시점 | 상태 |
 |---|------|------|------|
 | D1 | 전투원 스탯 보유 방식: `SWStats` 컴포넌트 vs SWStat 클론 직접 보유 | M2 착수 시 | ✅ 확정 — 클론 직접 보유 |
-| D2 | 적 SAN 광기 전환의 "턴 경계 지연" 처리 위치 (게이지 vs 적 AI) | M1 | ✅ 확정 — 적 AI 책임 (홀더 순수 유지) |
-| D3 | 시드 결정성 범위: Phase 1부터 `SWRandom.SetSeed` 런 시드 적용 여부 | M3 (DeckSystem 셔플 전) | ✅ 확정 — 적용 (셔플·무작위 버림 SWRandom 일원화, 테스트 시드 고정 옵션) |
+| D2 | 적 SAN 광기 전환의 "턴 경계 지연" 처리 위치 (게이지 vs 적 AI) | M1 | ✅ 확정 — 적 AI 책임 (홀더 순수 유지) · **M4 이행 완료** (`EnemyAI.PrepareNextTurn` — 라운드 종료 시점 판정) |
+| D3 | 시드 결정성 범위: Phase 1부터 `SWRandom.SetSeed` 런 시드 적용 여부 | M3 (DeckSystem 셔플 전) | ✅ 확정 — 적용 (셔플·무작위 버림·무작위 대상 전부 SWRandom 일원화, 테스트 시드 고정 옵션) |
 | D4 | 광기 보상 임시 원칙(`MadEnemyDamageTakenMultiplier`) 1차 채택값 | M6 | 미결 — 1.0(비활성)과 1.25 비교 플레이 |
 
 ---
@@ -168,7 +165,7 @@ M0 준비 ─▶ M1 정신력 ─▶ M2 전투원 ─▶ M3 카드 실행 ─▶
 
 ## 6. Phase 2 예고 (참고 — 상세 계획은 Phase 1 검증 후)
 
-파티 3인(공유 덱·전투불능 드로우 제외), 타겟팅 완성(도발·지정), 맵/런 루프, 거점 기초, 드랍·회수, 카드 해금 2종, 런 중 저장(버저닝), 상태이상 모듈(Study-ModuleSkill의 Effect 생명주기 턴제 번안), `CardSystemWindow`(SWStatSystemWindow 패턴 복제), 공용 카드 50장.
+파티 3인(공유 덱·전투불능 드로우 제외), 타겟팅 완성(도발·지정 — `Aggro` 무작위 폴백 대체), 맵/런 루프(전투 덱을 런 상태에서 주입 — `startingCards` 인스펙터 임시 조치 대체), 거점 기초, 드랍·회수, 카드 해금 2종, 런 중 저장(버저닝), 상태이상 모듈(Study-ModuleSkill의 Effect 생명주기 턴제 번안), `CardSystemWindow`(SWStatSystemWindow 패턴 복제), 공용 카드 50장.
 
 ---
 
@@ -179,3 +176,4 @@ M0 준비 ─▶ M1 정신력 ─▶ M2 전투원 ─▶ M3 카드 실행 ─▶
 | 초판 | 2026-07-07 | Phase 1 스케줄 수립 |
 | 개정 1 | 2026-07-07 | PartyData 신설 반영 |
 | 개정 2 | 2026-07-10 | M3 카드 실행 계층 완료 — CardInstance 폴더 `Card/`로 변경, "일시" → "전투 한정" 용어 확정, D3 시드 적용 확정, BattleBalanceData AP 그룹 추가 |
+| 개정 3 | 2026-07-14 | M4 턴 흐름 + 적 AI 완료 — 순수 클래스/Mono 경계 확정, "턴 경계" 코드 매핑(`OnRoundEnded`/`PrepareNextTurn`), 대상 처리 3단계 용어 확정(구성/검증/선정), 턴 이벤트 발화 순서 고정, 명명 개정(`TargetingResolver`→`TargetResolver`), `ETurnPhase`/`EBattleResult`를 `GameEnum.cs`에 병합, 잠정 규칙·임시 조치 명시 |

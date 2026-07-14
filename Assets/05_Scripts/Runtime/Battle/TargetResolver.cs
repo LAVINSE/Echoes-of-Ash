@@ -27,7 +27,7 @@ namespace EchoesOfAsh.Battle
         /// <param name="enemies">적 목록</param>
         /// <param name="results">결과를 담을 목록</param>
         /// <returns>구성 성공 여부</returns>
-        public bool Resove(ETargetingType targetingType, ITargetable caster, ITargetable target,
+        public bool Resolve(ETargetingType targetingType, ITargetable caster, ITargetable target,
          IReadOnlyList<EnemyEntity> enemies, List<ITargetable> results)
         {
             if (results == null)

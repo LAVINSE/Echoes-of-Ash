@@ -10,7 +10,7 @@ namespace EchoesOfAsh.Battle
     /// <summary>
     /// 턴 상태 머신
     /// </summary>
-    public class TurnManager : MonoBehaviour
+    public class TurnManager
     {
         #region 필드
         private int currentTurn;
@@ -133,7 +133,7 @@ namespace EchoesOfAsh.Battle
             SetPhase(ETurnPhase.BattleEnd);
         }
 
-        public void StartNextTurn()
+        private void StartNextTurn()
         {
             currentTurn++;
             SetPhase(ETurnPhase.TurnStart);

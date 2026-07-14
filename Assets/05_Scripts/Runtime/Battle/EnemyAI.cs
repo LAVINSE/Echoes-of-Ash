@@ -12,7 +12,7 @@ namespace EchoesOfAsh.Battle
     /// <summary>
     /// 적 AI
     /// </summary>
-    public class EnemyAI : MonoBehaviour
+    public class EnemyAI
     {
         #region 필드
         private IReadOnlyList<EnemyActionData> currentPatterns;
@@ -77,7 +77,7 @@ namespace EchoesOfAsh.Battle
         {
             if (effectExecutor == null)
             {
-                SWLog.LogError("[EnemyAI] Act 실패: EffectExecutor가 null입니다");
+                SWLog.LogError("[EnemyAI] Action 실패: EffectExecutor가 null입니다");
                 return false;
             }
 
@@ -88,7 +88,8 @@ namespace EchoesOfAsh.Battle
 
             if (nextAction == null)
             {
-                SWLog.LogError($"[EnemyAI] Act 실패: '{entity.DisplayName}' 예고된 행동이 없습니다");
+                SWLog.LogError($"[EnemyAI] Action 실패: '{entity.DisplayName}' 예고된 행동이 없습니다");
+                return false;
             }
 
             effectExecutor.Execute(nextAction.Effects, entity, targets);

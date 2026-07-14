@@ -243,7 +243,7 @@ namespace EchoesOfAsh.Battle
         /// <summary>
         /// 적 생성
         /// </summary>
-        public void SetupEnemies()
+        private void SetupEnemies()
         {
             foreach (var enemyData in enemyDatas)
             {
@@ -272,7 +272,7 @@ namespace EchoesOfAsh.Battle
         /// <summary>
         /// 시스템 생성
         /// </summary>
-        public void SetupSystems()
+        private void SetupSystems()
         {
             List<CardInstance> cardInstances = new();
 
@@ -349,7 +349,7 @@ namespace EchoesOfAsh.Battle
                 return false;
             }
 
-            if (!targetResolver.Resove(card.TargetingType, characterEntity, target, enemyEntities, cardTargetBuffer))
+            if (!targetResolver.Resolve(card.TargetingType, characterEntity, target, enemyEntities, cardTargetBuffer))
             {
                 return false;
             }
