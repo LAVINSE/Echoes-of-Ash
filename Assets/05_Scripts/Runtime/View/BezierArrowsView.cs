@@ -6,14 +6,14 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 #endif // UNITY_EDITOR
 
-namespace EchoesOfAsh.Battle.View
+namespace EchoesOfAsh.View
 {
     /// <summary>
     /// 대상 지정 화살표 뷰
     /// 시작 지점에서 지정 지점까지 베지어 곡선 화살표를 표시합니다.
     /// 입력을 직접 읽지 않으며, 드래그 핸들러가 BeginAiming / UpdateAiming / EndAiming으로 구동합니다.
     /// </summary>
-    public class BezierArrows : SWMonoBehaviour
+    public class BezierArrowsView : SWMonoBehaviour
     {
         #region 필드
         [SWGroup("프리팹")]

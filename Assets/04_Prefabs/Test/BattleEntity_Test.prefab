@@ -44,5 +44,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d8a7af3d45955046a04d4ba3abbd47f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EchoesOfAsh.Test.BattleEntityTest
-  enemyData: {fileID: 11400000, guid: 8ffbdedd07d9a5e419470fcef0166446, type: 2}
+  enemyData: {fileID: 11400000, guid: 6b36dbefcdeaaf14eb42c0fbfdaba7c0, type: 2}
   characterData: {fileID: 11400000, guid: 25def2d2b6d4b1243b194ef875ac324f, type: 2}

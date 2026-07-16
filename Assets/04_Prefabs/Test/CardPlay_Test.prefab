@@ -140,6 +140,6 @@ MonoBehaviour:
   characterEntity: {fileID: 6711781213775381213}
   characterData: {fileID: 11400000, guid: 25def2d2b6d4b1243b194ef875ac324f, type: 2}
   enemyEntity: {fileID: 1500075449827665897}
-  enemyData: {fileID: 11400000, guid: 8ffbdedd07d9a5e419470fcef0166446, type: 2}
+  enemyData: {fileID: 11400000, guid: 6b36dbefcdeaaf14eb42c0fbfdaba7c0, type: 2}
   useFixedSeed: 1
   seed: 12345

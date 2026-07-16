@@ -45,4 +45,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EchoesOfAsh.Test.SanityHolderTest
   partyData: {fileID: 11400000, guid: c92d90a77174c324aa0f3cf68f68238e, type: 2}
-  enemyData: {fileID: 11400000, guid: 8ffbdedd07d9a5e419470fcef0166446, type: 2}
+  enemyData: {fileID: 11400000, guid: 6b36dbefcdeaaf14eb42c0fbfdaba7c0, type: 2}

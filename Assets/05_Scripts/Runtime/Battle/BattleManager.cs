@@ -7,6 +7,7 @@ using EchoesOfAsh.Effect;
 using EchoesOfAsh.Enum;
 using EchoesOfAsh.Interface;
 using EchoesOfAsh.Sanity;
+using EchoesOfAsh.View;
 using SW.Attributes;
 using SW.Base;
 using SW.Util;
@@ -29,6 +30,9 @@ namespace EchoesOfAsh.Battle
 
         [SWGroup("적")]
         [SerializeField] private List<EnemyData> enemyDatas = new();
+
+        [SWGroup("뷰")]
+        [SerializeField] private HandView handView;
 
         [SWGroup("배치")]
         [SerializeField] private Transform characterRoot;
@@ -302,6 +306,11 @@ namespace EchoesOfAsh.Battle
             turnManager.OnTurnStarted += HandleTurnStarted;
             turnManager.OnEnemyActionsStarted += HandleEnemyActionsStarted;
             turnManager.OnRoundEnded += HandleRoundEnded;
+
+            if (handView != null)
+            {
+                handView.Init(deckSystem, cardPlayService, apSystem);
+            }
         }
 
         /// <summary>
@@ -322,6 +331,11 @@ namespace EchoesOfAsh.Battle
 
             deckSystem.ResetDeckSystem();
             apSystem.ResetAp();
+
+            if (handView != null)
+            {
+                handView.Release();
+            }
 
             SWLog.Log($"[BattleManager] 전투 종료: {battleResult} (턴 {turnManager.CurrentTurn})");
             OnBattleEnded?.Invoke(battleResult);
