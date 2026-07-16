@@ -43,7 +43,6 @@ namespace EchoesOfAsh.View
         private CardInstance cardInstance;
         private bool isPlayable = true;
         private bool isHovered;
-        private Renderer[] childRenderers;
         #endregion // 필드
 
         #region 프로퍼티

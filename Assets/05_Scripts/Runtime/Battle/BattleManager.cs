@@ -28,15 +28,17 @@ namespace EchoesOfAsh.Battle
         [SerializeField] private CharacterData characterData;
         [SerializeField] private List<CardData> startingCards = new();
 
-        [SWGroup("적")]
-        [SerializeField] private List<EnemyData> enemyDatas = new();
-
-        [SWGroup("뷰")]
-        [SerializeField] private HandView handView;
+        [SWGroup("조우")]
+        [Tooltip("이번 전투의 적 구성 (항목 순서 = 행동 순서)")]
+        [SerializeField] private EnemyEncounterData enemyEncounterData;
 
         [SWGroup("배치")]
         [SerializeField] private Transform characterRoot;
         [SerializeField] private Transform enemyRoot;
+
+        [SWGroup("뷰")]
+        [SerializeField] private HandView handView;
+        [SerializeField] private EnemyView enemyViewPrefab;
 
         private CharacterEntity characterEntity;
 
@@ -100,6 +102,11 @@ namespace EchoesOfAsh.Battle
         public void ResetBattle()
         {
             isBattleRunning = false;
+
+            if (handView != null)
+            {
+                handView.Release();
+            }
 
             if (turnManager != null)
             {
@@ -209,15 +216,15 @@ namespace EchoesOfAsh.Battle
                 return false;
             }
 
-            if (enemyDatas.Count == 0)
+            if (enemyEncounterData == null || enemyEncounterData.EnemyCount == 0)
             {
-                SWLog.LogError("[BattleManager] 데이터 검증 실패: 적이 비어 있습니다");
+                SWLog.LogError("[BattleManager] 데이터 검증 실패: 조우 데이터가 비어 있습니다");
                 return false;
             }
 
-            if (enemyDatas.Count > 3)
+            if (enemyEncounterData.EnemyCount > 3)
             {
-                SWLog.LogError($"[BattleManager] 적 {enemyDatas.Count}체입니다 - 기준 1~3");
+                SWLog.LogError($"[BattleManager] 조우 적 {enemyEncounterData.EnemyCount}체입니다 - 기준 1~3");
                 return false;
             }
 
@@ -245,31 +252,39 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 적 생성
+        /// 조우 데이터에 따라 적을 생성하고 배치한다
         /// </summary>
         private void SetupEnemies()
         {
-            foreach (var enemyData in enemyDatas)
+            foreach (var entry in enemyEncounterData.Entries)
             {
-                if (enemyData == null)
+                if (entry == null || entry.EnemyData == null)
                 {
-                    SWLog.LogError("[BattleManager] 적 목록에 null Enemy가 있습니다");
+                    SWLog.LogError("[BattleManager] 조우 항목에 null Enemy가 있습니다");
                     continue;
                 }
 
-                EnemyEntity enemyEntity = new GameObject(enemyData.name).AddComponent<EnemyEntity>();
+                EnemyEntity enemyEntity = new GameObject(entry.EnemyData.name).AddComponent<EnemyEntity>();
 
                 if (enemyRoot != null)
                 {
                     enemyEntity.transform.SetParent(enemyRoot, false);
                 }
 
-                enemyEntity.Init(enemyData);
+                enemyEntity.transform.localPosition = entry.SpawnPosition;
+
+                enemyEntity.Init(entry.EnemyData);
                 enemyEntity.OnDied += HandleEnemyDied;
 
                 enemyEntities.Add(enemyEntity);
 
                 enemyAIs.Add(new EnemyAI(enemyEntity));
+
+                if (enemyViewPrefab != null)
+                {
+                    EnemyView enemyView = Instantiate(enemyViewPrefab, enemyEntity.transform);
+                    enemyView.Init(enemyEntity);
+                }
             }
         }
 

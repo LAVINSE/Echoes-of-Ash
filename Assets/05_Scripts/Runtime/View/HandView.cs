@@ -81,6 +81,7 @@ namespace EchoesOfAsh.View
             Release();
 
             pool = SWPool.Instance;
+            pool.Prewarm(cardViewPrefab.gameObject, deckSystem.MaxHandSize);
 
             if (pool == null)
             {
@@ -91,6 +92,9 @@ namespace EchoesOfAsh.View
             this.deckSystem = deckSystem;
             this.cardPlayService = cardPlayService;
             this.apSystem = apSystem;
+
+            deckSystem.OnHandChanged += RebuildHand;
+            apSystem.OnApChanged += HandleApChanged;
 
             isInit = true;
             RebuildHand();
@@ -213,7 +217,7 @@ namespace EchoesOfAsh.View
             while (cardViews.Count > hand.Count)
             {
                 int lastIndex = cardViews.Count - 1;
-                ReturnCardView(cardViews[lastIndex - 1]);
+                ReturnCardView(cardViews[lastIndex]);
                 cardViews.RemoveAt(lastIndex);
             }
 
