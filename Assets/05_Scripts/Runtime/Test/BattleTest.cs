@@ -20,6 +20,10 @@ namespace EchoesOfAsh.Test
         [SerializeField] private bool useFixedSeed = true;
         [SerializeField] private int seed = 12345;
 
+        [SWGroup("테스트 UI")]
+        [Tooltip("OnGUI 테스트 패널 표시 여부")]
+        [SerializeField] private bool isShowTestGui = true;
+
         private bool isRun;
         private bool isSubscribed;
         private int selectedEnemyIndex;
@@ -96,7 +100,7 @@ namespace EchoesOfAsh.Test
         #region 테스트 UI
         private void OnGUI()
         {
-            if (!isRun)
+            if (!isRun || !isShowTestGui)
             {
                 return;
             }

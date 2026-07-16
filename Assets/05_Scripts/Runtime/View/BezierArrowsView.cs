@@ -34,14 +34,15 @@ namespace EchoesOfAsh.View
         [Tooltip("에디터 전용 — 시작점을 이 오브젝트 위치로 두고 포인터를 따라가는 셀프 조준 테스트")]
         [SerializeField] private bool isSelfAimingTest;
 
-        private readonly List<Transform> arrowNodes = new();
-        private readonly List<Vector3> originalNodeScales = new();
-
         private Vector2 aimOrigin;
         private bool isAiming;
+        private bool wasSelfAimingTest;
 
         // 생성 직후 노드는 활성 상태이므로, Awake의 첫 숨김 처리가 통과되도록 true로 시작합니다.
         private bool isArrowVisible = true;
+
+        private readonly List<Transform> arrowNodes = new();
+        private readonly List<Vector3> originalNodeScales = new();
         #endregion // 필드
 
         #region 프로퍼티
@@ -279,13 +280,17 @@ namespace EchoesOfAsh.View
         {
             if (!isSelfAimingTest)
             {
-                if (isAiming)
+                // 테스트를 '끈 순간'에만 정리 — 외부(드래그 컨트롤러) 조준은 건드리지 않는다
+                if (wasSelfAimingTest)
                 {
+                    wasSelfAimingTest = false;
                     EndAiming();
                 }
 
                 return;
             }
+
+            wasSelfAimingTest = true;
 
             if (!isAiming)
             {
