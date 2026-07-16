@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1553045470841507365}
   - component: {fileID: 1540950375675648368}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Icon_Sprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -101,7 +101,7 @@ GameObject:
   m_Component:
   - component: {fileID: 340264053124759208}
   - component: {fileID: 2126850606941938214}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Frame_Sprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -193,7 +193,7 @@ GameObject:
   - component: {fileID: 7158682171091027907}
   - component: {fileID: 1429446300194883615}
   - component: {fileID: 188834226326119349}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Name_Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -372,7 +372,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3072865035506978020}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Visual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -407,7 +407,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7145933671580361739}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: SanityMarker
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -441,7 +441,7 @@ GameObject:
   - component: {fileID: 8642309700762692164}
   - component: {fileID: 3455496066120625348}
   - component: {fileID: 7402753383203879726}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: CardView
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -494,7 +494,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -518,8 +518,8 @@ SortingGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6655624100098309526}
   m_Enabled: 1
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -1926563661
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_SortAtRoot: 0
   m_Sort3DAs2D: 0
@@ -541,5 +541,10 @@ MonoBehaviour:
   apCostText: {fileID: 0}
   typeText: {fileID: 0}
   sanityMarker: {fileID: 6134725168368192130}
-  playableColor: {r: 0, g: 0, b: 0, a: 0}
+  sortingGroup: {fileID: 3455496066120625348}
+  visualRoot: {fileID: 3072865035506978020}
+  hoverScale: 1.15
+  hoverRaise: 0.35
+  hoverSortingOrder: 1
+  playableColor: {r: 1, g: 1, b: 1, a: 1}
   unplayableColor: {r: 0.55, g: 0.55, b: 0.55, a: 1}

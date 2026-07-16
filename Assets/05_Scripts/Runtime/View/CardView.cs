@@ -37,7 +37,7 @@ namespace EchoesOfAsh.View
         [SerializeField, Min(0)] private int hoverSortingOrder = 1;
 
         [SWGroup("색상")]
-        [SerializeField] private Color playableColor;
+        [SerializeField] private Color playableColor = Color.white;
         [SerializeField] private Color unplayableColor = new(0.55f, 0.55f, 0.55f, 1f);
 
         private CardInstance cardInstance;

@@ -81,13 +81,14 @@ namespace EchoesOfAsh.View
             Release();
 
             pool = SWPool.Instance;
-            pool.Prewarm(cardViewPrefab.gameObject, deckSystem.MaxHandSize);
 
             if (pool == null)
             {
                 SWLog.LogError("[HandView] Init 실패: 씬에 SWPool이 없습니다");
                 return;
             }
+
+            pool.Prewarm(cardViewPrefab.gameObject, deckSystem.MaxHandSize);
 
             this.deckSystem = deckSystem;
             this.cardPlayService = cardPlayService;
