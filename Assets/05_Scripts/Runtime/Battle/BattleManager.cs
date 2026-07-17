@@ -39,6 +39,7 @@ namespace EchoesOfAsh.Battle
         [SWGroup("뷰")]
         [SerializeField] private HandView handView;
         [SerializeField] private EnemyView enemyViewPrefab;
+        [SerializeField] private PartyStatusView partyStatusView;
 
         private CharacterEntity characterEntity;
 
@@ -106,6 +107,11 @@ namespace EchoesOfAsh.Battle
             if (handView != null)
             {
                 handView.Release();
+            }
+
+            if (partyStatusView != null)
+            {
+                partyStatusView.Release();
             }
 
             if (turnManager != null)
@@ -326,6 +332,11 @@ namespace EchoesOfAsh.Battle
             {
                 handView.Init(deckSystem, cardPlayService, apSystem);
             }
+
+            if(partyStatusView != null)
+            {
+                partyStatusView.Init(characterEntity, partySanityHolder);
+            }
         }
 
         /// <summary>
@@ -350,6 +361,11 @@ namespace EchoesOfAsh.Battle
             if (handView != null)
             {
                 handView.Release();
+            }
+
+            if(partyStatusView != null)
+            {
+                partyStatusView.Release();
             }
 
             SWLog.Log($"[BattleManager] 전투 종료: {battleResult} (턴 {turnManager.CurrentTurn})");
