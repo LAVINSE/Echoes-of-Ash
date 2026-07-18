@@ -1,24 +1,156 @@
 using EchoesOfAsh.Battle;
+using EchoesOfAsh.Enum;
 using EchoesOfAsh.Interface;
+using SW.Attributes;
+using SW.Base;
+using SW.Util;
+using TMPro;
 using UnityEngine;
 
-public class PartyStatusView : MonoBehaviour
+namespace EchoesOfAsh.View
 {
-    #region 필드
-    #endregion // 필드
-
-    #region 프로퍼티
-    #endregion // 프로퍼티
-
-    #region 초기화
-    public void Init(CharacterEntity character, ISanityHolder sanityHolder)
+    public class PartyStatusView : SWMonoBehaviour
     {
+        #region 필드
+        [SWGroup("표시")]
+        [SerializeField] private GaugeView hpGauge;
+        [SerializeField] private TMP_Text blockText;
 
-    }
+        [SWGroup("정신력")] 
+        [SerializeField] private GaugeView sanityGauge;
+        [SerializeField] private TMP_Text sanityTypeText;
 
-    public void Release()
-    {
-        
+        [SWGroup("정신력 색상")]
+        [SerializeField] private Color calmColor = new(0.35f, 0.65f, 0.95f, 1f);
+        [SerializeField] private Color madnessColor = new(0.75f, 0.25f, 0.85f, 1f);
+
+        private bool isInit;
+
+        private CharacterEntity character;
+        private ISanityHolder sanityHolder;
+        #endregion // 필드
+
+        #region 프로퍼티
+        #endregion // 프로퍼티
+
+        #region 초기화
+        /// <summary>
+        /// 초기화
+        /// </summary>
+        /// <param name="character">표시할 파티원 엔티티</param>
+        /// <param name="sanityHolder">파티원 정신력</param>
+        public void Init(CharacterEntity character, ISanityHolder sanityHolder)
+        {
+            if (character == null || sanityHolder == null)
+            {
+                SWLog.LogError("[PartyStatusView] Init 실패: 의존성 중 null이 있습니다");
+                return;
+            }
+
+            Release();
+
+            this.character = character;
+            this.sanityHolder = sanityHolder;
+
+            character.OnHpChanged += HandleHpChanged;
+            character.OnBlockChanged += HandleBlockChanged;
+
+            sanityHolder.OnSanityChanged += HandleSanityChanged;
+            sanityHolder.OnSanityTypeChanged += HandleSanityTypeChanged;
+
+            isInit = true;
+
+            HandleHpChanged(character.CurrentHp, character.MaxHp);
+            HandleBlockChanged(character.CurrentBlock);
+            HandleSanityChanged(sanityHolder.CurrentSanity, sanityHolder.MaxSanity);
+            HandleSanityTypeChanged(sanityHolder.CurrentSanityType);
+
+            if (sanityGauge != null)
+            {
+                sanityGauge.SetSanityMarker(sanityHolder.SanityThreshold, sanityHolder.MaxSanity);
+            }
+        }
+
+        public void Release()
+        {
+            if (character != null)
+            {
+                character.OnHpChanged -= HandleHpChanged;
+                character.OnBlockChanged -= HandleBlockChanged;
+            }
+
+            if (sanityHolder != null)
+            {
+                sanityHolder.OnSanityChanged -= HandleSanityChanged;
+                sanityHolder.OnSanityTypeChanged -= HandleSanityTypeChanged;
+            }
+
+            character = null;
+            sanityHolder = null;
+
+            isInit = false;
+        }
+        #endregion // 초기화
+
+        /// <summary>
+        /// HP 변경 시 게이지를 갱신한다
+        /// </summary>
+        /// <param name="current">현재 HP</param>
+        /// <param name="max">최대 HP</param>
+        private void HandleHpChanged(int current, int max)
+        {
+            if (hpGauge != null)
+            {
+                hpGauge.SetValue(current, max);
+            }
+        }
+
+        /// <summary>
+        /// 방어막 변경 시 표시를 갱신한다 (0이면 숨김)
+        /// </summary>
+        /// <param name="block">현재 방어막</param>
+        private void HandleBlockChanged(int block)
+        {
+            if (blockText == null)
+            {
+                return;
+            }
+
+            blockText.gameObject.SetActive(block > 0);
+            blockText.text = block.ToString();
+        }
+
+        /// <summary>
+        /// 정신력 변경 시 게이지를 갱신한다
+        /// </summary>
+        /// <param name="current">현재 정신력</param>
+        /// <param name="max">최대 정신력</param>
+        private void HandleSanityChanged(int current, int max)
+        {
+            if (sanityGauge != null)
+            {
+                sanityGauge.SetValue(current, max);
+            }
+        }
+
+        /// <summary>
+        /// 정신력 구간 전환 시 색과 라벨을 갱신한다
+        /// </summary>
+        /// <param name="sanityType">현재 정신력 유형</param>
+        private void HandleSanityTypeChanged(ESanityType sanityType)
+        {
+            bool isMadness = sanityType == ESanityType.Madness;
+
+            if (sanityGauge != null)
+            {
+                sanityGauge.SetFillColor(isMadness ? madnessColor : calmColor);
+            }
+
+            if (sanityTypeText != null)
+            {
+                sanityTypeText.text = isMadness ? "광기" : "평정";
+                sanityTypeText.color = isMadness ? madnessColor : calmColor;
+            }
+        }
     }
-    #endregion // 초기화
 }

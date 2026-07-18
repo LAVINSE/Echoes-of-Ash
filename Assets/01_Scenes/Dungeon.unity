@@ -130,6 +130,90 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e528c1647151b6e47a3f683db26c8e8c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EchoesOfAsh.Battle.BattleManager
+--- !u!1001 &249814891
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2736052131121888503, guid: c2ada078421b4844ebb6752ffd6a47ca, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.27638
+      objectReference: {fileID: 0}
+    - target: {fileID: 2736052131121888503, guid: c2ada078421b4844ebb6752ffd6a47ca, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2736052131121888503, guid: c2ada078421b4844ebb6752ffd6a47ca, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.32643
+      objectReference: {fileID: 0}
+    - target: {fileID: 2736052131121888503, guid: c2ada078421b4844ebb6752ffd6a47ca, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2736052131121888503, guid: c2ada078421b4844ebb6752ffd6a47ca, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2736052131121888503, guid: c2ada078421b4844ebb6752ffd6a47ca, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2736052131121888503, guid: c2ada078421b4844ebb6752ffd6a47ca, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2736052131121888503, guid: c2ada078421b4844ebb6752ffd6a47ca, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2736052131121888503, guid: c2ada078421b4844ebb6752ffd6a47ca, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2736052131121888503, guid: c2ada078421b4844ebb6752ffd6a47ca, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2767206042645444433, guid: c2ada078421b4844ebb6752ffd6a47ca, type: 3}
+      propertyPath: m_Name
+      value: PartyStatusView
+      objectReference: {fileID: 0}
+    - target: {fileID: 2767206042645444433, guid: c2ada078421b4844ebb6752ffd6a47ca, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6731631007125699449, guid: c2ada078421b4844ebb6752ffd6a47ca, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
+    - targetCorrespondingSourceObject: {fileID: 7013906561640373244, guid: c2ada078421b4844ebb6752ffd6a47ca, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
+    - targetCorrespondingSourceObject: {fileID: 2220835917419629165, guid: c2ada078421b4844ebb6752ffd6a47ca, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
+    - targetCorrespondingSourceObject: {fileID: 4985339140922420239, guid: c2ada078421b4844ebb6752ffd6a47ca, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 0}
+  m_SourcePrefab: {fileID: 100100000, guid: c2ada078421b4844ebb6752ffd6a47ca, type: 3}
+--- !u!114 &249814892 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6681175204689436938, guid: c2ada078421b4844ebb6752ffd6a47ca, type: 3}
+  m_PrefabInstance: {fileID: 249814891}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dadec00608bc0b3499b2e106c0c360ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EchoesOfAsh.View.PartyStatusView
 --- !u!1001 &741519331
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1094,6 +1178,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2495086312046816145, guid: c85eacc3995435a458691d9e92cd5bab, type: 3}
     - target: {fileID: 4730366564788561771, guid: 07cca6c37dfe6ac4e883c43672fb8f37, type: 3}
+      propertyPath: partyStatusView
+      value: 
+      objectReference: {fileID: 249814892}
+    - target: {fileID: 4730366564788561771, guid: 07cca6c37dfe6ac4e883c43672fb8f37, type: 3}
       propertyPath: enemyEncounterData
       value: 
       objectReference: {fileID: 11400000, guid: e7b43b9945e28924bb63d24076592ae4, type: 2}
@@ -1243,6 +1331,7 @@ SceneRoots:
   - {fileID: 7431955835444881980}
   - {fileID: 1170753178}
   - {fileID: 5490792049512373137}
+  - {fileID: 249814891}
   - {fileID: 884499353}
   - {fileID: 8395461162937978232}
   - {fileID: 1281072388101997460}

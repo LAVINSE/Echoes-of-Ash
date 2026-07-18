@@ -1,4 +1,5 @@
 using EchoesOfAsh.Battle;
+using EchoesOfAsh.Enum;
 using SW.Attributes;
 using SW.Base;
 using SW.Util;
@@ -18,6 +19,15 @@ namespace EchoesOfAsh.View
         [SerializeField] private TMP_Text nameText;
         [SerializeField] private Color deadTint = new(0.25f, 0.25f, 0.25f, 1f);
 
+        [SWGroup("게이지")]
+        [SerializeField] private GaugeView hpGauge;
+        [SerializeField] private GaugeView sanityGauge;
+        [SerializeField] private TMP_Text blockText;
+
+        [SWGroup("정신력 색상")]
+        [SerializeField] private Color calmColor = new(0.35f, 0.65f, 0.95f, 1f);
+        [SerializeField] private Color madnessColor = new(0.75f, 0.25f, 0.85f, 1f);
+
         [SWGroup("판정")]
         [SerializeField] private Collider2D targetCollider;
 
@@ -31,10 +41,7 @@ namespace EchoesOfAsh.View
         #region 초기화
         private void OnDestroy()
         {
-            if (entity != null)
-            {
-                entity.OnDied -= HandleDied;
-            }
+            Release();
         }
 
         /// <summary>
@@ -50,14 +57,91 @@ namespace EchoesOfAsh.View
             }
 
             this.entity = entity;
+
             entity.OnDied += HandleDied;
+            entity.OnHpChanged += HandleHpChanged;
+            entity.OnBlockChanged += HandleBlockChanged;
+            entity.OnSanityChanged += HandleSanityChanged;
+            entity.OnSanityTypeChanged += HandleSanityTypeChanged;
 
             if (nameText != null)
             {
                 nameText.text = entity.DisplayName;
             }
+
+            HandleHpChanged(entity.CurrentHp, entity.MaxHp);
+            HandleBlockChanged(entity.CurrentBlock);
+            HandleSanityChanged(entity.CurrentSanity, entity.MaxSanity);
+            HandleSanityTypeChanged(entity.CurrentSanityType);
+        }
+
+        public void Release()
+        {
+            if (entity != null)
+            {
+                entity.OnDied -= HandleDied;
+                entity.OnHpChanged -= HandleHpChanged;
+                entity.OnBlockChanged -= HandleBlockChanged;
+                entity.OnSanityChanged -= HandleSanityChanged;
+                entity.OnSanityTypeChanged -= HandleSanityTypeChanged;
+            }
+
+            entity = null;
         }
         #endregion // 초기화
+
+        /// <summary>
+        /// HP 변경 시 게이지를 갱신한다
+        /// </summary>
+        /// <param name="current">현재 HP</param>
+        /// <param name="max">최대 HP</param>
+        private void HandleHpChanged(int current, int max)
+        {
+            if (hpGauge != null)
+            {
+                hpGauge.SetValue(current, max);
+            }
+        }
+
+        /// <summary>
+        /// 방어막 변경 시 표시를 갱신한다 (0이면 숨김)
+        /// </summary>
+        /// <param name="block">현재 방어막</param>
+        private void HandleBlockChanged(int block)
+        {
+            if (blockText == null)
+            {
+                return;
+            }
+
+            blockText.gameObject.SetActive(block > 0);
+            blockText.text = block.ToString();
+        }
+
+        /// <summary>
+        /// 정신력 변경 시 보조 바를 갱신한다
+        /// </summary>
+        /// <param name="current">현재 정신력</param>
+        /// <param name="max">최대 정신력</param>
+        private void HandleSanityChanged(int current, int max)
+        {
+            if (sanityGauge != null)
+            {
+                sanityGauge.SetValue(current, max);
+            }
+        }
+
+        /// <summary>
+        /// 정신력 구간 전환 시 보조 바 색을 갱신한다
+        /// </summary>
+        /// <param name="sanityType">현재 정신력 유형</param>
+        private void HandleSanityTypeChanged(ESanityType sanityType)
+        {
+            if (sanityGauge != null)
+            {
+                sanityGauge.SetFillColor(sanityType == ESanityType.Madness ? madnessColor : calmColor);
+            }
+        }
 
         /// <summary>
         /// 사망 처리
@@ -69,8 +153,8 @@ namespace EchoesOfAsh.View
             {
                 enemySprite.color = deadTint;
             }
-            
-            if(targetCollider != null)
+
+            if (targetCollider != null)
             {
                 targetCollider.enabled = false;
             }
