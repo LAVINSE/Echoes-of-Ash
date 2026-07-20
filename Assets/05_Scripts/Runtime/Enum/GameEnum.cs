@@ -162,7 +162,7 @@ namespace EchoesOfAsh.Enum
         /// <summary>방어입니다.</summary>
         [InspectorName("방어")] Defense,
         /// <summary>버프/디버프입니다.</summary>
-        [InspectorName("버프/디버프")] Buff,
+        [InspectorName("버프-디버프")] Buff,
         /// <summary>정신력 타격입니다.</summary>
         [InspectorName("정신력 타격")] SanityPressure,
         /// <summary>특수입니다.</summary>

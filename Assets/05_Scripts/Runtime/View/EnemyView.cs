@@ -1,4 +1,5 @@
 using EchoesOfAsh.Battle;
+using EchoesOfAsh.Data;
 using EchoesOfAsh.Enum;
 using SW.Attributes;
 using SW.Base;
@@ -28,10 +29,14 @@ namespace EchoesOfAsh.View
         [SerializeField] private Color calmColor = new(0.35f, 0.65f, 0.95f, 1f);
         [SerializeField] private Color madnessColor = new(0.75f, 0.25f, 0.85f, 1f);
 
+        [SWGroup("의도")]
+        [SerializeField] private IntentView intentView;
+
         [SWGroup("판정")]
         [SerializeField] private Collider2D targetCollider;
 
         private EnemyEntity entity;
+        private EnemyAI enemyAI;
         #endregion // 필드
 
         #region 프로퍼티
@@ -48,7 +53,7 @@ namespace EchoesOfAsh.View
         /// 표시할 적 엔티티
         /// </summary>
         /// <param name="entity">연결할 적 엔티티</param>
-        public void Init(EnemyEntity entity)
+        public void Init(EnemyEntity entity, EnemyAI enemyAI)
         {
             if (entity == null)
             {
@@ -57,12 +62,15 @@ namespace EchoesOfAsh.View
             }
 
             this.entity = entity;
+            this.enemyAI = enemyAI;
 
             entity.OnDied += HandleDied;
             entity.OnHpChanged += HandleHpChanged;
             entity.OnBlockChanged += HandleBlockChanged;
             entity.OnSanityChanged += HandleSanityChanged;
             entity.OnSanityTypeChanged += HandleSanityTypeChanged;
+
+            enemyAI.OnIntentChanged += HandleIntentChanged;
 
             if (nameText != null)
             {
@@ -73,6 +81,8 @@ namespace EchoesOfAsh.View
             HandleBlockChanged(entity.CurrentBlock);
             HandleSanityChanged(entity.CurrentSanity, entity.MaxSanity);
             HandleSanityTypeChanged(entity.CurrentSanityType);
+
+            HandleIntentChanged(entity, enemyAI.NextAction);
         }
 
         public void Release()
@@ -86,6 +96,12 @@ namespace EchoesOfAsh.View
                 entity.OnSanityTypeChanged -= HandleSanityTypeChanged;
             }
 
+            if (enemyAI != null)
+            {
+                enemyAI.OnIntentChanged -= HandleIntentChanged;
+            }
+
+            enemyAI = null;
             entity = null;
         }
         #endregion // 초기화
@@ -158,6 +174,24 @@ namespace EchoesOfAsh.View
             {
                 targetCollider.enabled = false;
             }
+
+            if (intentView != null)
+            {
+                intentView.Clear();
+            }
+        }
+
+        /// <summary>
+        /// 의도 변경 시 의도 표시를 갱신한다
+        /// </summary>
+        private void HandleIntentChanged(EnemyEntity changedEntity, EnemyActionData action)
+        {
+            if (intentView == null)
+            {
+                return;
+            }
+
+            intentView.SetIntent(action);
         }
     }
 }

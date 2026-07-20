@@ -284,12 +284,13 @@ namespace EchoesOfAsh.Battle
 
                 enemyEntities.Add(enemyEntity);
 
-                enemyAIs.Add(new EnemyAI(enemyEntity));
+                EnemyAI enemyAI = new EnemyAI(enemyEntity);
+                enemyAIs.Add(enemyAI);
 
                 if (enemyViewPrefab != null)
                 {
                     EnemyView enemyView = Instantiate(enemyViewPrefab, enemyEntity.transform);
-                    enemyView.Init(enemyEntity);
+                    enemyView.Init(enemyEntity, enemyAI);
                 }
             }
         }
