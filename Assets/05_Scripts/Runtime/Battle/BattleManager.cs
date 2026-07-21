@@ -28,6 +28,8 @@ namespace EchoesOfAsh.Battle
         [Tooltip("1인기준으로 테스트, 나중에 확장")]
         [SerializeField] private CharacterData characterData;
         [SerializeField] private List<CardData> startingCards = new();
+        [Tooltip("광기 랜덤 이벤트 풀 (임시 조치 - Phase 2 런 주입 대체 예정)")]
+        [SerializeField] private List<SanityEventData> sanityEvents = new();
 
         [SWGroup("조우")]
         [Tooltip("이번 전투의 적 구성 (항목 순서 = 행동 순서)")]
@@ -42,6 +44,8 @@ namespace EchoesOfAsh.Battle
         [SerializeField] private EnemyView enemyViewPrefab;
         [SerializeField] private PartyStatusView partyStatusView;
         [SerializeField] private CardTooltipView cardTooltipView;
+        [SerializeField] private BattleHUDView battleHUDView;
+        [SerializeField] private MadnessOverlayView madnessOverlayView;
 
         private CharacterEntity characterEntity;
 
@@ -52,6 +56,7 @@ namespace EchoesOfAsh.Battle
         private CardPlayService cardPlayService;
         private TargetResolver targetResolver;
         private TurnManager turnManager;
+        private MadnessEventRunner madnessEventRunner;
 
         private EBattleResult battleResult = EBattleResult.None;
         private bool isBattleRunning;
@@ -121,12 +126,28 @@ namespace EchoesOfAsh.Battle
                 cardTooltipView.Release();
             }
 
+            if (battleHUDView != null)
+            {
+                battleHUDView.Release();
+            }
+
+            if (madnessOverlayView != null)
+            {
+                madnessOverlayView.Release();
+            }
+
             if (turnManager != null)
             {
                 turnManager.OnTurnStarted -= HandleTurnStarted;
                 turnManager.OnEnemyActionsStarted -= HandleEnemyActionsStarted;
                 turnManager.OnRoundEnded -= HandleRoundEnded;
                 turnManager = null;
+            }
+
+            if (madnessEventRunner != null)
+            {
+                turnManager.OnTurnStartHook -= madnessEventRunner.HandleTurnStartHook;
+                madnessEventRunner = null;
             }
 
             deckSystem = null;
@@ -336,6 +357,9 @@ namespace EchoesOfAsh.Battle
             turnManager.OnEnemyActionsStarted += HandleEnemyActionsStarted;
             turnManager.OnRoundEnded += HandleRoundEnded;
 
+            madnessEventRunner = new MadnessEventRunner(partySanityHolder, effectExecutor, balanceData, sanityEvents, characterEntity);
+            turnManager.OnTurnStartHook += madnessEventRunner.HandleTurnStartHook;
+
             if (handView != null)
             {
                 handView.Init(deckSystem, cardPlayService, apSystem);
@@ -349,6 +373,16 @@ namespace EchoesOfAsh.Battle
             if (cardTooltipView != null)
             {
                 cardTooltipView.Init(partySanityHolder);
+            }
+
+            if (battleHUDView != null)
+            {
+                battleHUDView.Init(turnManager, apSystem, deckSystem, EndTurn);
+            }
+
+            if (madnessOverlayView != null)
+            {
+                madnessOverlayView.Init(partySanityHolder);
             }
         }
 
@@ -384,6 +418,16 @@ namespace EchoesOfAsh.Battle
             if (cardTooltipView != null)
             {
                 cardTooltipView.Release();
+            }
+
+            if (battleHUDView != null)
+            {
+                battleHUDView.Release();
+            }
+
+            if (madnessOverlayView != null)
+            {
+                madnessOverlayView.Release();
             }
 
             SWLog.Log($"[BattleManager] 전투 종료: {battleResult} (턴 {turnManager.CurrentTurn})");

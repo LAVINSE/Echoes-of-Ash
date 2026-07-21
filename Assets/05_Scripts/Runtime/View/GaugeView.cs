@@ -21,6 +21,10 @@ namespace EchoesOfAsh.View
         [SWGroup("정신력 전환 마커")]
         [SerializeField] private Transform sanityMarker;
 
+        [SWGroup("보간 연출")]
+        [Tooltip("초당 비율 변화량 - 0이면 보간 없이 즉시 반영")]
+        [SerializeField, Min(0f)] private float lerpSpeed = 2f;
+
 #if UNITY_EDITOR
         [SWGroup("테스트")]
         /// <summary>슬라이더 조작 시 게이지를 즉시 갱신할지 여부입니다.</summary>
@@ -32,6 +36,10 @@ namespace EchoesOfAsh.View
 
         private int currentValue;
         private int maxValue;
+
+        private float targetRatio;
+        private float displayedRatio;
+        private bool hasValue;
         #endregion // 필드
 
         #region 프로퍼티
@@ -41,8 +49,20 @@ namespace EchoesOfAsh.View
         public int MaxValue => maxValue;
         #endregion // 프로퍼티
 
+        private void Update()
+        {
+            if (Mathf.Approximately(displayedRatio, targetRatio))
+            {
+                return;
+            }
+
+            displayedRatio = Mathf.MoveTowards(displayedRatio, targetRatio, lerpSpeed * Time.deltaTime);
+            ApplyFill();
+        }
+
         /// <summary>
         /// 게이지 값을 갱신합니다.
+        /// 로직 즉시(텍스트) · 표시 지연(바 보간) - 첫 값은 스냅 (전투 시작 시 차오름 방지)
         /// </summary>
         /// <param name="current">현재 값입니다.</param>
         /// <param name="max">최대 값입니다.</param>
@@ -51,19 +71,35 @@ namespace EchoesOfAsh.View
             currentValue = Mathf.Max(0, current);
             maxValue = Mathf.Max(0, max);
 
-            if (fillRoot != null)
-            {
-                float ratio = maxValue > 0 ? Mathf.Clamp01((float)currentValue / maxValue) : 0f;
+            targetRatio = maxValue > 0 ? Mathf.Clamp01((float)currentValue / maxValue) : 0f;
 
-                Vector3 scale = fillRoot.localScale;
-                scale.x = ratio;
-                fillRoot.localScale = scale;
+            // 첫 값이거나 보간이 꺼져 있으면 즉시 반영합니다 (에디터 테스트 경로 포함)
+            if (!hasValue || lerpSpeed <= 0f || !Application.isPlaying)
+            {
+                hasValue = true;
+                displayedRatio = targetRatio;
+                ApplyFill();
             }
 
             if (valueText != null)
             {
                 valueText.text = $"{currentValue}/{maxValue}";
             }
+        }
+
+        /// <summary>
+        /// 표시 비율을 채움 루트 스케일에 적용합니다.
+        /// </summary>
+        private void ApplyFill()
+        {
+            if (fillRoot == null)
+            {
+                return;
+            }
+
+            Vector3 scale = fillRoot.localScale;
+            scale.x = displayedRatio;
+            fillRoot.localScale = scale;
         }
 
         /// <summary>
@@ -104,7 +140,6 @@ namespace EchoesOfAsh.View
 
             sanityMarker.gameObject.SetActive(true);
         }
-
 
         #region 테스트
 #if UNITY_EDITOR
@@ -178,6 +213,5 @@ namespace EchoesOfAsh.View
         }
 #endif
         #endregion // 테스트
-
     }
 }
