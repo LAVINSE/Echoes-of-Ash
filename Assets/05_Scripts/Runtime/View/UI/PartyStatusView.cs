@@ -7,18 +7,18 @@ using SW.Util;
 using TMPro;
 using UnityEngine;
 
-namespace EchoesOfAsh.View
+namespace EchoesOfAsh.View.UI
 {
     public class PartyStatusView : SWMonoBehaviour
     {
         #region 필드
         [SWGroup("표시")]
-        [SerializeField] private GaugeView hpGauge;
-        [SerializeField] private TMP_Text blockText;
+        [SerializeField] private UIGaugeView hpGauge;
+        [SerializeField] private TextMeshProUGUI blockText;
 
         [SWGroup("정신력")] 
-        [SerializeField] private GaugeView sanityGauge;
-        [SerializeField] private TMP_Text sanityTypeText;
+        [SerializeField] private UIGaugeView sanityGauge;
+        [SerializeField] private TextMeshProUGUI sanityTypeText;
 
         [SWGroup("정신력 색상")]
         [SerializeField] private Color calmColor = new(0.35f, 0.65f, 0.95f, 1f);
@@ -134,22 +134,23 @@ namespace EchoesOfAsh.View
         }
 
         /// <summary>
-        /// 정신력 구간 전환 시 색과 라벨을 갱신한다
+        /// 정신력 구간 전환 시 게이지 색과 구간 라벨을 갱신한다
         /// </summary>
         /// <param name="sanityType">현재 정신력 유형</param>
         private void HandleSanityTypeChanged(ESanityType sanityType)
         {
             bool isMadness = sanityType == ESanityType.Madness;
+            Color sectionColor = isMadness ? madnessColor : calmColor;
 
             if (sanityGauge != null)
             {
-                sanityGauge.SetFillColor(isMadness ? madnessColor : calmColor);
+                sanityGauge.SetFillColor(sectionColor);
             }
 
             if (sanityTypeText != null)
             {
-                sanityTypeText.text = isMadness ? "광기" : "평정";
-                sanityTypeText.color = isMadness ? madnessColor : calmColor;
+                sanityTypeText.text = isMadness ? "[광기]" : "[평정]";
+                sanityTypeText.color = sectionColor;
             }
         }
     }

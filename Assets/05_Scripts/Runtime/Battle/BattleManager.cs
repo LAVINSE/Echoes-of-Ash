@@ -8,6 +8,7 @@ using EchoesOfAsh.Enum;
 using EchoesOfAsh.Interface;
 using EchoesOfAsh.Sanity;
 using EchoesOfAsh.View;
+using EchoesOfAsh.View.UI;
 using SW.Attributes;
 using SW.Base;
 using SW.Util;

@@ -5,8 +5,9 @@ using SW.Util;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.UI;
 
-namespace EchoesOfAsh.View
+namespace EchoesOfAsh.View.UI
 {
     /// <summary>
     /// 카드 표시 뷰
@@ -15,16 +16,12 @@ namespace EchoesOfAsh.View
     {
         #region 필드
         [SWGroup("표시")]
-        [SerializeField] private SpriteRenderer frameRenderer;
-        [SerializeField] private SpriteRenderer iconRenderer;
-        [SerializeField] private TMP_Text nameText;
-        [SerializeField] private TMP_Text apCostText;
-        [SerializeField] private TMP_Text typeText;
+        [SerializeField] private Image frameImg;
+        [SerializeField] private Image iconImg;
+        [SerializeField] private TextMeshProUGUI nameText;
+        [SerializeField] private TextMeshProUGUI apCostText;
+        [SerializeField] private TextMeshProUGUI typeText;
         [SerializeField] private GameObject sanityMarker;
-
-        [SWGroup("정렬")]
-        /// <summary>카드 단위 정렬용 소팅 그룹입니다. (루트에 부착)</summary>
-        [SerializeField] private SortingGroup sortingGroup;
 
         [SWGroup("강조")]
         /// <summary>강조 연출이 적용될 시각 요소 루트입니다. (루트 트랜스폼은 배치 소유 — 건드리지 않음)</summary>
@@ -32,9 +29,7 @@ namespace EchoesOfAsh.View
         /// <summary>호버 시 확대 배율입니다.</summary>
         [SerializeField, Min(1f)] private float hoverScale = 1.15f;
         /// <summary>호버 시 위로 올라가는 높이입니다.</summary>
-        [SerializeField, Min(0f)] private float hoverRaise = 0.35f;
-        /// <summary>호버 시 이웃 카드 위로 올라갈 소팅 오더입니다.</summary>
-        [SerializeField, Min(0)] private int hoverSortingOrder = 1;
+        [SerializeField, Min(0f)] private float hoverRaise = 40f;
 
         [SWGroup("색상")]
         [SerializeField] private Color playableColor = Color.white;
@@ -43,6 +38,9 @@ namespace EchoesOfAsh.View
         private CardInstance cardInstance;
         private bool isPlayable = true;
         private bool isHovered;
+        private bool isDragging;
+        private bool isPromoted;
+        private int cachedSiblingIndex = -1;
         #endregion // 필드
 
         #region 프로퍼티
@@ -58,6 +56,10 @@ namespace EchoesOfAsh.View
         private void OnDisable()
         {
             SetHovered(false);
+            SetDragging(false);
+
+            isPromoted = false;
+            cachedSiblingIndex = -1;
         }
         
         /// <summary>
@@ -95,9 +97,12 @@ namespace EchoesOfAsh.View
                 typeText.text = cardInstance.CurrentCardData.CardType.ToString();
             }
 
-            if (iconRenderer != null)
+            if(iconImg != null)
             {
-                iconRenderer.sprite = cardInstance.CurrentCardData.CardIconSprite;
+                Sprite iconSprite = cardInstance.CurrentCardData.CardIconSprite;
+
+                iconImg.sprite = iconSprite;
+                iconImg.enabled = iconSprite != null;
             }
 
             if (sanityMarker != null)
@@ -144,26 +149,51 @@ namespace EchoesOfAsh.View
                     : Vector3.zero;
             }
 
-            if (sortingGroup != null)
-            {
-                sortingGroup.sortingOrder = isHovered ? hoverSortingOrder : 0;
-            }
+            UpdatePromotion();
         }
 
         /// <summary>
-        /// 카드의 모든 렌더러의 소팅 레이어를 변경한다
-        /// 드래그 시작/종료 시 전환에 사용
+        /// 드래그 상태를 변경한다
+        /// 드래그 시작/종료 시 그리기 순서 승격 전환에 사용
         /// </summary>
-        /// <param name="sortingLayerName">적용할 소팅 레이어 이름</param>
-        public void SetSortingLayer(string sortingLayerName)
+        /// <param name="isDragging">드래그 여부</param>
+        public void SetDragging(bool isDragging)
         {
-            if (sortingGroup == null)
+            if (this.isDragging == isDragging)
             {
-                SWLog.LogError($"[CardView] {name}: SortingGroup이 연결되지 않았습니다");
                 return;
             }
 
-            sortingGroup.sortingLayerName = sortingLayerName;
+            this.isDragging = isDragging;
+            UpdatePromotion();
+        }
+
+        /// <summary>
+        /// 호버/드래그 상태에 맞춰 그리기 순서를 업데이트
+        /// </summary>
+        private void UpdatePromotion()
+        {
+            bool shouldPromote = isHovered || isDragging;
+
+            if (shouldPromote == isPromoted)
+            {
+                return;
+            }
+
+            isPromoted = shouldPromote;
+
+            if (isPromoted)
+            {
+                cachedSiblingIndex = transform.GetSiblingIndex();
+                transform.SetAsLastSibling();
+                return;
+            }
+
+            if (cachedSiblingIndex >= 0)
+            {
+                transform.SetSiblingIndex(cachedSiblingIndex);
+                cachedSiblingIndex = -1;
+            }
         }
 
         /// <summary>
@@ -173,14 +203,14 @@ namespace EchoesOfAsh.View
         {
             Color tint = isPlayable ? playableColor : unplayableColor;
 
-            if (frameRenderer != null)
+            if (frameImg != null)
             {
-                frameRenderer.color = tint;
+                frameImg.color = tint;
             }
 
-            if (iconRenderer != null)
+            if (iconImg != null)
             {
-                iconRenderer.color = tint;
+                iconImg.color = tint;
             }
         }
     }

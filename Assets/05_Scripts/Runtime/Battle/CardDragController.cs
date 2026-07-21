@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using EchoesOfAsh.Enum;
 using EchoesOfAsh.View;
+using EchoesOfAsh.View.UI;
 using SW.Attributes;
 using SW.Base;
 using SW.Util;
@@ -19,6 +20,7 @@ namespace EchoesOfAsh.Battle
         [SWGroup("참조")]
         [SerializeField] private BattleManager battleManager;
         [SerializeField] private BezierArrowsView targetingArrow;
+        [SerializeField] private CardTooltipView tooltipView;
         [SerializeField] private Camera targetCamera;
 
         [SWGroup("판정")]
@@ -136,7 +138,7 @@ namespace EchoesOfAsh.Battle
             originLocalPosition = cardTransform.localPosition;
             originLocalRotation = cardTransform.localRotation;
 
-            cardView.SetSortingLayer(dragSortingLayerName);
+            cardView.SetDragging(true);
 
             if (isSingleTarget)
             {
@@ -186,7 +188,7 @@ namespace EchoesOfAsh.Battle
                 : TryPlayAboveLine(cardView, pointerWorldPosition);
 
             // 성공 시 뷰는 OnHandChanged 재구성으로 풀에 반환됨 — 재사용 대비 소팅 레이어만 복원
-            cardView.SetSortingLayer(cardSortingLayerName);
+            cardView.SetDragging(false);
 
             if (!isPlayed)
             {
@@ -214,7 +216,7 @@ namespace EchoesOfAsh.Battle
                 targetingArrow.EndAiming();
             }
 
-            cardView.SetSortingLayer(cardSortingLayerName);
+            cardView.SetDragging(false);
 
             Transform cardTransform = cardView.transform;
             cardTransform.localPosition = originLocalPosition;
@@ -244,6 +246,18 @@ namespace EchoesOfAsh.Battle
             if (hoveredCard != null)
             {
                 hoveredCard.SetHovered(true);
+            }
+
+            if (tooltipView != null)
+            {
+                if (hoveredCard != null)
+                {
+                    tooltipView.Show(hoveredCard.CardInstance, hoveredCard.transform.position);
+                }
+                else
+                {
+                    tooltipView.Hide();
+                }
             }
         }
 

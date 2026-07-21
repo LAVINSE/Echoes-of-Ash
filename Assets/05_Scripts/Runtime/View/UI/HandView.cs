@@ -8,7 +8,7 @@ using SW.Pooling;
 using SW.Util;
 using UnityEngine;
 
-namespace EchoesOfAsh.View
+namespace EchoesOfAsh.View.UI
 {
     /// <summary>
     /// 손패 뷰
@@ -21,13 +21,13 @@ namespace EchoesOfAsh.View
         [SerializeField] private Transform cardRoot;
 
         [SWGroup("배치 연출")]
-        [Tooltip("카드 사이 가로 간격입니다.")]
-        [SerializeField, Min(0f)] private float cardSpacing = 1.6f;
-        [Tooltip("부채꼴 중앙이 솟는 높이입니다.")]
-        [SerializeField, Min(0f)] private float arcHeight = 0.3f;
+        [Tooltip("카드 사이 가로 간격(캔버스 단위)입니다.")]
+        [SerializeField, Min(0f)] private float cardSpacing = 180f;
+        [Tooltip("부채꼴 중앙이 솟는 높이(캔버스 단위)입니다.")]
+        [SerializeField, Min(0f)] private float arcHeight = 30f;
         [Tooltip("가장자리 카드의 최대 기울기(도)입니다.")]
         [SerializeField, Min(0f)] private float maxTiltAngle = 8f;
-        [Tooltip("겹침 정렬용 카드별 Z 간격입니다. 오른쪽 카드가 위에 그려집니다.")]
+        [Tooltip("카드별 Z 간격 - 그리기와 무관, 픽업 판정의 최상단 선정 전용입니다.")]
         [SerializeField, Min(0f)] private float depthStep = 0.01f;
 
         private bool isInit;
@@ -226,6 +226,8 @@ namespace EchoesOfAsh.View
             {
                 cardViews[i].Init(hand[i]);
                 LayoutCard(cardViews[i].transform, i, hand.Count);
+
+                cardViews[i].transform.SetSiblingIndex(i);
             }
 
             RefreshPlayable();
