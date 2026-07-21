@@ -1267,6 +1267,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1895429334}
     - target: {fileID: 4730366564788561771, guid: 07cca6c37dfe6ac4e883c43672fb8f37, type: 3}
+      propertyPath: cardTooltipView
+      value: 
+      objectReference: {fileID: 723551829}
+    - target: {fileID: 4730366564788561771, guid: 07cca6c37dfe6ac4e883c43672fb8f37, type: 3}
       propertyPath: enemyViewPrefab
       value: 
       objectReference: {fileID: 2495086312046816145, guid: c85eacc3995435a458691d9e92cd5bab, type: 3}
