@@ -9,7 +9,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Battle
 {
     /// <summary>
-    /// 적 Entity
+    /// 적 엔티티입니다.
     /// </summary>
     public class EnemyEntity : BattleEntity, ISanityHolder
     {
@@ -84,7 +84,7 @@ namespace EchoesOfAsh.Battle
 
         #region 초기화
         /// <summary>
-        /// 초기화
+        /// 초기화합니다.
         /// </summary>
         /// <param name="data">적 데이터입니다.</param>
         public void Init(EnemyData data)
@@ -103,6 +103,7 @@ namespace EchoesOfAsh.Battle
             actionIndex = 0;
         }
 
+        /// <inheritdoc />
         public override void ResetEntity()
         {
             sanityHolder?.Dispose();
@@ -113,7 +114,7 @@ namespace EchoesOfAsh.Battle
 
         #region 정신력
         /// <summary>
-        /// 정신력 변화
+        /// 정신력 변화입니다.
         /// </summary>
         /// <param name="delta">변화량입니다.</param>
         public void ChangeSanity(int delta)

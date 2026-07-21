@@ -5,6 +5,9 @@ using UnityEngine;
 
 namespace EchoesOfAsh.Effect
 {
+    /// <summary>
+    /// 대상에게 지정한 횟수만큼 피해를 적용하는 효과입니다.
+    /// </summary>
     [System.Serializable]
     [SWAddTypeMenu("공격/피해")]
     public class DamageEffect : EffectBlock
@@ -15,13 +18,15 @@ namespace EchoesOfAsh.Effect
         #endregion // 필드
 
         #region 프로퍼티
-        /// <summary> 피해량입니다.</summary>
+        /// <summary>피해량입니다.</summary>
         public int Damage => damage;
-        /// <summary> 반복 횟수입니다.</summary>
+        /// <summary>반복 횟수입니다.</summary>
         public int Times => times;
+        /// <inheritdoc />
         public override EIntentType? IntentContribution => EIntentType.Attack;
         #endregion // 프로퍼티
 
+        /// <inheritdoc />
         public override void Apply(EffectContext context)
         {
             foreach (var target in context.Targets)
@@ -38,6 +43,7 @@ namespace EchoesOfAsh.Effect
             }
         }
 
+        /// <inheritdoc />
         public override string GetDescription()
         {
             return times > 1 ? $"{damage} 피해 x{times}" : $"{damage} 피해";

@@ -7,7 +7,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Data
 {
     /// <summary>
-    /// 파티 데이터
+    /// 파티 데이터입니다.
     /// </summary>
     [CreateAssetMenu(fileName = "Party", menuName = "EchoesOfAsh/Data/Party")]
     public class PartyData : SWScriptableObject

@@ -8,7 +8,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Card
 {
     /// <summary>
-    /// 카드
+    /// 카드입니다.
     /// </summary>
     public class CardInstance
     {
@@ -37,6 +37,7 @@ namespace EchoesOfAsh.Card
         /// <summary>대상 지정 유형입니다.</summary>
         public ETargetingType TargetingType => CurrentCardData.TargetingType;
 
+        /// <summary>현재 카드의 표시 이름입니다.</summary>
         public string DisplayName => CurrentCardData.DisplayName;
         #endregion // 프로퍼티
 
@@ -84,8 +85,8 @@ namespace EchoesOfAsh.Card
         #region 전투 상태
         /// <summary>
         /// 전투 한정 행동력 비용 보정치를 누적합니다.
-        /// 음수 = 비용 감소
-        /// 유물, 이벤트 효과 등에서 사용
+        /// 음수 = 비용 감소입니다.
+        /// 유물, 이벤트 효과 등에서 사용합니다.
         /// </summary>
         public void AddBattleApCostDelta(int delta)
         {

@@ -17,7 +17,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Battle
 {
     /// <summary>
-    /// 전투 매니저
+    /// 전투 매니저입니다.
     /// </summary>
     public class BattleManager : SWMonoBehaviour
     {
@@ -64,16 +64,16 @@ namespace EchoesOfAsh.Battle
         #endregion // 필드
 
         #region 프로퍼티
-        /// <summary>전투 진행 여부</summary>
+        /// <summary>전투 진행 여부입니다.</summary>
         public bool IsBattleRunning => isBattleRunning;
-        /// <summary>전투 결과 타입</summary>
+        /// <summary>전투 결과 타입입니다.</summary>
         public EBattleResult BattleResult => battleResult;
 
-        /// <summary>파티원 엔티티)</summary>
+        /// <summary>파티원 엔티티입니다.</summary>
         public CharacterEntity Character => characterEntity;
-        /// <summary>적 엔티티 목록 (스폰 순서 = 행동 순서)</summary>
+        /// <summary>적 엔티티 목록 (스폰 순서 = 행동 순서)입니다.</summary>
         public IReadOnlyList<EnemyEntity> EnemyEntities => enemyEntities;
-        /// <summary>적 AI 목록 (적 엔티티 목록 인덱스와 일치)</summary>
+        /// <summary>적 인공지능 목록 (적 엔티티 목록 인덱스와 일치)입니다.</summary>
         public IReadOnlyList<EnemyAI> EnemyAIs => enemyAIs;
 
         /// <summary>파티 공유 정신력입니다.</summary>
@@ -82,14 +82,14 @@ namespace EchoesOfAsh.Battle
         public DeckSystem DeckSystem => deckSystem;
         /// <summary>AP 시스템입니다.</summary>
         public ApSystem ApSystem => apSystem;
-        /// <summary>카드 사용 파이프라인</summary>
+        /// <summary>카드 사용 파이프라인입니다.</summary>
         public CardPlayService CardPlayService => cardPlayService;
-        /// <summary>턴 매니저</summary>
+        /// <summary>턴 매니저입니다.</summary>
         public TurnManager TurnManager => turnManager;
 
-        /// <summary>전투 시작 시 호출</summary>
+        /// <summary>전투 시작 시 호출됩니다.</summary>
         public event Action OnBattleStarted;
-        /// <summary>전투 종료 시 호출</summary>
+        /// <summary>전투 종료 시 호출됩니다.</summary>
         public event Action<EBattleResult> OnBattleEnded;
         #endregion // 프로퍼티
 
@@ -100,7 +100,7 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 전투 상태를 초기화합니다
+        /// 전투 상태를 초기화합니다.
         /// </summary>
         public void ResetBattle()
         {
@@ -152,10 +152,10 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 생성한 엔티티를 제거한다
+        /// 생성한 엔티티를 제거합니다.
         /// </summary>
-        /// <typeparam name="TBattleEntity">제거할 엔티티</typeparam>
-        /// <param name="battleEntity">제거할 엔티티</param>
+        /// <typeparam name="TBattleEntity">제거할 엔티티입니다.</typeparam>
+        /// <param name="battleEntity">제거할 엔티티입니다.</param>
         private void DestroyEntity<TBattleEntity>(ref TBattleEntity battleEntity)
            where TBattleEntity : BattleEntity
         {
@@ -179,9 +179,9 @@ namespace EchoesOfAsh.Battle
 
         #region 전투
         /// <summary>
-        /// 전투 시작
+        /// 전투 시작합니다.
         /// </summary>
-        /// <returns>시작 성공 여부</returns>
+        /// <returns>시작 성공 여부입니다.</returns>
         public bool StartBattle()
         {
             if (isBattleRunning)
@@ -212,9 +212,9 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 전투 시작에 필요한 데이터를 검증한다
+        /// 전투 시작에 필요한 데이터를 검증합니다.
         /// </summary>
-        /// <returns>검증 성공 여부</returns>
+        /// <returns>검증 성공 여부입니다.</returns>
         private bool ValidateData()
         {
             if (partyData == null || balanceData == null || characterData == null)
@@ -245,7 +245,7 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 파티원 생성 및 정신력 설정
+        /// 파티원 생성 및 정신력 설정합니다.
         /// </summary>
         public void SetupParty()
         {
@@ -265,7 +265,7 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 조우 데이터에 따라 적을 생성하고 배치한다
+        /// 조우 데이터에 따라 적을 생성하고 배치합니다.
         /// </summary>
         private void SetupEnemies()
         {
@@ -303,7 +303,7 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 시스템 생성
+        /// 시스템 생성합니다.
         /// </summary>
         private void SetupSystems()
         {
@@ -353,9 +353,9 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 전투를 종료한다
+        /// 전투를 종료합니다.
         /// </summary>
-        /// <param name="battleResult">전투 결과</param>
+        /// <param name="battleResult">전투 결과입니다.</param>
         private void EndBattle(EBattleResult battleResult)
         {
             if (!isBattleRunning)
@@ -393,11 +393,11 @@ namespace EchoesOfAsh.Battle
 
         #region 플레이어 행동
         /// <summary>
-        /// 카드를 사용한다
+        /// 카드를 사용합니다.
         /// </summary>
-        /// <param name="card">사용할 카드</param>
-        /// <param name="target">단일 대상 카드의 지정 대상</param>
-        /// <returns>성공 여부</returns>
+        /// <param name="card">사용할 카드입니다.</param>
+        /// <param name="target">단일 대상 카드의 지정 대상입니다.</param>
+        /// <returns>성공 여부입니다.</returns>
         public bool PlayCard(CardInstance card, ITargetable target = null)
         {
             if (!isBattleRunning || turnManager.CurrentPhase != ETurnPhase.PlayerAction)
@@ -421,7 +421,7 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 플레이어 턴을 종료한다
+        /// 플레이어 턴을 종료합니다.
         /// </summary>
         public void EndTurn()
         {
@@ -436,9 +436,9 @@ namespace EchoesOfAsh.Battle
 
         #region 이벤트
         /// <summary>
-        /// 턴 시작 처리
+        /// 턴 시작 처리합니다.
         /// </summary>
-        /// <param name="turnNumber">턴 번호</param>
+        /// <param name="turnNumber">턴 번호입니다.</param>
         private void HandleTurnStarted(int turnNumber)
         {
             if (characterEntity != null && !characterEntity.IsDead)
@@ -448,9 +448,9 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 적 행동 단계 처리
+        /// 적 행동 단계 처리합니다.
         /// </summary>
-        /// <param name="turnNumber">턴 번호</param>
+        /// <param name="turnNumber">턴 번호입니다.</param>
         private void HandleEnemyActionsStarted(int turnNumber)
         {
             for (int i = 0; i < enemyEntities.Count; i++)
@@ -481,9 +481,9 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 라운드 종료 처리
+        /// 라운드 종료 처리합니다.
         /// </summary>
-        /// <param name="turnNumber">턴 번호</param>
+        /// <param name="turnNumber">턴 번호입니다.</param>
         private void HandleRoundEnded(int turnNumber)
         {
             foreach (var enemyAI in EnemyAIs)
@@ -493,9 +493,9 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 적 사망 처리
+        /// 적 사망 처리합니다.
         /// </summary>
-        /// <param name="deadEntity">사망한 엔티티</param>
+        /// <param name="deadEntity">사망한 엔티티입니다.</param>
         private void HandleEnemyDied(BattleEntity deadEntity)
         {
             if (!isBattleRunning)
@@ -515,10 +515,10 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 파티원 사망 처리
-        /// 지금은 1인 기준, 나중에 파티원 처리예정
+        /// 파티원 사망 처리합니다.
+        /// 지금은 1인 기준, 나중에 파티원 처리예정입니다.
         /// </summary>
-        /// <param name="deadEntity"></param>
+        /// <param name="deadEntity">사망한 엔티티입니다.</param>
         private void HandleCharacterDied(BattleEntity deadEntity)
         {
             if (!isBattleRunning)

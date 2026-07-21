@@ -9,9 +9,9 @@ using UnityEngine;
 namespace EchoesOfAsh.Data
 {
     /// <summary>
-    /// 정신력 무작위 이벤트 데이터
-    /// 정신력 전환 시 확률적으로 발생
-    /// 높은 확률로 부정효과 / 낮은 확률로 긍정효과
+    /// 정신력 무작위 이벤트 데이터입니다.
+    /// 정신력 전환 시 확률적으로 발생합니다.
+    /// 높은 확률로 부정효과 / 낮은 확률로 긍정효과입니다.
     /// </summary>
     [CreateAssetMenu(fileName = "SanityEvent", menuName = "EchoesOfAsh/Data/SanityEvent")]
     public class SanityEventData : SWIdentifiedObject

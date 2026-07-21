@@ -1,30 +1,31 @@
 using EchoesOfAsh.Card;
 using SW.Attributes;
 using SW.Base;
-using SW.Util;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Rendering;
 using UnityEngine.UI;
+using UnityEngine.Serialization;
 
 namespace EchoesOfAsh.View.UI
 {
     /// <summary>
-    /// 카드 표시 뷰
+    /// 카드의 상태와 상호작용 연출을 표시하는 뷰입니다.
     /// </summary>
     public class CardView : SWMonoBehaviour
     {
         #region 필드
         [SWGroup("표시")]
-        [SerializeField] private Image frameImg;
-        [SerializeField] private Image iconImg;
+        [FormerlySerializedAs("frameImg")]
+        [SerializeField] private Image frameImage;
+        [FormerlySerializedAs("iconImg")]
+        [SerializeField] private Image iconImage;
         [SerializeField] private TextMeshProUGUI nameText;
         [SerializeField] private TextMeshProUGUI apCostText;
         [SerializeField] private TextMeshProUGUI typeText;
         [SerializeField] private GameObject sanityMarker;
 
         [SWGroup("강조")]
-        /// <summary>강조 연출이 적용될 시각 요소 루트입니다. (루트 트랜스폼은 배치 소유 — 건드리지 않음)</summary>
+        /// <summary>강조 연출이 적용되는 시각 요소의 루트입니다. 배치용 루트 트랜스폼에는 영향을 주지 않습니다.</summary>
         [SerializeField] private Transform visualRoot;
         /// <summary>호버 시 확대 배율입니다.</summary>
         [SerializeField, Min(1f)] private float hoverScale = 1.15f;
@@ -44,9 +45,9 @@ namespace EchoesOfAsh.View.UI
         #endregion // 필드
 
         #region 프로퍼티
-        /// <summary>표시 중인 카드</summary>
+        /// <summary>표시 중인 카드입니다.</summary>
         public CardInstance CardInstance => cardInstance;
-        /// <summary>현재 사용 가능 표시 상태</summary>
+        /// <summary>현재 사용 가능 표시 상태입니다.</summary>
         public bool IsPlayable => isPlayable;
         /// <summary>현재 호버 강조 상태입니다.</summary>
         public bool IsHovered => isHovered;
@@ -63,9 +64,9 @@ namespace EchoesOfAsh.View.UI
         }
         
         /// <summary>
-        /// 표시할 카드를 지정하고 화면을 갱신한다
+        /// 표시할 카드를 지정하고 화면을 갱신합니다.
         /// </summary>
-        /// <param name="cardInstance">표시할 카드</param>
+        /// <param name="cardInstance">표시할 카드입니다.</param>
         public void Init(CardInstance cardInstance)
         {
             this.cardInstance = cardInstance;
@@ -73,7 +74,7 @@ namespace EchoesOfAsh.View.UI
         }
 
         /// <summary>
-        /// 현재 카드 상태로 표시를 갱신힌다
+        /// 현재 카드 상태로 표시를 갱신합니다.
         /// </summary>
         public void Refresh()
         {
@@ -97,12 +98,12 @@ namespace EchoesOfAsh.View.UI
                 typeText.text = cardInstance.CurrentCardData.CardType.ToString();
             }
 
-            if(iconImg != null)
+            if (iconImage != null)
             {
                 Sprite iconSprite = cardInstance.CurrentCardData.CardIconSprite;
 
-                iconImg.sprite = iconSprite;
-                iconImg.enabled = iconSprite != null;
+                iconImage.sprite = iconSprite;
+                iconImage.enabled = iconSprite != null;
             }
 
             if (sanityMarker != null)
@@ -115,9 +116,9 @@ namespace EchoesOfAsh.View.UI
         #endregion // 초기화
 
         /// <summary>
-        /// 사용 가능 여부 표시를 변경한다
+        /// 사용 가능 여부 표시를 변경합니다.
         /// </summary>
-        /// <param name="isPlayable">사용 가능 여부</param>
+        /// <param name="isPlayable">사용 가능 여부입니다.</param>
         public void SetPlayable(bool isPlayable)
         {
             if (this.isPlayable == isPlayable)
@@ -129,6 +130,10 @@ namespace EchoesOfAsh.View.UI
             ApplyPlayableTint();
         }
 
+        /// <summary>
+        /// 포인터가 카드 위에 있는지에 따라 강조 상태를 변경합니다.
+        /// </summary>
+        /// <param name="isHovered">포인터가 카드 위에 있으면 <see langword="true"/>입니다.</param>
         public void SetHovered(bool isHovered)
         {
             if (this.isHovered == isHovered)
@@ -153,10 +158,10 @@ namespace EchoesOfAsh.View.UI
         }
 
         /// <summary>
-        /// 드래그 상태를 변경한다
-        /// 드래그 시작/종료 시 그리기 순서 승격 전환에 사용
+        /// 드래그 상태를 변경합니다.
+        /// 드래그 시작/종료 시 그리기 순서 승격 전환에 사용합니다.
         /// </summary>
-        /// <param name="isDragging">드래그 여부</param>
+        /// <param name="isDragging">드래그 여부입니다.</param>
         public void SetDragging(bool isDragging)
         {
             if (this.isDragging == isDragging)
@@ -169,7 +174,7 @@ namespace EchoesOfAsh.View.UI
         }
 
         /// <summary>
-        /// 호버/드래그 상태에 맞춰 그리기 순서를 업데이트
+        /// 호버와 드래그 상태에 맞춰 그리기 순서를 갱신합니다.
         /// </summary>
         private void UpdatePromotion()
         {
@@ -197,20 +202,20 @@ namespace EchoesOfAsh.View.UI
         }
 
         /// <summary>
-        /// 사용 가능 여부에 따른 틴트를 프레임과 아이콘에 적용한다
+        /// 사용 가능 여부에 따른 틴트를 프레임과 아이콘에 적용합니다.
         /// </summary>
         private void ApplyPlayableTint()
         {
             Color tint = isPlayable ? playableColor : unplayableColor;
 
-            if (frameImg != null)
+            if (frameImage != null)
             {
-                frameImg.color = tint;
+                frameImage.color = tint;
             }
 
-            if (iconImg != null)
+            if (iconImage != null)
             {
-                iconImg.color = tint;
+                iconImage.color = tint;
             }
         }
     }

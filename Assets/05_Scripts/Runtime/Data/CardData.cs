@@ -9,7 +9,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Data
 {
     /// <summary>
-    /// 카드 데이터
+    /// 카드 데이터입니다.
     /// </summary>
     [CreateAssetMenu(fileName = "Card_", menuName = "EchoesOfAsh/Data/Card")]
     public class CardData : SWIdentifiedObject
@@ -69,7 +69,7 @@ namespace EchoesOfAsh.Data
 
         /// <summary>카드 강화 여부입니다.</summary>
         public bool IsUpgrade => isUpgrade;
-        /// <summary>카드 강화 버전 데이터 (없으면 null)입니다.</summary>
+        /// <summary>카드 강화 버전 데이터입니다. 없으면 <see langword="null"/>입니다.</summary>
         public CardData UpgradeCard => upgradeCard;
 
         /// <summary>카드 해금 방식입니다.</summary>
@@ -103,7 +103,7 @@ namespace EchoesOfAsh.Data
 
         /// <summary>
         /// 현재 정신력 구간에 해당하는 효과 목록을 반환합니다.
-        /// 정신력 영향을 받지 않는 카드인 경우 기본 효과 반환
+        /// 정신력 영향을 받지 않는 카드인 경우 기본 효과 반환합니다.
         /// </summary>
         /// <param name="sanityType">현재 파티 정신력 유형입니다.</param>
         /// <returns>적용할 효과 목록입니다.</returns>

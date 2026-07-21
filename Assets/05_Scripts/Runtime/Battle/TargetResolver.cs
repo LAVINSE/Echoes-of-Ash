@@ -7,7 +7,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Battle
 {
     /// <summary>
-    /// 카드 대상 지정 방식에 따라 실제 대상 목록을 구성한다
+    /// 카드 대상 지정 방식에 따라 실제 대상 목록을 구성합니다.
     /// </summary>
     public class TargetResolver
     {
@@ -15,18 +15,16 @@ namespace EchoesOfAsh.Battle
         private readonly List<EnemyEntity> targetableBuffer = new();
         #endregion // 필드
 
-        #region 프로퍼티
-        #endregion // 프로퍼티
 
         /// <summary>
-        /// 대상 지정 방식에 따라 대상 목록을 구성한다
+        /// 대상 지정 방식에 따라 대상 목록을 구성합니다.
         /// </summary>
-        /// <param name="targetingType">대상 지정 방식</param>
-        /// <param name="caster">시전자</param>
-        /// <param name="target">다인 댕상 카드에서 드래그로 지정한 대상</param>
-        /// <param name="enemies">적 목록</param>
-        /// <param name="results">결과를 담을 목록</param>
-        /// <returns>구성 성공 여부</returns>
+        /// <param name="targetingType">대상 지정 방식입니다.</param>
+        /// <param name="caster">시전자입니다.</param>
+        /// <param name="target">다인 대상 카드에서 드래그로 지정한 대상입니다.</param>
+        /// <param name="enemies">적 목록입니다.</param>
+        /// <param name="results">결과를 담을 목록입니다.</param>
+        /// <returns>구성 성공 여부입니다.</returns>
         public bool Resolve(ETargetingType targetingType, ITargetable caster, ITargetable target,
          IReadOnlyList<EnemyEntity> enemies, List<ITargetable> results)
         {
@@ -56,11 +54,11 @@ namespace EchoesOfAsh.Battle
 
         #region 타입별 구성
         /// <summary>
-        /// 단일 대상 (드래그 지정) 목록을 구성
+        /// 단일 대상 (드래그 지정) 목록을 구성합니다.
         /// </summary>
-        /// <param name="target">지정된 대상</param>
-        /// <param name="results">결과 목록</param>
-        /// <returns>구성 성공 여부</returns>
+        /// <param name="target">지정된 대상입니다.</param>
+        /// <param name="results">결과 목록입니다.</param>
+        /// <returns>구성 성공 여부입니다.</returns>
         private bool ResolveSingle(ITargetable target, List<ITargetable> results)
         {
             if (target == null || !target.IsTargetable)
@@ -74,11 +72,11 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 적 전체 대상 목록을 구성
+        /// 적 전체 대상 목록을 구성합니다.
         /// </summary>
-        /// <param name="enemies">적 목록</param>
-        /// <param name="results">결과 목록</param>
-        /// <returns>구성 성공 여부</returns>
+        /// <param name="enemies">적 목록입니다.</param>
+        /// <param name="results">결과 목록입니다.</param>
+        /// <returns>구성 성공 여부입니다.</returns>
         private bool ResolveAllEnemies(IReadOnlyList<EnemyEntity> enemies, List<ITargetable> results)
         {
             CollectTargetable(enemies);
@@ -98,11 +96,11 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 무작위 적 대상 목록을 구성한다
+        /// 무작위 적 대상 목록을 구성합니다.
         /// </summary>
-        /// <param name="enemies">적 목록</param>
-        /// <param name="results">결과 목록</param>
-        /// <returns>구성 성공 여부</returns>
+        /// <param name="enemies">적 목록입니다.</param>
+        /// <param name="results">결과 목록입니다.</param>
+        /// <returns>구성 성공 여부입니다.</returns>
         private bool ResolveRandomEnemy(IReadOnlyList<EnemyEntity> enemies, List<ITargetable> results)
         {
             CollectTargetable(enemies);
@@ -118,11 +116,11 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 자신/아군 대상 목록을 구성한다
+        /// 자신/아군 대상 목록을 구성합니다.
         /// </summary>
-        /// <param name="caster">시전자</param>
-        /// <param name="results">결과 목록</param>
-        /// <returns>구성 성공 여부</returns>
+        /// <param name="caster">시전자입니다.</param>
+        /// <param name="results">결과 목록입니다.</param>
+        /// <returns>구성 성공 여부입니다.</returns>
         private bool ResolveSelf(ITargetable caster, List<ITargetable> results)
         {
 
@@ -138,9 +136,9 @@ namespace EchoesOfAsh.Battle
         #endregion // 타입별 구성
 
         /// <summary>
-        /// 대상 지정 가능한 적만 버퍼에 추가
+        /// 대상 지정 가능한 적만 버퍼에 추가합니다.
         /// </summary>
-        /// <param name="enemies"></param>
+        /// <param name="enemies">검사할 적 목록입니다.</param>
         private void CollectTargetable(IReadOnlyList<EnemyEntity> enemies)
         {
             targetableBuffer.Clear();

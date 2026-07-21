@@ -91,7 +91,7 @@ namespace EchoesOfAsh.EditorTools
         /// Echoes of Ash Data Editor 창을 엽니다.
         /// </summary>
         [MenuItem("EchoesOfAsh/Data Editor")]
-        public static void ShowWindow()
+        public static void OpenWindow()
         {
             EchoesOfAshDataWindow window = GetWindow<EchoesOfAshDataWindow>();
             SWEditorUtils.SetupWindow(window, "EoA Data Editor", "d_ScriptableObject Icon", 760, 520);
@@ -491,7 +491,7 @@ namespace EchoesOfAsh.EditorTools
         }
 
         /// <summary>
-        /// 목록 행 높이를 계산합니다 (아이콘/삭제 버튼 크기 반영)
+        /// 아이콘과 삭제 버튼의 크기를 반영하여 목록 행 높이를 계산합니다.
         /// </summary>
         private float GetListDrawRowHeight()
         {
@@ -499,7 +499,7 @@ namespace EchoesOfAsh.EditorTools
         }
 
         /// <summary>
-        /// 목록 행 하나를 현재 표시 설정으로 그립니다 (선택 강조 + 아이콘 + 라벨 + X 버튼)
+        /// 선택 강조, 아이콘, 이름 및 삭제 버튼을 포함하는 목록 행을 그립니다.
         /// </summary>
         /// <returns>삭제 버튼 클릭 여부입니다.</returns>
         private bool DrawListRow(Rect rowRect, string label, bool isSelected, SWIdentifiedObject asset, out Rect deleteRect)
@@ -926,7 +926,7 @@ namespace EchoesOfAsh.EditorTools
 
             if (useAutoId)
             {
-                serializedData.FindProperty("id").intValue = GetNextId(dataType);
+                serializedData.FindProperty("id").intValue = GetNextID(dataType);
             }
 
             serializedData.ApplyModifiedPropertiesWithoutUndo();
@@ -950,7 +950,7 @@ namespace EchoesOfAsh.EditorTools
         /// <summary>
         /// 현재 가장 큰 숫자 식별자보다 하나 큰 값을 반환합니다.
         /// </summary>
-        private int GetNextId(Type dataType)
+        private int GetNextID(Type dataType)
         {
             int maxId = 0;
             List<SWIdentifiedObject> assets = assetsByType[dataType];
@@ -995,7 +995,7 @@ namespace EchoesOfAsh.EditorTools
 
                 if (useAutoId)
                 {
-                    serializedData.FindProperty("id").intValue = GetNextId(dataType) ;
+                    serializedData.FindProperty("id").intValue = GetNextID(dataType) ;
                 }
 
                 serializedData.ApplyModifiedPropertiesWithoutUndo();

@@ -12,7 +12,7 @@ using Pointer = UnityEngine.InputSystem.Pointer;
 namespace EchoesOfAsh.Battle
 {
     /// <summary>
-    /// 카드 드래그 컨트롤러
+    /// 카드 드래그 컨트롤러입니다.
     /// </summary>
     public class CardDragController : SWMonoBehaviour
     {
@@ -30,10 +30,6 @@ namespace EchoesOfAsh.Battle
         [SerializeField] private LayerMask enemyLayerMask;
         [Tooltip("카드 사용 기준선")]
         [SerializeField] private float playLineY = -2f;
-
-        [SWGroup("정렬")]
-        [SerializeField] private string dragSortingLayerName = "CardDrag";
-        [SerializeField] private string cardSortingLayerName = "Card";
 
         private CardView hoveredCard;
         private CardView draggedCard;
@@ -228,7 +224,7 @@ namespace EchoesOfAsh.Battle
         /// <summary>
         /// 호버 대상 카드를 교체하고 강조 표시를 갱신합니다.
         /// </summary>
-        /// <param name="cardView">새 호버 대상입니다. 없으면 null입니다.</param>
+        /// <param name="cardView">새 호버 대상입니다. 없으면 <see langword="null"/>입니다.</param>
         private void SetHoveredCard(CardView cardView)
         {
             if (hoveredCard == cardView)
@@ -263,10 +259,10 @@ namespace EchoesOfAsh.Battle
 
         /// <summary>
         /// 포인터 아래에서 가장 위에 그려진 카드를 찾습니다.
-        /// (HandView가 카드별 Z 간격을 깔아두므로 Z 최소 = 최상단 — 렌더링과 같은 기준)
+        /// 손패 뷰의 깊이 배치에서 가장 앞에 표시되는 카드를 우선합니다.
         /// </summary>
         /// <param name="pointerWorldPosition">포인터의 월드 좌표입니다.</param>
-        /// <returns>최상단 카드 뷰입니다. 없으면 null입니다.</returns>
+        /// <returns>최상단 카드 뷰입니다. 없으면 <see langword="null"/>입니다.</returns>
         private CardView FindTopmostCard(Vector2 pointerWorldPosition)
         {
             int hitCount = Physics2D.OverlapPoint(pointerWorldPosition, cardContactFilter, overlapBuffer);

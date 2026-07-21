@@ -9,6 +9,9 @@ using UnityEngine;
 
 namespace EchoesOfAsh.View
 {
+    /// <summary>
+    /// 적이 다음 행동에서 수행할 의도와 수치를 표시하는 뷰입니다.
+    /// </summary>
     public class IntentView : SWMonoBehaviour
     {
         #region 데이터
@@ -20,10 +23,10 @@ namespace EchoesOfAsh.View
             [SerializeField] private TMP_Text valueText;
 
             /// <summary>
-            /// 슬롯을 표시한다
+            /// 슬롯을 표시합니다.
             /// </summary>
-            /// <param name="iconSprite">아이콘 스프라이트</param>
-            /// <param name="value">값 문자열, 없으면 빈 문자열</param>
+            /// <param name="iconSprite">아이콘 스프라이트입니다.</param>
+            /// <param name="value">값 문자열, 없으면 빈 문자열입니다.</param>
             public void Show(Sprite iconSprite, string value)
             {
                 if (root != null)
@@ -31,7 +34,7 @@ namespace EchoesOfAsh.View
                     root.SetActive(true);
                 }
 
-                if (iconRenderer.sprite != null)
+                if (iconRenderer != null)
                 {
                     iconRenderer.sprite = iconSprite;
                 }
@@ -43,7 +46,7 @@ namespace EchoesOfAsh.View
             }
 
             /// <summary>
-            /// 슬롯을 숨깁니다
+            /// 슬롯을 숨깁니다.
             /// </summary>
             public void Hide()
             {
@@ -78,13 +81,11 @@ namespace EchoesOfAsh.View
         
         #endregion // 필드
 
-        #region 프로퍼티
-        #endregion // 프로퍼티
 
         /// <summary>
-        /// 행동의 의도를 표시합니다
+        /// 행동의 의도를 표시합니다.
         /// </summary>
-        /// <param name="actionData">표시할 행동</param>
+        /// <param name="actionData">표시할 행동입니다.</param>
         public void SetIntent(EnemyActionData actionData)
         {
             if (actionData == null)
@@ -106,17 +107,17 @@ namespace EchoesOfAsh.View
                 EIntentType intentType = intentTypes[i];
                 IntentStyle style = FindStyle(intentType);
 
-                slots[i].Show(style.IconSprite, GetValueText(actionData, intentType));
+                slots[i].Show(style != null ? style.IconSprite : null, GetValueText(actionData, intentType));
+            }
 
-                if (intentTypes.Count > slots.Count)
-                {
-                    SWLog.LogError($"[IntentView] 의도 {intentTypes.Count}개 중 {slots.Count}개만 표시합니다 - 슬롯 부족");
-                }
+            if (intentTypes.Count > slots.Count)
+            {
+                SWLog.LogError($"[IntentView] 의도 {intentTypes.Count}개 중 {slots.Count}개만 표시합니다 - 슬롯 부족");
             }
         }
 
         /// <summary>
-        /// 모든 의도 표시를 숨깁니다
+        /// 모든 의도 표시를 숨깁니다.
         /// </summary>
         public void Clear()
         {
@@ -128,10 +129,10 @@ namespace EchoesOfAsh.View
         }
 
         /// <summary>
-        /// 의도 유형에 맞는 스타일을 찾습니다
+        /// 의도 유형에 맞는 스타일을 찾습니다.
         /// </summary>
-        /// <param name="intentType">의도 유형</param>
-        /// <returns>스타일</returns>
+        /// <param name="intentType">의도 유형입니다.</param>
+        /// <returns>스타일입니다.</returns>
         private IntentStyle FindStyle(EIntentType intentType)
         {
             foreach (var style in styles)
@@ -146,11 +147,11 @@ namespace EchoesOfAsh.View
         }
 
         /// <summary>
-        /// 의도 유형 앞에 표시할 수치 문자열을 반환
+        /// 의도 유형 앞에 표시할 수치 문자열을 반환합니다.
         /// </summary>
-        /// <param name="actionData">행동</param>
-        /// <param name="intentType">의도 유형</param>
-        /// <returns>수치 문자열</returns>
+        /// <param name="actionData">행동입니다.</param>
+        /// <param name="intentType">의도 유형입니다.</param>
+        /// <returns>수치 문자열입니다.</returns>
         private string GetValueText(EnemyActionData actionData, EIntentType intentType)
         {
             switch(intentType)

@@ -8,7 +8,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Battle
 {
     /// <summary>
-    /// 턴 상태 머신
+    /// 전투 턴의 진행 단계를 관리하는 상태 머신입니다.
     /// </summary>
     public class TurnManager
     {
@@ -22,32 +22,32 @@ namespace EchoesOfAsh.Battle
         #endregion // 필드
 
         #region 프로퍼티
-        /// <summary>현재 턴 - 1부터 시작</summary>
+        /// <summary>현재 턴 - 1부터 시작합니다.</summary>
         public int CurrentTurn => currentTurn;
-        /// <summary>현재 턴 진행 단계</summary>
+        /// <summary>현재 턴 진행 단계입니다.</summary>
         public ETurnPhase CurrentPhase => currentPhase;
 
-        /// <summary>턴 단계 변경 시 호출</summary>
+        /// <summary>턴 단계 변경 시 호출됩니다.</summary>
         public event Action<ETurnPhase> OnPhaseChanged;
-        /// <summary>턴 시작 시 AP 지급, 드로우 전에 호출</summary>
+        /// <summary>턴 시작 시 AP 지급, 드로우 전에 호출됩니다.</summary>
         public event Action<int> OnTurnStarted;
-        /// <summary>턴 시작 자원 처리 후 호출</summary>
+        /// <summary>턴 시작 자원 처리 후 호출됩니다.</summary>
         public event Action<int> OnTurnStartHook;
-        /// <summary>플레이어 턴 종료 시 손패 버림 후 호출</summary>
+        /// <summary>플레이어 턴 종료 시 손패 버림 후 호출됩니다.</summary>
         public event Action<int> OnTurnEnded;
-        /// <summary>적 행동 단계 진입 시 호출</summary>
+        /// <summary>적 행동 단계 진입 시 호출됩니다.</summary>
         public event Action<int> OnEnemyActionsStarted;
-        /// <summary>라운드 종료 시 호출</summary>
+        /// <summary>라운드 종료 시 호출됩니다.</summary>
         public event Action<int> OnRoundEnded;
         #endregion // 프로퍼티
 
         #region 생성자
         /// <summary>
-        /// 턴 상태 머신을 생성한다
+        /// 전투 턴의 진행 단계를 관리하는 상태 머신을 생성합니다.
         /// </summary>
-        /// <param name="apSystem">AP 시스템</param>
-        /// <param name="deckSystem">덱 시스템</param>
-        /// <param name="balanceData">전투 규칙 데이터</param>
+        /// <param name="apSystem">AP 시스템입니다.</param>
+        /// <param name="deckSystem">덱 시스템입니다.</param>
+        /// <param name="balanceData">전투 규칙 데이터입니다.</param>
         public TurnManager(ApSystem apSystem, DeckSystem deckSystem, BattleBalanceData balanceData)
         {
             if (apSystem == null || deckSystem == null || balanceData == null)
@@ -63,7 +63,7 @@ namespace EchoesOfAsh.Battle
 
         #region 턴
         /// <summary>
-        /// 전투 시작
+        /// 전투 시작합니다.
         /// </summary>
         public void StartBattle()
         {
@@ -78,8 +78,8 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 플레이어 턴을 종료하고 적 행동 -> 라운드 종료 -> 다음 턴까지 진행
-        /// 진행 중 전투가 종료되면 그 지점에서 즉시 중단
+        /// 플레이어 턴 종료, 적 행동 및 라운드 종료를 처리한 뒤 다음 턴으로 진행합니다.
+        /// 진행 중 전투가 종료되면 그 지점에서 즉시 중단합니다.
         /// </summary>
         public void EndPlayerTurn()
         {
@@ -121,7 +121,7 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 전투 종료 상태로 전환합니다
+        /// 전투 종료 상태로 전환합니다.
         /// </summary>
         public void EndBattle()
         {
@@ -155,9 +155,9 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 턴 단계를 변경하고 변경 이벤트 호출
+        /// 턴 단계를 변경하고 변경 이벤트 호출됩니다.
         /// </summary>
-        /// <param name="phase">변경할 단계</param>
+        /// <param name="phase">변경할 단계입니다.</param>
         private void SetPhase(ETurnPhase phase)
         {
             if (currentPhase == phase)

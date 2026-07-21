@@ -7,7 +7,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Data
 {
     /// <summary>
-    /// 적 단일 행동 데이터
+    /// 적 단일 행동 데이터입니다.
     /// </summary>
     [System.Serializable]
     public class EnemyActionData
@@ -21,12 +21,13 @@ namespace EchoesOfAsh.Data
         /// <summary>행동 이름입니다.</summary>
         public string ActionName => actionName;
 
+        /// <summary>행동이 실행할 효과 목록입니다.</summary>
         public IReadOnlyList<EffectBlock> Effects => effects;
         #endregion // 프로퍼티
 
         /// <summary>
         /// 행동에 포함된 의도 유형 목록을 반환합니다.
-        /// 의도가 없을 경우 특수 유형으로 반환
+        /// 의도가 없을 경우 특수 유형으로 반환합니다.
         /// </summary>
         /// <returns>의도 유형 목록입니다.</returns>
         public List<EIntentType> GetIntentTypes()
@@ -53,7 +54,7 @@ namespace EchoesOfAsh.Data
 
         /// <summary>
         /// 공격 의도 옆에 표시할 총 피해량을 계산합니다.
-        /// 피해 블록이 없으면 0을 반환
+        /// 피해 블록이 없으면 0을 반환합니다.
         /// </summary>
         /// <returns>피해 블록 합산 값입니다.</returns>
         public int GetIntentDamageValue()

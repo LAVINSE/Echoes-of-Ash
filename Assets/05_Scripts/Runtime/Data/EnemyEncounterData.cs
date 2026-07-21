@@ -6,12 +6,15 @@ using UnityEngine;
 namespace EchoesOfAsh.Data
 {
     /// <summary>
-    /// 적 조우 데이터
+    /// 적 조우 데이터입니다.
     /// </summary>
     [CreateAssetMenu(fileName = "EnemyEncounter_", menuName = "EchoesOfAsh/Data/EnemyEncounter")]
     public class EnemyEncounterData : SWIdentifiedObject
     {
         #region 데이터
+        /// <summary>
+        /// 조우에 등장하는 적 데이터와 배치 정보를 묶는 항목입니다.
+        /// </summary>
         [System.Serializable]
         public class EncounterEntry
         {

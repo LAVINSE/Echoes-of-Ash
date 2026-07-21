@@ -8,7 +8,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Deck
 {
     /// <summary>
-    /// 덱 / 손패 / 버림 더미
+    /// 덱 / 손패 / 버림 더미입니다.
     /// </summary>
     public class DeckSystem
     {
@@ -74,7 +74,7 @@ namespace EchoesOfAsh.Deck
 
         #region 초기화
         /// <summary>
-        /// DeckSystem 리셋
+        /// DeckSystem 리셋입니다.
         /// </summary>
         public void ResetDeckSystem()
         {
@@ -97,9 +97,9 @@ namespace EchoesOfAsh.Deck
 
         #region 드로우
         /// <summary>
-        /// 카드를 n장 뽑는다
+        /// 지정한 수만큼 카드를 뽑습니다.
         /// 덱이 비면 버림 더미를 섞어 덱을 다시 구성한 뒤 계속 뽑습니다.
-        /// 손패가 가득 차면 뽑은 카드는 버림 더미로 이동
+        /// 손패가 가득 차면 뽑은 카드는 버림 더미로 이동입니다.
         /// </summary>
         /// <param name="count">수량입니다.</param>
         /// <returns>실제 손패에 들어간 카드 수입니다.</returns>
@@ -159,7 +159,7 @@ namespace EchoesOfAsh.Deck
 
         #region 버림
         /// <summary>
-        /// 손패의 특정 카드를 버림 더미로 보낸다
+        /// 손패의 특정 카드를 버림 더미로 보냅니다.
         /// </summary>
         /// <param name="card">버릴 카드입니다.</param>
         /// <returns>성공 여부입니다.</returns>
@@ -177,7 +177,7 @@ namespace EchoesOfAsh.Deck
         }
 
         /// <summary>
-        /// 손패에서 무작위로 n장을 버린다
+        /// 손패에서 지정한 수만큼 카드를 무작위로 버립니다.
         /// </summary>
         /// <param name="count">버릴 수입니다.</param>
         /// <returns>실제 버린 카드 수입니다.</returns>
@@ -204,7 +204,7 @@ namespace EchoesOfAsh.Deck
         }
 
         /// <summary>
-        /// 손패 전체를 버림 더미로 보낸다
+        /// 손패 전체를 버림 더미로 보냅니다.
         /// </summary>
         public void DiscardHand()
         {
@@ -249,9 +249,9 @@ namespace EchoesOfAsh.Deck
         }
 
         /// <summary>
-        /// 사용이 끝난 카드를 버림 더미로 보낸다
+        /// 사용이 끝난 카드를 버림 더미로 보냅니다.
         /// </summary>
-        /// <param name="card"></param>
+        /// <param name="card">사용이 끝난 카드입니다.</param>
         public void EndPlay(CardInstance card)
         {
             if (card == null)

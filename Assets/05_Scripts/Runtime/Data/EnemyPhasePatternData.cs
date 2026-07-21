@@ -4,7 +4,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Data
 {
     /// <summary>
-    /// 페이즈별 행동 패턴 데이터
+    /// 페이즈별 행동 패턴 데이터입니다.
     /// </summary>
     [System.Serializable]
     public class EnemyPhasePatternData

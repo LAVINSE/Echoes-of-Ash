@@ -9,6 +9,9 @@ using UnityEngine;
 
 namespace EchoesOfAsh.View.UI
 {
+    /// <summary>
+    /// 파티원의 HP, 방어막 및 공유 정신력을 표시하는 상태 뷰입니다.
+    /// </summary>
     public class PartyStatusView : SWMonoBehaviour
     {
         #region 필드
@@ -24,21 +27,17 @@ namespace EchoesOfAsh.View.UI
         [SerializeField] private Color calmColor = new(0.35f, 0.65f, 0.95f, 1f);
         [SerializeField] private Color madnessColor = new(0.75f, 0.25f, 0.85f, 1f);
 
-        private bool isInit;
-
         private CharacterEntity character;
         private ISanityHolder sanityHolder;
         #endregion // 필드
 
-        #region 프로퍼티
-        #endregion // 프로퍼티
 
         #region 초기화
         /// <summary>
-        /// 초기화
+        /// 초기화합니다.
         /// </summary>
-        /// <param name="character">표시할 파티원 엔티티</param>
-        /// <param name="sanityHolder">파티원 정신력</param>
+        /// <param name="character">표시할 파티원 엔티티입니다.</param>
+        /// <param name="sanityHolder">파티원 정신력입니다.</param>
         public void Init(CharacterEntity character, ISanityHolder sanityHolder)
         {
             if (character == null || sanityHolder == null)
@@ -58,8 +57,6 @@ namespace EchoesOfAsh.View.UI
             sanityHolder.OnSanityChanged += HandleSanityChanged;
             sanityHolder.OnSanityTypeChanged += HandleSanityTypeChanged;
 
-            isInit = true;
-
             HandleHpChanged(character.CurrentHp, character.MaxHp);
             HandleBlockChanged(character.CurrentBlock);
             HandleSanityChanged(sanityHolder.CurrentSanity, sanityHolder.MaxSanity);
@@ -71,6 +68,9 @@ namespace EchoesOfAsh.View.UI
             }
         }
 
+        /// <summary>
+        /// 파티원과 정신력 이벤트 구독을 해제합니다.
+        /// </summary>
         public void Release()
         {
             if (character != null)
@@ -88,15 +88,14 @@ namespace EchoesOfAsh.View.UI
             character = null;
             sanityHolder = null;
 
-            isInit = false;
         }
         #endregion // 초기화
 
         /// <summary>
-        /// HP 변경 시 게이지를 갱신한다
+        /// HP 변경 시 게이지를 갱신합니다.
         /// </summary>
-        /// <param name="current">현재 HP</param>
-        /// <param name="max">최대 HP</param>
+        /// <param name="current">현재 HP입니다.</param>
+        /// <param name="max">최대 HP입니다.</param>
         private void HandleHpChanged(int current, int max)
         {
             if (hpGauge != null)
@@ -106,9 +105,9 @@ namespace EchoesOfAsh.View.UI
         }
 
         /// <summary>
-        /// 방어막 변경 시 표시를 갱신한다 (0이면 숨김)
+        /// 방어막이 변경되면 표시를 갱신하며, 값이 0이면 숨깁니다.
         /// </summary>
-        /// <param name="block">현재 방어막</param>
+        /// <param name="block">현재 방어막입니다.</param>
         private void HandleBlockChanged(int block)
         {
             if (blockText == null)
@@ -121,10 +120,10 @@ namespace EchoesOfAsh.View.UI
         }
 
         /// <summary>
-        /// 정신력 변경 시 게이지를 갱신한다
+        /// 정신력 변경 시 게이지를 갱신합니다.
         /// </summary>
-        /// <param name="current">현재 정신력</param>
-        /// <param name="max">최대 정신력</param>
+        /// <param name="current">현재 정신력입니다.</param>
+        /// <param name="max">최대 정신력입니다.</param>
         private void HandleSanityChanged(int current, int max)
         {
             if (sanityGauge != null)
@@ -134,9 +133,9 @@ namespace EchoesOfAsh.View.UI
         }
 
         /// <summary>
-        /// 정신력 구간 전환 시 게이지 색과 구간 라벨을 갱신한다
+        /// 정신력 구간 전환 시 게이지 색과 구간 라벨을 갱신합니다.
         /// </summary>
-        /// <param name="sanityType">현재 정신력 유형</param>
+        /// <param name="sanityType">현재 정신력 유형입니다.</param>
         private void HandleSanityTypeChanged(ESanityType sanityType)
         {
             bool isMadness = sanityType == ESanityType.Madness;

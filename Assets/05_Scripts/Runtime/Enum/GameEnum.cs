@@ -3,7 +3,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Enum
 {
     /// <summary>
-    /// 카드 유형
+    /// 카드 유형입니다.
     /// </summary>
     public enum ECardType
     {
@@ -20,7 +20,7 @@ namespace EchoesOfAsh.Enum
     }
 
     /// <summary>
-    /// 희귀도 (공통)
+    /// 희귀도 (공통)입니다.
     /// </summary>
     public enum ERarityType
     {
@@ -37,7 +37,7 @@ namespace EchoesOfAsh.Enum
     }
 
     /// <summary>
-    /// 정신력 유형
+    /// 정신력 유형입니다.
     /// </summary>
     public enum ESanityType
     {
@@ -48,7 +48,7 @@ namespace EchoesOfAsh.Enum
     }
 
     /// <summary>
-    /// 아이템 유형
+    /// 아이템 유형입니다.
     /// </summary>
     public enum EItemType
     {
@@ -63,7 +63,7 @@ namespace EchoesOfAsh.Enum
     }
 
     /// <summary>
-    /// 유물 발동 유형
+    /// 유물 발동 유형입니다.
     /// </summary>
     public enum ERelicTriggerType
     {
@@ -73,18 +73,18 @@ namespace EchoesOfAsh.Enum
         [InspectorName("전투 시작 시 1회")] OnBattleStart,
         /// <summary>매 턴 시작 시입니다.</summary>
         [InspectorName("매 턴 시작 시")] TurnStart,
-        /// <summary>카드 사용할 때마다입니다.</summary>
+        /// <summary>카드를 사용할 때마다 발동합니다.</summary>
         [InspectorName("카드 사용할 때마다")] OnCardPlay,
-        /// <summary>피격당할 때마다입니다.</summary>
+        /// <summary>피격당할 때마다 발동합니다.</summary>
         [InspectorName("피격당할 때마다")] OnTakeDamage,
-        /// <summary>피해를 입힐 때마다입니다.</summary>
+        /// <summary>피해를 입힐 때마다 발동합니다.</summary>
         [InspectorName("피해를 입힐 때마다")] OnDealDamage,
         /// <summary>전투 종료 시 1회입니다.</summary>
         [InspectorName("전투 종료 시 1회")] OnBattleEnd,
     }
 
     /// <summary>
-    /// 상태 이상 유형
+    /// 상태 이상 유형입니다.
     /// </summary>
     public enum EStatusEffectType
     {
@@ -101,7 +101,7 @@ namespace EchoesOfAsh.Enum
     }
 
     /// <summary>
-    /// 카드 대상 지정 방식
+    /// 카드 대상 지정 방식입니다.
     /// </summary>
     public enum ETargetingType
     {
@@ -116,7 +116,7 @@ namespace EchoesOfAsh.Enum
     }
 
     /// <summary>
-    /// 카드 해금 방식
+    /// 카드 해금 방식입니다.
     /// </summary>
     public enum ECardUnlockType
     {
@@ -127,7 +127,7 @@ namespace EchoesOfAsh.Enum
     }
 
     /// <summary>
-    /// 적 종류
+    /// 적 종류입니다.
     /// </summary>
     public enum EEnemyType
     {
@@ -140,7 +140,7 @@ namespace EchoesOfAsh.Enum
     }
 
     /// <summary>
-    /// 적 공격 대상 선정 규칙
+    /// 적 공격 대상 선정 규칙입니다.
     /// </summary>
     public enum EEnemyTargetRuleType
     {
@@ -153,7 +153,7 @@ namespace EchoesOfAsh.Enum
     }
 
     /// <summary>
-    /// 의도 표시 유형
+    /// 의도 표시 유형입니다.
     /// </summary>
     public enum EIntentType
     {
@@ -170,11 +170,11 @@ namespace EchoesOfAsh.Enum
     }
 
     /// <summary>
-    /// 전투 턴 진행 단계
+    /// 전투 턴 진행 단계입니다.
     /// </summary>
     public enum ETurnPhase
     {
-        /// <summary>전투 X</summary>
+        /// <summary>전투가 진행되지 않는 상태입니다.</summary>
         [InspectorName("없음")] None,
         /// <summary>턴 시작 처리 중입니다.</summary>
         [InspectorName("턴 시작")] TurnStart,
@@ -189,11 +189,11 @@ namespace EchoesOfAsh.Enum
     }
 
     /// <summary>
-    /// 전투 결과
+    /// 전투 결과입니다.
     /// </summary>
     public enum EBattleResult
     {
-        /// <summary>X</summary>
+        /// <summary>X입니다.</summary>
         [InspectorName("X")] None,
         /// <summary>승리입니다.</summary>
         [InspectorName("승리")] Victory,

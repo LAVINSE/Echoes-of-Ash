@@ -10,6 +10,9 @@ using UnityEngine;
 
 namespace EchoesOfAsh.Test
 {
+    /// <summary>
+    /// 전투 시작부터 카드 사용과 턴 종료까지 전체 흐름을 검증하는 테스트입니다.
+    /// </summary>
     public class BattleTest : SWMonoBehaviour
     {
         #region 필드
@@ -29,12 +32,10 @@ namespace EchoesOfAsh.Test
         private int selectedEnemyIndex;
         #endregion // 필드
 
-        #region 프로퍼티
-        #endregion // 프로퍼티
 
         #region 테스트
         [SWButton("전투 시작")]
-        private void TestRun()
+        private void RunTest()
         {
             if (!Application.isPlaying || isRun)
             {
@@ -66,7 +67,7 @@ namespace EchoesOfAsh.Test
         }
 
         [SWButton("테스트 초기화")]
-        private void TestReset()
+        private void ResetTest()
         {
             if (!Application.isPlaying)
             {
@@ -78,7 +79,7 @@ namespace EchoesOfAsh.Test
         }
 
         /// <summary>
-        /// 전투 이벤트 로그 구독을 설정합니다. (중복 구독 방지)
+        /// 중복 구독을 방지하면서 전투 이벤트 기록 구독을 설정합니다.
         /// </summary>
         private void Subscribe()
         {
@@ -304,7 +305,7 @@ namespace EchoesOfAsh.Test
         /// <summary>
         /// 지정된 적을 반환합니다. 사망 상태면 첫 생존 적으로 대체합니다.
         /// </summary>
-        /// <returns>지정 대상 적입니다. 생존 적이 없으면 null입니다.</returns>
+        /// <returns>지정 대상 적입니다. 생존 적이 없으면 <see langword="null"/>입니다.</returns>
         private EnemyEntity GetSelectedEnemy()
         {
             IReadOnlyList<EnemyEntity> enemies = battleManager.EnemyEntities;

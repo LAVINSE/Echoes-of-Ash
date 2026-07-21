@@ -5,6 +5,9 @@ using UnityEngine;
 
 namespace EchoesOfAsh.View
 {
+    /// <summary>
+    /// 현재 값과 최댓값 및 정신력 전환 지점을 표시하는 게이지 뷰입니다.
+    /// </summary>
     public class GaugeView : SWMonoBehaviour
     {
         #region 필드
@@ -32,17 +35,17 @@ namespace EchoesOfAsh.View
         #endregion // 필드
 
         #region 프로퍼티
-        /// <summary>현재 표시 값</summary>
+        /// <summary>현재 표시 값입니다.</summary>
         public int CurrentValue => currentValue;
-        /// <summary>최대 표시 값</summary>
+        /// <summary>최대 표시 값입니다.</summary>
         public int MaxValue => maxValue;
         #endregion // 프로퍼티
 
         /// <summary>
-        /// 게이지 값을 갱신한다
+        /// 게이지 값을 갱신합니다.
         /// </summary>
-        /// <param name="current"></param>
-        /// <param name="max"></param>
+        /// <param name="current">현재 값입니다.</param>
+        /// <param name="max">최대 값입니다.</param>
         public void SetValue(int current, int max)
         {
             currentValue = Mathf.Max(0, current);
@@ -64,9 +67,9 @@ namespace EchoesOfAsh.View
         }
 
         /// <summary>
-        /// 색을 변경한다
+        /// 색을 변경합니다.
         /// </summary>
-        /// <param name="color">적용할 색</param>
+        /// <param name="color">적용할 색입니다.</param>
         public void SetFillColor(Color color)
         {
             if (fillRenderer != null)
@@ -76,10 +79,10 @@ namespace EchoesOfAsh.View
         }
 
         /// <summary>
-        /// 정신력 전환 마커를 바 해당 비율 위치에 배치한다
+        /// 정신력 전환 마커를 바 해당 비율 위치에 배치합니다.
         /// </summary>
-        /// <param name="threshold"></param>
-        /// <param name="max"></param>
+        /// <param name="threshold">정신력 전환 임계값입니다.</param>
+        /// <param name="max">최대 값입니다.</param>
         public void SetSanityMarker(int threshold, int max)
         {
             if (sanityMarker == null)
@@ -106,8 +109,8 @@ namespace EchoesOfAsh.View
         #region 테스트
 #if UNITY_EDITOR
         /// <summary>
-        /// 인스펙터 값 변경 시 테스트 슬라이더 상태를 게이지에 즉시 반영한다 (에디터 전용)
-        /// 렌더러/TMP 갱신은 OnValidate 내 직접 호출이 안전하지 않아 delayCall로 지연 적용한다
+        /// 인스펙터 값이 변경되면 테스트 슬라이더 상태를 게이지에 반영합니다.
+        /// 렌더러/TMP 갱신은 OnValidate 내 직접 호출이 안전하지 않아 delayCall로 지연 적용합니다.
         /// </summary>
         private void OnValidate()
         {
@@ -129,7 +132,7 @@ namespace EchoesOfAsh.View
         }
 
         /// <summary>
-        /// 테스트 슬라이더 비율을 값으로 환산해 게이지에 적용한다 (에디터 전용)
+        /// 테스트 슬라이더 비율을 값으로 환산하여 게이지에 적용합니다.
         /// </summary>
         private void ApplyTestState()
         {
@@ -138,20 +141,20 @@ namespace EchoesOfAsh.View
         }
 
         /// <summary>
-        /// 테스트 상태를 수동으로 1회 적용한다 (에디터 전용 — 라이브 갱신 꺼둔 상태용)
+        /// 자동 갱신이 꺼진 상태에서 테스트 값을 게이지에 한 번 적용합니다.
         /// </summary>
         [SWButton("테스트: 현재 슬라이더 값 적용")]
-        private void TestApply()
+        private void ApplyTest()
         {
             ApplyTestState();
         }
 
         /// <summary>
-        /// barWidth 기준으로 Fill 스케일과 오프셋을 자동 정렬한다 (에디터 전용)
-        /// Fill 왼쪽 가장자리를 FillRoot 원점에 맞춘다 — 폭 변경 시 이 버튼으로 재정렬
+        /// 막대 너비를 기준으로 채움 영역의 크기와 위치를 자동 정렬합니다.
+        /// 채움 영역의 왼쪽 가장자리를 채움 루트의 원점에 맞춥니다.
         /// </summary>
         [SWButton("테스트: Fill 자동 정렬 (barWidth 기준)")]
-        private void TestAlignFill()
+        private void AlignTestFill()
         {
             if (fillRoot == null || fillRenderer == null || fillRenderer.sprite == null)
             {

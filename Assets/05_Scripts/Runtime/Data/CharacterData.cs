@@ -7,7 +7,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Data
 {
     /// <summary>
-    /// 캐릭터 데이터
+    /// 캐릭터 데이터입니다.
     /// </summary>
     [CreateAssetMenu(fileName = "Character_", menuName = "EchoesOfAsh/Data/Character")]
     public class CharacterData : SWIdentifiedObject

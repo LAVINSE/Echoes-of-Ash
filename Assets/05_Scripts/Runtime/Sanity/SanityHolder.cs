@@ -8,7 +8,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Sanity
 {
     /// <summary>
-    /// 정신력 게이지
+    /// 정신력 게이지입니다.
     /// </summary>
     public class SanityHolder : ISanityHolder, IDisposable
     {
@@ -67,7 +67,7 @@ namespace EchoesOfAsh.Sanity
 
         #region 정신력 값
         /// <summary>
-        /// 정신력 변화
+        /// 정신력 변화입니다.
         /// </summary>
         /// <param name="delta">변화량입니다.</param>
         public void ChangeSanity(int delta)
@@ -116,8 +116,8 @@ namespace EchoesOfAsh.Sanity
 
         /// <summary>
         /// 정신력 값에 해당하는 정신력 유형을 반환합니다.
-        /// 임계값 미만 - 광기
-        /// 임계값 이상 - 평정
+        /// 임계값 미만 - 광기입니다.
+        /// 임계값 이상 - 평정입니다.
         /// </summary>
         /// <param name="sanity">정신력입니다.</param>
         /// <returns>정신력 유형입니다.</returns>
@@ -129,7 +129,7 @@ namespace EchoesOfAsh.Sanity
 
         #region 핸들러
         /// <summary>
-        /// 최대 정신력 능력치 값 변경 처리 메서드
+        /// 최대 정신력 능력치 값이 변경되었을 때 현재 정신력을 보정합니다.
         /// </summary>
         /// <param name="stat">능력치입니다.</param>
         /// <param name="currentValue">현재 값입니다.</param>
@@ -149,7 +149,7 @@ namespace EchoesOfAsh.Sanity
         
         #region 해제
         /// <summary>
-        /// 능력치 객체 및 구독 해제
+        /// 능력치 객체 및 구독 해제합니다.
         /// </summary>
         public void Dispose()
         {

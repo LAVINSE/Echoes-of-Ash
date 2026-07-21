@@ -10,7 +10,7 @@ using UnityEngine;
 namespace EchoesOfAsh.View
 {
     /// <summary>
-    /// 적 표시 뷰
+    /// 적 표시 뷰입니다.
     /// </summary>
     public class EnemyView : SWMonoBehaviour
     {
@@ -40,6 +40,7 @@ namespace EchoesOfAsh.View
         #endregion // 필드
 
         #region 프로퍼티
+        /// <summary>표시 중인 적 엔티티입니다.</summary>
         public EnemyEntity Entity => entity;
         #endregion // 프로퍼티
 
@@ -50,9 +51,9 @@ namespace EchoesOfAsh.View
         }
 
         /// <summary>
-        /// 표시할 적 엔티티
+        /// 표시할 적 엔티티입니다.
         /// </summary>
-        /// <param name="entity">연결할 적 엔티티</param>
+        /// <param name="entity">연결할 적 엔티티입니다.</param>
         public void Init(EnemyEntity entity, EnemyAI enemyAI)
         {
             if (entity == null)
@@ -85,6 +86,9 @@ namespace EchoesOfAsh.View
             HandleIntentChanged(entity, enemyAI.NextAction);
         }
 
+        /// <summary>
+        /// 적 엔티티와 인공지능의 이벤트 구독을 해제합니다.
+        /// </summary>
         public void Release()
         {
             if (entity != null)
@@ -107,10 +111,10 @@ namespace EchoesOfAsh.View
         #endregion // 초기화
 
         /// <summary>
-        /// HP 변경 시 게이지를 갱신한다
+        /// HP 변경 시 게이지를 갱신합니다.
         /// </summary>
-        /// <param name="current">현재 HP</param>
-        /// <param name="max">최대 HP</param>
+        /// <param name="current">현재 HP입니다.</param>
+        /// <param name="max">최대 HP입니다.</param>
         private void HandleHpChanged(int current, int max)
         {
             if (hpGauge != null)
@@ -120,9 +124,9 @@ namespace EchoesOfAsh.View
         }
 
         /// <summary>
-        /// 방어막 변경 시 표시를 갱신한다 (0이면 숨김)
+        /// 방어막이 변경되면 표시를 갱신하며, 값이 0이면 숨깁니다.
         /// </summary>
-        /// <param name="block">현재 방어막</param>
+        /// <param name="block">현재 방어막입니다.</param>
         private void HandleBlockChanged(int block)
         {
             if (blockText == null)
@@ -135,10 +139,10 @@ namespace EchoesOfAsh.View
         }
 
         /// <summary>
-        /// 정신력 변경 시 보조 바를 갱신한다
+        /// 정신력 변경 시 보조 바를 갱신합니다.
         /// </summary>
-        /// <param name="current">현재 정신력</param>
-        /// <param name="max">최대 정신력</param>
+        /// <param name="current">현재 정신력입니다.</param>
+        /// <param name="max">최대 정신력입니다.</param>
         private void HandleSanityChanged(int current, int max)
         {
             if (sanityGauge != null)
@@ -148,9 +152,9 @@ namespace EchoesOfAsh.View
         }
 
         /// <summary>
-        /// 정신력 구간 전환 시 보조 바 색을 갱신한다
+        /// 정신력 구간 전환 시 보조 바 색을 갱신합니다.
         /// </summary>
-        /// <param name="sanityType">현재 정신력 유형</param>
+        /// <param name="sanityType">현재 정신력 유형입니다.</param>
         private void HandleSanityTypeChanged(ESanityType sanityType)
         {
             if (sanityGauge != null)
@@ -160,9 +164,9 @@ namespace EchoesOfAsh.View
         }
 
         /// <summary>
-        /// 사망 처리
+        /// 사망 처리합니다.
         /// </summary>
-        /// <param name="diedEntity">사망한 엔티티</param>
+        /// <param name="diedEntity">사망한 엔티티입니다.</param>
         private void HandleDied(BattleEntity diedEntity)
         {
             if (enemySprite != null)
@@ -182,7 +186,7 @@ namespace EchoesOfAsh.View
         }
 
         /// <summary>
-        /// 의도 변경 시 의도 표시를 갱신한다
+        /// 의도 변경 시 의도 표시를 갱신합니다.
         /// </summary>
         private void HandleIntentChanged(EnemyEntity changedEntity, EnemyActionData action)
         {

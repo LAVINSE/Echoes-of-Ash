@@ -9,7 +9,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Data
 {
     /// <summary>
-    /// 적 데이터
+    /// 적 데이터입니다.
     /// </summary>
     [CreateAssetMenu(fileName = "Enemy_", menuName = "EchoesOfAsh/Data/Enemy")]
     public class EnemyData : SWIdentifiedObject

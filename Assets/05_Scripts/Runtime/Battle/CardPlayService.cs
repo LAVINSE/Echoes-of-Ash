@@ -11,7 +11,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Battle
 {
     /// <summary>
-    /// 카드 사용 파이프라인
+    /// 카드 사용 파이프라인입니다.
     /// </summary>
     public class CardPlayService
     {

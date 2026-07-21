@@ -10,7 +10,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Battle
 {
     /// <summary>
-    /// 적 AI
+    /// 적 인공지능입니다.
     /// </summary>
     public class EnemyAI
     {
@@ -23,20 +23,20 @@ namespace EchoesOfAsh.Battle
         #endregion // 필드
 
         #region 프로퍼티
-        /// <summary>적 엔티티</summary>
+        /// <summary>적 엔티티입니다.</summary>
         public EnemyEntity Entity => entity;
-        /// <summary>다음 턴에 실행할 행동</summary>
+        /// <summary>다음 턴에 실행할 행동입니다.</summary>
         public EnemyActionData NextAction => nextAction;
 
-        /// <summary>의도 변경 시 호출</summary>
+        /// <summary>의도 변경 시 호출됩니다.</summary>
         public event Action<EnemyEntity, EnemyActionData> OnIntentChanged;
         #endregion // 프로퍼티
 
         #region 생성자
         /// <summary>
-        /// 적 AI를 생성합니다
+        /// 적 인공지능를 생성합니다.
         /// </summary>
-        /// <param name="entity">제어할 적 엔티티</param>
+        /// <param name="entity">제어할 적 엔티티입니다.</param>
         public EnemyAI(EnemyEntity entity)
         {
             if (entity == null || entity.EnemyData == null)
@@ -54,7 +54,7 @@ namespace EchoesOfAsh.Battle
 
         #region 다음 턴 준비
         /// <summary>
-        /// 다음 턴을 준비합니다
+        /// 다음 턴을 준비합니다.
         /// </summary>
         public void PrepareNextTurn()
         {
@@ -70,9 +70,9 @@ namespace EchoesOfAsh.Battle
 
         #region 행동 실행
         /// <summary>
-        /// 예고된 행동을 실행
+        /// 예고된 행동을 실행합니다.
         /// </summary>
-        /// <returns>실행 성공 여부</returns>
+        /// <returns>실행 성공 여부입니다.</returns>
         public bool PlayAction(EffectExecutor effectExecutor, IReadOnlyList<ITargetable> targets)
         {
             if (effectExecutor == null)
@@ -101,11 +101,11 @@ namespace EchoesOfAsh.Battle
 
         #region 대상 선정
         /// <summary>
-        /// 대상 선정 규칙에 따라 파티에서 대상을 선정한다
+        /// 대상 선정 규칙에 따라 파티에서 대상을 선정합니다.
         /// </summary>
-        /// <param name="party">파티원 목록</param>
-        /// <param name="results">선정 결과</param>
-        /// <returns>선정 성공 여부</returns>
+        /// <param name="party">파티원 목록입니다.</param>
+        /// <param name="results">선정 결과입니다.</param>
+        /// <returns>선정 성공 여부입니다.</returns>
         public bool SelectTargets(IReadOnlyList<CharacterEntity> party, List<ITargetable> results)
         {
             if (results == null)
@@ -155,7 +155,7 @@ namespace EchoesOfAsh.Battle
 
         #region 패턴
         /// <summary>
-        /// 현재 상태에 맞는 패턴을 평가합니다
+        /// 현재 상태에 맞는 패턴을 평가합니다.
         /// </summary>
         private void EvaluatePattern()
         {
@@ -171,9 +171,9 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 우선순위에 따라 사용할 패턴을 선택합니다
+        /// 우선순위에 따라 사용할 패턴을 선택합니다.
         /// </summary>
-        /// <returns>선택한 행동 패턴</returns>
+        /// <returns>선택한 행동 패턴입니다.</returns>
         private IReadOnlyList<EnemyActionData> SelectPatterns()
         {
             EnemyData data = entity.EnemyData;
@@ -216,7 +216,7 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 현재 패턴에서 다음 행동(의도)을 선정합니다
+        /// 현재 패턴에서 다음 행동(의도)을 선정합니다.
         /// </summary>
         private void DecideNextAction()
         {

@@ -5,6 +5,9 @@ using UnityEngine;
 
 namespace EchoesOfAsh.Effect
 {
+    /// <summary>
+    /// 효과 실행에 필요한 시전자, 대상 및 전투 요청을 전달하는 문맥입니다.
+    /// </summary>
     public class EffectContext
     {
         /// <summary>효과 시전자 - 카드를 낸 파티원, 스킬을 쓰는 적입니다.</summary>

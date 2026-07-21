@@ -6,7 +6,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Battle
 {
     /// <summary>
-    /// 파티 공유 AP 시스템
+    /// 파티 공유 행동력을 관리하는 시스템입니다.
     /// </summary>
     public class ApSystem
     {
@@ -30,6 +30,10 @@ namespace EchoesOfAsh.Battle
         #endregion // 프로퍼티
 
         #region 생성자
+        /// <summary>
+        /// 전투 균형 데이터를 사용하여 행동력 시스템을 생성합니다.
+        /// </summary>
+        /// <param name="balanceData">행동력 규칙이 포함된 전투 균형 데이터입니다.</param>
         public ApSystem(BattleBalanceData balanceData)
         {
             if (balanceData == null)
@@ -42,7 +46,7 @@ namespace EchoesOfAsh.Battle
         #endregion // 생성자
 
         /// <summary>
-        /// 턴 시작 처리
+        /// 턴 시작 처리합니다.
         /// 남은 행동력을 이월 가능한 최댓값으로 제한한 뒤 이번 턴의 행동력을 지급합니다.
         /// </summary>
         public void StartTurn()

@@ -5,6 +5,9 @@ using UnityEngine;
 
 namespace EchoesOfAsh.Effect
 {
+    /// <summary>
+    /// 대상에게 지정한 상태 이상 중첩을 적용하는 효과입니다.
+    /// </summary>
     [System.Serializable]
     [SWAddTypeMenu("유틸리티/상태이상 부여")]
     public class StatusEffect : EffectBlock
@@ -15,9 +18,11 @@ namespace EchoesOfAsh.Effect
         #endregion // 필드
 
         #region 프로퍼티
+        /// <inheritdoc />
         public override EIntentType? IntentContribution => EIntentType.Buff;
         #endregion // 프로퍼티
 
+        /// <inheritdoc />
         public override void Apply(EffectContext context)
         {
             foreach(var target in context.Targets)
@@ -29,6 +34,7 @@ namespace EchoesOfAsh.Effect
             }
         }
 
+        /// <inheritdoc />
         public override string GetDescription()
         {
             return $"{statusType} {stack} 부여";

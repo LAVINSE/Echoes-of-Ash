@@ -7,7 +7,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Effect
 {
     /// <summary>
-    /// EffectContext 조립 + 효과 블록 목록 순회 실행
+    /// 효과 실행 문맥을 구성하고 효과 블록 목록을 순서대로 실행합니다.
     /// </summary>
     public class EffectExecutor
     {
@@ -20,8 +20,6 @@ namespace EchoesOfAsh.Effect
         private readonly Action<int> apChangeRequest;
         #endregion // 필드
 
-        #region 프로퍼티
-        #endregion // 프로퍼티
 
         #region 생성자
         /// <summary>

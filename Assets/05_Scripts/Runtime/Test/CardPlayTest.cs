@@ -15,7 +15,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Test
 {
     /// <summary>
-    /// 카드 실행 테스트
+    /// 카드 실행 테스트입니다.
     /// 빈 게임 오브젝트에 부착하고 적 및 캐릭터 엔티티 컴포넌트를 연결하여 카드 사용 흐름을 검증합니다.
     /// </summary>
     public class CardPlayTest : SWMonoBehaviour
@@ -47,12 +47,10 @@ namespace EchoesOfAsh.Test
         private readonly List<ITargetable> targetBuffer = new();
         #endregion // 필드
 
-        #region 프로퍼티
-        #endregion // 프로퍼티
 
         #region 테스트
         [SWButton("테스트 시작")]
-        private void TestRun()
+        private void RunTest()
         {
             if (!Application.isPlaying || isRun)
             {
@@ -121,7 +119,7 @@ namespace EchoesOfAsh.Test
         }
 
         [SWButton("테스트 초기화")]
-        private void TestReset()
+        private void ResetTest()
         {
             if (!Application.isPlaying)
             {

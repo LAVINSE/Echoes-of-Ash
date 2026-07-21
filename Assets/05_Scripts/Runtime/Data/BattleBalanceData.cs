@@ -5,7 +5,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Data
 {
     /// <summary>
-    /// 전투 규칙 밸런스 데이터
+    /// 전투 규칙 밸런스 데이터입니다.
     /// </summary>
     [CreateAssetMenu(fileName = "BattleBalance", menuName = "EchoesOfAsh/Data/BattleBalance")]
     public class BattleBalanceData : SWScriptableObject

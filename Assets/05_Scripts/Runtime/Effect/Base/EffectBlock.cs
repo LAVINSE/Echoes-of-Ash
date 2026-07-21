@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace EchoesOfAsh.Effect
 {
+    /// <summary>
+    /// 카드와 적 행동에서 실행되는 효과의 공통 계약을 정의합니다.
+    /// </summary>
     [System.Serializable]
     public abstract class EffectBlock
     {

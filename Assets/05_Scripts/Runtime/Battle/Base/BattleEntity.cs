@@ -9,6 +9,9 @@ using UnityEngine;
 
 namespace EchoesOfAsh.Battle
 {
+    /// <summary>
+    /// 전투 참여자의 HP, 방어막, 피해 및 상태 이상을 관리하는 기본 엔티티입니다.
+    /// </summary>
     public abstract class BattleEntity : SWMonoBehaviour, IDamageable, ITargetable, IStatusReceiver
     {
         #region 필드
@@ -53,6 +56,10 @@ namespace EchoesOfAsh.Battle
         #endregion // 프로퍼티
 
         #region 초기화
+        /// <summary>
+        /// 최대 HP 능력치와 현재 HP를 초기화합니다.
+        /// </summary>
+        /// <param name="maxHpOverride">적용할 최대 HP 능력치 재정의입니다.</param>
         protected void SetupHp(SWStatOverride maxHpOverride)
         {
             if (maxHpStat != null)
@@ -73,6 +80,9 @@ namespace EchoesOfAsh.Battle
             maxHpStat.OnValueChanged += HandleMaxHpValueChanged;
         }
 
+        /// <summary>
+        /// 전투 중 생성된 능력치와 이벤트 구독을 초기화합니다.
+        /// </summary>
         public virtual void ResetEntity()
         {
             if (maxHpStat != null)
@@ -83,6 +93,9 @@ namespace EchoesOfAsh.Battle
             }
         }
 
+        /// <summary>
+        /// 객체가 제거될 때 전투 엔티티의 런타임 상태를 정리합니다.
+        /// </summary>
         protected virtual void OnDestroy()
         {
             ResetEntity();
@@ -106,8 +119,8 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 피해를 입는다
-        /// 방어막 먼저 소모
+        /// 피해를 입습니다.
+        /// 방어막 먼저 소모합니다.
         /// </summary>
         /// <param name="amount">피해량입니다.</param>
         /// <returns>방어막을 제외하고 실제로 잃은 HP입니다.</returns>
@@ -149,7 +162,7 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 방어막을 얻는다
+        /// 방어막을 얻습니다.
         /// </summary>
         /// <param name="amount">방어막 획득량입니다.</param>
         public void GainBlock(int amount)
@@ -209,7 +222,7 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 최대 HP 능력치 값 변경 처리 메서드
+        /// 최대 HP 능력치 값이 변경되었을 때 현재 HP를 보정합니다.
         /// </summary>
         /// <param name="stat">능력치입니다.</param>
         /// <param name="currentValue">현재 값입니다.</param>

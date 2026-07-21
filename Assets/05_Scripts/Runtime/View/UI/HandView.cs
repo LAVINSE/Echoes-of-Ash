@@ -11,7 +11,7 @@ using UnityEngine;
 namespace EchoesOfAsh.View.UI
 {
     /// <summary>
-    /// 손패 뷰
+    /// 손패의 카드 표시와 배치를 관리하는 뷰입니다.
     /// </summary>
     public class HandView : SWMonoBehaviour
     {
@@ -30,7 +30,7 @@ namespace EchoesOfAsh.View.UI
         [Tooltip("카드별 Z 간격 - 그리기와 무관, 픽업 판정의 최상단 선정 전용입니다.")]
         [SerializeField, Min(0f)] private float depthStep = 0.01f;
 
-        private bool isInit;
+        private bool isInitialized;
 
         private DeckSystem deckSystem;
         private CardPlayService cardPlayService;
@@ -41,6 +41,7 @@ namespace EchoesOfAsh.View.UI
         #endregion // 필드
 
         #region 프로퍼티
+        /// <summary>현재 표시 중인 카드 뷰 목록입니다.</summary>
         public IReadOnlyList<CardView> CardViews => cardViews;
         #endregion // 프로퍼티
 
@@ -59,11 +60,11 @@ namespace EchoesOfAsh.View.UI
         }
 
         /// <summary>
-        /// 초기화
+        /// 초기화합니다.
         /// </summary>
-        /// <param name="deckSystem">덱 시스템</param>
-        /// <param name="cardPlayService">카드 사용 파이프라인</param>
-        /// <param name="apSystem">AP 시스템</param>
+        /// <param name="deckSystem">덱 시스템입니다.</param>
+        /// <param name="cardPlayService">카드 사용 파이프라인입니다.</param>
+        /// <param name="apSystem">AP 시스템입니다.</param>
         public void Init(DeckSystem deckSystem, CardPlayService cardPlayService, ApSystem apSystem)
         {
             if (deckSystem == null || cardPlayService == null || apSystem == null)
@@ -97,12 +98,12 @@ namespace EchoesOfAsh.View.UI
             deckSystem.OnHandChanged += RebuildHand;
             apSystem.OnApChanged += HandleApChanged;
 
-            isInit = true;
+            isInitialized = true;
             RebuildHand();
         }
 
         /// <summary>
-        /// 구독을 해제하고 표시 중인 카드를 전부 풀에 반환한다
+        /// 구독을 해제하고 표시 중인 카드를 전부 풀에 반환합니다.
         /// </summary>
         public void Release()
         {
@@ -123,15 +124,15 @@ namespace EchoesOfAsh.View.UI
             apSystem = null;
             pool = null;
 
-            isInit = false;
+            isInitialized = false;
         }
         #endregion // 초기화
 
         #region 풀링
         /// <summary>
-        /// SWPool에서 카드 뷰를 가져온다
+        /// SWPool에서 카드 뷰를 가져옵니다.
         /// </summary>
-        /// <returns>카드 뷰</returns>
+        /// <returns>카드 뷰입니다.</returns>
         private CardView GetCardView()
         {
             CardView cardView = pool.Spawn<CardView>(cardViewPrefab.gameObject, parent: cardRoot);
@@ -145,9 +146,9 @@ namespace EchoesOfAsh.View.UI
         }
 
         /// <summary>
-        /// 카드 뷰를 SWPool에 반환한다
+        /// 카드 뷰를 SWPool에 반환합니다.
         /// </summary>
-        /// <param name="cardView">카드 뷰</param>
+        /// <param name="cardView">카드 뷰입니다.</param>
         private void ReturnCardView(CardView cardView)
         {
             if (cardView == null)
@@ -176,11 +177,11 @@ namespace EchoesOfAsh.View.UI
         #endregion // 풀링
 
         /// <summary>
-        /// 손패 전체의 사용 가능 표시를 갱신한다
+        /// 손패 전체의 사용 가능 표시를 갱신합니다.
         /// </summary>
         public void RefreshPlayable()
         {
-            if (!isInit)
+            if (!isInitialized)
             {
                 return;
             }
@@ -192,11 +193,11 @@ namespace EchoesOfAsh.View.UI
         }
 
         /// <summary>
-        /// 현재 손패에 맞춰 카드 뷰를 다시 구성하고 배치한다
+        /// 현재 손패에 맞춰 카드 뷰를 다시 구성하고 배치합니다.
         /// </summary>
         private void RebuildHand()
         {
-            if (!isInit)
+            if (!isInitialized)
             {
                 return;
             }
@@ -234,20 +235,20 @@ namespace EchoesOfAsh.View.UI
         }
 
         /// <summary>
-        /// AP 변경 시 사용 가능 표시를 갱신한다
+        /// AP 변경 시 사용 가능 표시를 갱신합니다.
         /// </summary>
-        /// <param name="currentAp">현재 AP</param>
+        /// <param name="currentAp">현재 AP입니다.</param>
         private void HandleApChanged(int currentAp)
         {
             RefreshPlayable();
         }
 
         /// <summary>
-        /// 카드를 부채꼴 형태로 배치한다
+        /// 카드를 부채꼴 형태로 배치합니다.
         /// </summary>
-        /// <param name="cardTransform">배치할 카드 위치</param>
-        /// <param name="i">손패 내 인덱스</param>
-        /// <param name="count">손패 수</param>
+        /// <param name="cardTransform">배치할 카드 위치입니다.</param>
+        /// <param name="i">손패 내 인덱스입니다.</param>
+        /// <param name="count">손패 수입니다.</param>
         private void LayoutCard(Transform cardTransform, int i, int count)
         {
             float offset = i - (count - 1) * 0.5f;

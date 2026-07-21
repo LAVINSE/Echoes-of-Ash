@@ -9,7 +9,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Test
 {
     /// <summary>
-    /// 정신력 모듈 테스트
+    /// 정신력 모듈 테스트입니다.
     /// 빈 게임 오브젝트에 부착하고 파티 및 적 데이터 에셋을 연결하여 정신력 기능을 검증합니다.
     /// </summary>
     public class SanityHolderTest : SWMonoBehaviour
@@ -28,11 +28,9 @@ namespace EchoesOfAsh.Test
         private bool isRun = false;
         #endregion // 필드
 
-        #region 프로퍼티
-        #endregion // 프로퍼티
 
         [SWButton("테스트 시작")]
-        private void TestRun()
+        private void RunTest()
         {
             if (!Application.isPlaying)
             {
@@ -63,7 +61,7 @@ namespace EchoesOfAsh.Test
         }
 
         [SWButton("테스트 초기화")]
-        private void TestReset()
+        private void ResetTest()
         {
             if (!Application.isPlaying)
             {

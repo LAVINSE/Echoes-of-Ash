@@ -2,28 +2,35 @@ using EchoesOfAsh.Interface;
 using SW.Attributes;
 using SW.Util;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace EchoesOfAsh.Effect
 {
+    /// <summary>
+    /// 대상에게 정신력 기반 피해를 적용하는 효과입니다.
+    /// </summary>
     [System.Serializable]
     [SWAddTypeMenu("정신력/공격 (캐릭터 전용)")]
     public class SanityDamageEffect : EffectBlock
     {
         #region 필드
-        [SerializeField, Min(0)] private int sanityDamange;
+        [FormerlySerializedAs("sanityDamange")]
+        [SerializeField, Min(0)] private int sanityDamage;
         #endregion // 필드
 
         #region 프로퍼티
-        public int SanityDamage => sanityDamange;
+        /// <summary>정신력 피해량입니다.</summary>
+        public int SanityDamage => sanityDamage;
         #endregion // 프로퍼티
 
+        /// <inheritdoc />
         public override void Apply(EffectContext context)
         {
-            foreach(var target in context.Targets)
+            foreach (ITargetable target in context.Targets)
             {
                 if (target is ISanityHolder sanityHolder)
                 {
-                    sanityHolder.ChangeSanity(-sanityDamange);
+                    sanityHolder.ChangeSanity(-sanityDamage);
                 }
                 else
                 {
@@ -32,9 +39,10 @@ namespace EchoesOfAsh.Effect
             }
         }
 
+        /// <inheritdoc />
         public override string GetDescription()
         {
-            return $"정신력 타격 -{sanityDamange}";
+            return $"정신력 타격 -{sanityDamage}";
         }
     }
 }

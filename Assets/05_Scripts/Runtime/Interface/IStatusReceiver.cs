@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace EchoesOfAsh.Interface
 {
+    /// <summary>
+    /// 상태 이상을 적용하고 현재 중첩을 조회할 수 있는 대상의 계약을 정의합니다.
+    /// </summary>
     public interface IStatusReceiver
     {
         /// <summary>

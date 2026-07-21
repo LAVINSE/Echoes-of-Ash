@@ -9,7 +9,7 @@ using UnityEngine.InputSystem;
 namespace EchoesOfAsh.View
 {
     /// <summary>
-    /// 대상 지정 화살표 뷰
+    /// 대상 지정 화살표 뷰입니다.
     /// 시작 지점에서 지정 지점까지 베지어 곡선 화살표를 표시합니다.
     /// 입력을 직접 읽지 않으며, 드래그 핸들러가 BeginAiming / UpdateAiming / EndAiming으로 구동합니다.
     /// </summary>
@@ -92,7 +92,7 @@ namespace EchoesOfAsh.View
         }
 
         /// <summary>
-        /// 화살표 시작 지점을 변경합니다. (드래그 중 카드가 움직이는 연출 대응)
+        /// 드래그 중인 카드의 움직임에 맞춰 화살표 시작 지점을 변경합니다.
         /// </summary>
         /// <param name="origin">새 시작 지점(월드 좌표)입니다.</param>
         public void SetOrigin(Vector2 origin)
@@ -304,7 +304,7 @@ namespace EchoesOfAsh.View
         }
 
         /// <summary>
-        /// 현재 포인터의 화면 좌표를 월드 좌표로 변환합니다. (셀프 조준 테스트 전용)
+        /// 자체 조준 테스트를 위해 현재 포인터의 화면 좌표를 월드 좌표로 변환합니다.
         /// </summary>
         /// <param name="pointerWorldPosition">변환된 월드 좌표입니다.</param>
         /// <returns>변환 성공 여부입니다.</returns>
