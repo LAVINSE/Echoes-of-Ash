@@ -672,134 +672,22 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
---- !u!1 &1577780531
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1577780532}
-  - component: {fileID: 1577780534}
-  - component: {fileID: 1577780533}
-  m_Layer: 5
-  m_Name: Overaly_Img
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &1577780532
+--- !u!224 &1586288868 stripped
 RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 5088616978120059776, guid: c7f0546d00dbacc4eb1b3dde22f14b09, type: 3}
+  m_PrefabInstance: {fileID: 5797239311499485692}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1577780531}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1586288868}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1577780533
+--- !u!114 &1586288869 stripped
 MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 2617288704280641276, guid: c7f0546d00dbacc4eb1b3dde22f14b09, type: 3}
+  m_PrefabInstance: {fileID: 5797239311499485692}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1577780531}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.18431373}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!222 &1577780534
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1577780531}
-  m_CullTransparentMesh: 1
---- !u!1 &1586288867
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1586288868}
-  - component: {fileID: 1586288869}
-  m_Layer: 5
-  m_Name: MadnessOverlay
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &1586288868
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1586288867}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1577780532}
-  m_Father: {fileID: 250030866}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1586288869
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1586288867}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7c9c8b09b5190ab468a63bf5aadeede1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EchoesOfAsh.View.UI.MadnessOverlayView
-  overlayImage: {fileID: 1577780533}
-  madnessTint: {r: 0.45, g: 0.1, b: 0.5, a: 1}
-  maxAlpha: 0.2
-  fadeSpeed: 1.5
 --- !u!1 &1598648634
 GameObject:
   m_ObjectHideFlags: 0
@@ -920,6 +808,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 717335212612725383, guid: e7e0325aa238ba547993c7ec50dfb0a0, type: 3}
   m_PrefabInstance: {fileID: 1112507748184698733}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2066880086 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5580615382267098820, guid: e7e0325aa238ba547993c7ec50dfb0a0, type: 3}
+  m_PrefabInstance: {fileID: 1112507748184698733}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71f0c295a0121fd4e9aa7857ef99258f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EchoesOfAsh.View.UI.BattleHUDView
 --- !u!1 &2107148179
 GameObject:
   m_ObjectHideFlags: 0
@@ -1307,6 +1206,103 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e84f763522d0bb24aacebe2511b12a41, type: 3}
+--- !u!1001 &5797239311499485692
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 250030866}
+    m_Modifications:
+    - target: {fileID: 5088616978120059776, guid: c7f0546d00dbacc4eb1b3dde22f14b09, type: 3}
+      propertyPath: m_Pivot.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5088616978120059776, guid: c7f0546d00dbacc4eb1b3dde22f14b09, type: 3}
+      propertyPath: m_Pivot.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5088616978120059776, guid: c7f0546d00dbacc4eb1b3dde22f14b09, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5088616978120059776, guid: c7f0546d00dbacc4eb1b3dde22f14b09, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5088616978120059776, guid: c7f0546d00dbacc4eb1b3dde22f14b09, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5088616978120059776, guid: c7f0546d00dbacc4eb1b3dde22f14b09, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5088616978120059776, guid: c7f0546d00dbacc4eb1b3dde22f14b09, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5088616978120059776, guid: c7f0546d00dbacc4eb1b3dde22f14b09, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5088616978120059776, guid: c7f0546d00dbacc4eb1b3dde22f14b09, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5088616978120059776, guid: c7f0546d00dbacc4eb1b3dde22f14b09, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5088616978120059776, guid: c7f0546d00dbacc4eb1b3dde22f14b09, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5088616978120059776, guid: c7f0546d00dbacc4eb1b3dde22f14b09, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5088616978120059776, guid: c7f0546d00dbacc4eb1b3dde22f14b09, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5088616978120059776, guid: c7f0546d00dbacc4eb1b3dde22f14b09, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5088616978120059776, guid: c7f0546d00dbacc4eb1b3dde22f14b09, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5088616978120059776, guid: c7f0546d00dbacc4eb1b3dde22f14b09, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5088616978120059776, guid: c7f0546d00dbacc4eb1b3dde22f14b09, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5088616978120059776, guid: c7f0546d00dbacc4eb1b3dde22f14b09, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5088616978120059776, guid: c7f0546d00dbacc4eb1b3dde22f14b09, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5088616978120059776, guid: c7f0546d00dbacc4eb1b3dde22f14b09, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6103602142899149066, guid: c7f0546d00dbacc4eb1b3dde22f14b09, type: 3}
+      propertyPath: m_Name
+      value: MadnessOverlayView
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: c7f0546d00dbacc4eb1b3dde22f14b09, type: 3}
 --- !u!1001 &6461545531543995818
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1490,6 +1486,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 11400000, guid: 340c1977cd22bce458630f988a4f0e5b, type: 2}
     - target: {fileID: 4730366564788561771, guid: 07cca6c37dfe6ac4e883c43672fb8f37, type: 3}
+      propertyPath: battleHUDView
+      value: 
+      objectReference: {fileID: 2066880086}
+    - target: {fileID: 4730366564788561771, guid: 07cca6c37dfe6ac4e883c43672fb8f37, type: 3}
       propertyPath: characterData
       value: 
       objectReference: {fileID: 11400000, guid: 25def2d2b6d4b1243b194ef875ac324f, type: 2}
@@ -1513,6 +1513,10 @@ PrefabInstance:
       propertyPath: enemyEncounterData
       value: 
       objectReference: {fileID: 11400000, guid: e7b43b9945e28924bb63d24076592ae4, type: 2}
+    - target: {fileID: 4730366564788561771, guid: 07cca6c37dfe6ac4e883c43672fb8f37, type: 3}
+      propertyPath: madnessOverlayView
+      value: 
+      objectReference: {fileID: 1586288869}
     - target: {fileID: 4730366564788561771, guid: 07cca6c37dfe6ac4e883c43672fb8f37, type: 3}
       propertyPath: enemyDatas.Array.size
       value: 1

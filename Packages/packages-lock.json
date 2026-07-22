@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "com.swtools.swutils": {
-      "version": "https://github.com/LAVINSE/SWUtils.git#v1.0.16",
+      "version": "https://github.com/LAVINSE/SWUtils.git#v1.1.0",
       "depth": 0,
       "source": "git",
       "dependencies": {
@@ -9,7 +9,7 @@
         "com.unity.textmeshpro": "3.0.6",
         "com.unity.ugui": "1.0.0"
       },
-      "hash": "7c185eceb2227ad62075e15dcd3868825c6d82a2"
+      "hash": "145b11f36e066b7ccd04079327fbe9aa96b95da0"
     },
     "com.unity.2d.animation": {
       "version": "13.0.5",

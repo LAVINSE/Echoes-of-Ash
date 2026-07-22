@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using EchoesOfAsh.Card;
 using EchoesOfAsh.Data;
 using EchoesOfAsh.Deck;
+using EchoesOfAsh.Dungeon;
 using EchoesOfAsh.Effect;
 using EchoesOfAsh.Enum;
 using EchoesOfAsh.Interface;
@@ -27,7 +28,6 @@ namespace EchoesOfAsh.Battle
         [SerializeField] private BattleBalanceData balanceData;
         [Tooltip("1인기준으로 테스트, 나중에 확장")]
         [SerializeField] private CharacterData characterData;
-        [SerializeField] private List<CardData> startingCards = new();
         [Tooltip("광기 랜덤 이벤트 풀 (임시 조치 - Phase 2 런 주입 대체 예정)")]
         [SerializeField] private List<SanityEventData> sanityEvents = new();
 
@@ -57,6 +57,9 @@ namespace EchoesOfAsh.Battle
         private TargetResolver targetResolver;
         private TurnManager turnManager;
         private MadnessEventRunner madnessEventRunner;
+
+        private DungeonState dungeonState;
+        private EnemyEncounterData currentEncounter;
 
         private EBattleResult battleResult = EBattleResult.None;
         private bool isBattleRunning;
@@ -203,7 +206,7 @@ namespace EchoesOfAsh.Battle
         /// 전투 시작합니다.
         /// </summary>
         /// <returns>시작 성공 여부입니다.</returns>
-        public bool StartBattle()
+        public bool StartBattle(DungeonState dungeonState, EnemyEncounterData encounter)
         {
             if (isBattleRunning)
             {
@@ -244,12 +247,6 @@ namespace EchoesOfAsh.Battle
                 return false;
             }
 
-            if (startingCards.Count == 0)
-            {
-                SWLog.LogError("[BattleManager] 데이터 검증 실패: 시작 카드가 비어 있습니다");
-                return false;
-            }
-
             if (enemyEncounterData == null || enemyEncounterData.EnemyCount == 0)
             {
                 SWLog.LogError("[BattleManager] 데이터 검증 실패: 조우 데이터가 비어 있습니다");
@@ -259,6 +256,18 @@ namespace EchoesOfAsh.Battle
             if (enemyEncounterData.EnemyCount > 3)
             {
                 SWLog.LogError($"[BattleManager] 조우 적 {enemyEncounterData.EnemyCount}체입니다 - 기준 1~3");
+                return false;
+            }
+
+            if (dungeonState == null || dungeonState.Deck.Count == 0)
+            {
+                SWLog.LogError("[BattleManager] 검증 실패: 런 상태가 없거나 덱이 비어 있습니다");
+                return false;
+            }
+
+            if (currentEncounter == null)
+            {
+                SWLog.LogError("[BattleManager] 검증 실패: 조우 데이터가 없습니다");
                 return false;
             }
 
@@ -329,14 +338,6 @@ namespace EchoesOfAsh.Battle
         private void SetupSystems()
         {
             List<CardInstance> cardInstances = new();
-
-            foreach (var cardData in startingCards)
-            {
-                if (cardData != null)
-                {
-                    cardInstances.Add(new CardInstance(cardData));
-                }
-            }
 
             deckSystem = new DeckSystem(cardInstances, balanceData);
             apSystem = new ApSystem(balanceData);

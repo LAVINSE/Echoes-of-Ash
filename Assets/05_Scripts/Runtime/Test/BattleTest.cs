@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using EchoesOfAsh.Battle;
 using EchoesOfAsh.Card;
+using EchoesOfAsh.Data;
+using EchoesOfAsh.Dungeon;
 using EchoesOfAsh.Enum;
 using EchoesOfAsh.Interface;
 using SW.Attributes;
@@ -18,6 +20,9 @@ namespace EchoesOfAsh.Test
         #region 필드
         [SWGroup("전투")]
         [SerializeField] private BattleManager battleManager;
+        [SerializeField] private List<CardData> startingCards = new();
+        [SerializeField] private List<SanityEventData> sanityEvents = new();
+        [SerializeField] private EnemyEncounterData enemyEncounterData;
 
         [SWGroup("랜덤 시드 값")]
         [SerializeField] private bool useFixedSeed = true;
@@ -57,7 +62,11 @@ namespace EchoesOfAsh.Test
 
             Subscribe();
 
-            if (!battleManager.StartBattle())
+            DungeonState testRunState = new DungeonState(seed, startingCards, sanityEvents);
+            SWRandom.SetSeed(seed);   // 기존 시드 고정 옵션 자리에서
+            battleManager.StartBattle(testRunState, enemyEncounterData);
+
+            if (!battleManager.StartBattle(testRunState, enemyEncounterData))
             {
                 return;
             }

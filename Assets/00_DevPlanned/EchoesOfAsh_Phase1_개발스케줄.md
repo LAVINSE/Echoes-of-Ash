@@ -1,6 +1,6 @@
 # Echoes of Ash — Phase 1 개발 스케줄
 
-> 기준 문서: 기획서 v3.2 (16장 Phase 1 체크리스트) · 작성일: 2026-07-07 (개정 7 — 2026-07-21, M5 5-4·5-5 완료 + D5 하이브리드 개정 반영)
+> 기준 문서: 기획서 v3.2 (16장 Phase 1 체크리스트) · 작성일: 2026-07-07 (개정 11 — 2026-07-22, 정신력 시스템 유지 확정 — 6-5는 밸런스 게이트로 완화)
 > 목표: **전투 1사이클 + 정신력이 플레이 가능한 상태 (1인 기준)** — 기간 잠정 8주
 
 ---
@@ -20,13 +20,13 @@
 | 전투원 | `Battle/Base/BattleEntity.cs` (SWMonoBehaviour 기반 공통 베이스 — HP SWStat 클론 직접 보유, 방어막 int, IDamageable/ITargetable/IStatusReceiver 구현, ResetEntity 정리 패턴) + `CharacterEntity` / `EnemyEntity`(개체별 SanityHolder 위임, ActionIndex) + `IDamageCalculator`/`DefaultDamageCalculator`. `Test/BattleEntityTest.cs` 검증 완료 (M2 DoD 통과) |
 | 카드 실행 계층 (M3) | `Card/CardInstance.cs` (런타임 래퍼) + `Deck/DeckSystem.cs` (3존 관리·SWRandom 셔플) + `Battle/ApSystem.cs` (지급/이월/클램프 — 수치는 BattleBalanceData) + `Effect/EffectExecutor.cs` (컨텍스트 조립·블록 순회 단일 창구) + `Battle/CardPlayService.cs` (사용 파이프라인). `Test/CardPlayTest.cs` 검증 완료 (M3 DoD 통과) |
 | 턴 흐름 + 적 AI (M4) | `Battle/TurnManager.cs` (턴 상태 머신 — 발화 순서 고정) + `Battle/EnemyAI.cs` (패턴 순환·의도 선정·페이즈/광기 전환) + `Battle/TargetResolver.cs` (대상 목록 구성) + `Battle/BattleManager.cs` (조우 셋업·모듈 배선·승패 판정·종료 정리) + `ETurnPhase`/`EBattleResult` (`GameEnum.cs`에 병합). `Test/BattleTest.cs` (`Test_Battle` 씬) 검증 완료 (M4 DoD 통과) |
-| **전투 뷰/입력 (M5 5-1~5-5)** | 월드: `View/EnemyView.cs` (적 플레이스홀더 — 드롭 판정 콜라이더·사망 처리 + 5-3 게이지 증축 + **5-4 의도 증축**(`Init(entity, enemyAI)` — 순수 클래스를 뷰에 주입하는 첫 사례·`HandleIntentChanged`·사망 시 숨김·Release 통합)) + `View/GaugeView.cs` (공용 채움 바 — FillRoot 스케일·임계값 마커·에디터 라이브 테스트) + **`View/IntentView.cs`** (의도 아이콘·수치 — 슬롯 고정 배치·유형별 스프라이트 매핑) + `View/BezierArrowsView.cs` (대상 지정 화살표 — 뷰 전용, 외부 구동) / Canvas(`View/UI/` — 개정 7 하이브리드): `CardView.cs` (Image·사이블링 승격 정렬) + `HandView.cs` (부채꼴 배치·SWPool·사이블링 고정) + **`UIGaugeView.cs`** (`Image.fillAmount`·마커 앵커 비율) + `PartyStatusView.cs` (파티 HP/방어막 + 공유 SAN 경계 표시) + **`CardTooltipView.cs`** (STS식 카드 옆 배치·화면 경계 플립·평정/광기 양쪽 표시·구간 강조 실시간 전환) / 입력: `Battle/CardDragController.cs` (호버→픽업→드래그→드롭 단일 입력 주체 + 툴팁 구동) / 데이터: `Data/EnemyEncounterData.cs` (조우 구성·배치 SO — M6-3 선행) + `BattleManager` 뷰 배선(조우 스폰·`handView`/`partyStatusView`/`cardTooltipView` Init/Release) + `Test/PartyStatusViewTest.cs`. 5-1·5-2 실동작 검증 완료, 5-3~5-5 씬 검증은 디자인 적용 시점 이월 |
+| **전투 뷰/입력 (M5 완료)** | 월드: `View/EnemyView.cs` (적 플레이스홀더 — 드롭 판정 콜라이더·사망 처리 + 5-3 게이지 증축 + **5-4 의도 증축**(`Init(entity, enemyAI)` — 순수 클래스를 뷰에 주입하는 첫 사례·`HandleIntentChanged`·사망 시 숨김·Release 통합)) + `View/GaugeView.cs` (공용 채움 바 — FillRoot 스케일·임계값 마커·에디터 라이브 테스트) + **`View/IntentView.cs`** (의도 아이콘·수치 — 슬롯 고정 배치·유형별 스프라이트 매핑) + `View/BezierArrowsView.cs` (대상 지정 화살표 — 뷰 전용, 외부 구동) / Canvas(`View/UI/` — 개정 7 하이브리드): `CardView.cs` (Image·사이블링 승격 정렬) + `HandView.cs` (부채꼴 배치·SWPool·사이블링 고정) + **`UIGaugeView.cs`** (`Image.fillAmount`·마커 앵커 비율) + `PartyStatusView.cs` (파티 HP/방어막 + 공유 SAN 경계 표시) + **`CardTooltipView.cs`** (STS식 카드 옆 배치·화면 경계 플립·평정/광기 양쪽 표시·구간 강조 실시간 전환) / 입력: `Battle/CardDragController.cs` (호버→픽업→드래그→드롭 단일 입력 주체 + 툴팁 구동) / 데이터: `Data/EnemyEncounterData.cs` (조우 구성·배치 SO — M6-3 선행) + `BattleManager` 뷰 배선(조우 스폰·`handView`/`partyStatusView`/`cardTooltipView` Init/Release) + `Test/PartyStatusViewTest.cs`. + **5-6 (개정 8):** `View/UI/BattleHUDView.cs` (턴 종료 버튼·AP·덱/버림 카운터 — 콜백 주입) + `View/UI/MadnessOverlayView.cs` (광기 풀스크린 틴트 페이드) + `GaugeView`/`UIGaugeView` 보간 증축 + EventSystem/GraphicRaycaster 도입. 5-1·5-2 실동작 검증 완료, 5-3~5-6 씬 검증은 디자인 적용 시점 이월 |
 | 데이터 보강 | `EnemyData.StartSanity` 필드 추가 — 광기 상태 등장 적 지원 (PartyData와 대칭) / `BattleBalanceData`에 AP 그룹 추가 (`apPerTurn` 3, `apCarryOverMax` 2) / **`EnemyEncounterData` 신설** (개정 4 — 조우 = 적 구성+배치+행동 순서의 단일 소유 데이터) |
 | 인프라 | SWUtils v1.0.11 통합 (SWRandom 시드 고정, SWLog, SWSubClassSelector, SWIODatabase, **SWPool** 사용) |
 
 ### 미구현 (이 문서의 대상)
 
-전투 UI 잔여(턴 종료 버튼·AP 표시·덱/버림 카운터·광기 연출·게이지 보간 — 5-6), 5-1 마무리(AP·타입 텍스트, 반응형 마커 스프라이트, 한글 TMP 폰트 폴백 — 5-6 병합), 광기 이벤트 러너(`MadnessEventRunner`), 테스트 콘텐츠 데이터(카드 15장·적 3종·광기 이벤트 4~6종·조우 구성). **뷰 통합 씬 검증(5-3~5-5)은 디자인 제작·적용 시점으로 이월.**
+테스트 콘텐츠 데이터(카드 15장·적 3종·광기 이벤트 4~6종·조우 구성 — M6-2·6-3). **에디터 작업 이월분: 5-1 잔여(CardView 프리팹 AP·타입 텍스트 연결, 반응형 마커 스프라이트, 한글 TMP 폰트 폴백)와 뷰 통합 씬 검증(5-3~5-6)은 디자인 제작·적용 시점에 일괄 진행.**
 
 ---
 
@@ -55,7 +55,7 @@
 
 ---
 
-### M5 — 전투 UI / 입력 (1.5주) ◀ 진행 중 (5-1~5-5 완료 — 개정 7)
+### M5 — 전투 UI / 입력 (1.5주) ✅ 완료 (개정 8)
 
 기획서 14-5 전투 화면의 Phase 1 범위 구현. 로직은 이미 완성 상태이므로 이 단계는 표시/입력만.
 
@@ -66,7 +66,7 @@
 | 5-3 | 게이지 뷰 | 파티 HP/방어막, **공유 SAN(경계 표시 포함)**, 적별 HP + **얇은 SAN 보조 바** (기획서 3-2 UI 원칙) — `OnSanityChanged`/`OnDamaged` 이벤트 구독 | ✅ (씬 검증은 디자인 적용 시) |
 | 5-4 | 의도 표시 뷰 | `EnemyAI.OnIntentChanged` 구독 — `GetIntentTypes()` 복수 아이콘 + `GetIntentDamageValue()`/`GetIntentSanityPressureValue()` 수치 | ✅ (씬 검증은 디자인 적용 시) |
 | 5-5 | 카드 툴팁 | 반응형 카드는 평정/광기 양쪽 효과 표시 (`GetDescription()` 조합), 현재 구간 강조 | ✅ (씬 검증은 디자인 적용 시) |
-| 5-6 | 턴 종료 버튼(`TurnManager.OnPhaseChanged` 연동) / AP 표시(`OnApChanged` 구독) / 덱·버림 카운터(`OnPileChanged`) / 광기 진입 연출(채도·비네팅 가볍게) / **게이지 보간 연출 (5-3 이월)** / 5-1 잔여 병합 | 연출은 최소 — 아트 부담 억제 원칙 | ◀ 다음 |
+| 5-6 | 턴 종료 버튼(`TurnManager.OnPhaseChanged` 연동) / AP 표시(`OnApChanged` 구독) / 덱·버림 카운터(`OnPileChanged`) / 광기 진입 연출(채도·비네팅 가볍게) / **게이지 보간 연출 (5-3 이월)** | 연출은 최소 — 아트 부담 억제 원칙 | ✅ (씬 검증·5-1 잔여 에디터 작업은 디자인 적용 시) |
 
 **DoD:** 마우스만으로 전투 1사이클 완주 가능. 광기 진입 시 반응형 카드의 표시가 실시간 전환된다.
 
@@ -129,13 +129,22 @@
 - **게이지 이원화:** 월드 `GaugeView`(적 전용) / `UIGaugeView`(HUD 전용) — 공개 API 동일 유지가 계약. 5-6 보간 연출은 양쪽 동일 패턴으로 적용 예정
 - **씬 검증 이월 ⚠ (5-3~5-5 병합):** ① 게이지 실시간 반영·광기 색/라벨 전환 ② 적 의도 표시 = OnGUI 일치·수치·사망 숨김·라운드 교체 ③ 툴팁 옆 배치·오른쪽 끝 카드 왼쪽 플립·반응형 양쪽 표시·호버 중 광기 진입 강조 전환 ④ 호버/드래그 사이블링 승격·복원 — 디자인 제작·적용 시점에 일괄 확인
 
+#### 5-6 완료 기록 (2026-07-22)
+
+- **산출물:** `View/UI/BattleHUDView.cs` + `View/UI/MadnessOverlayView.cs` + `GaugeView`/`UIGaugeView` 보간 증축 + `BattleManager` 배선(Init/Release — 뷰 3종과 대칭) + BattleHUD·오버레이 프리팹 + **EventSystem/GraphicRaycaster 도입** (버튼용 — 카드 판정은 콜라이더 유지). 명명: HUD는 두문자어 대문자 유지(`BattleHUDView`)
+- **`BattleHUDView` 단일 HUD 통합:** 턴 종료 버튼·AP·덱/버림 카운터는 "전투 진행 상태 표시"라는 같은 변경 이유 공유 (SRP 단위 = HUD). 버튼 활성 = `OnPhaseChanged` 구독으로 `PlayerAction` 단계만 (전투 종료 시 Release가 비활성 보장). AP = `OnApChanged`, 카운터 = `OnPileChanged(draw, discard)`
+- **턴 종료 = 콜백 주입:** `Init(..., Action endTurnRequest)` — 뷰가 `BattleManager`를 모르도록 조립 지점이 `EndTurn`을 넘김 (EffectExecutor `drawRequest` 콜백 주입과 동일 패턴)
+- **`MadnessOverlayView`:** `OnSanityTypeChanged` 구독 — 광기 진입 시 풀스크린 틴트 알파 페이드 인, 평정 복귀 시 페이드 아웃 (최소 연출 원칙). **`raycastTarget = false` 강제** — 풀스크린 이미지가 턴 종료 버튼 UI 레이캐스트를 가로채는 사고 방지. Init 시 현재 구간으로 스냅 (전투 시작 페이드 방지)
+- **게이지 보간 (5-3 이월 이행):** 로직 즉시(텍스트)·표시 지연(바) — `SetValue`는 `targetRatio`만 저장, `Update`에서 `MoveTowards`. **첫 값은 스냅** (전투 시작 시 0부터 차오름 방지), `lerpSpeed` 0 = 보간 끔. 공개 API 불변 — 월드 `GaugeView`/Canvas `UIGaugeView` 양쪽 동일 패턴 (월드판은 에디터 테스트 경로 위해 `!Application.isPlaying`도 스냅 조건에 포함)
+- **씬 검증 이월 추가분:** ⑤ 턴 종료 버튼이 플레이어 행동 단계에만 활성 · AP/카운터 실시간 갱신 ⑥ 광기 진입/복귀 오버레이 페이드 ⑦ 게이지 보간 이동 — 기존 이월 체크리스트에 병합
+
 ---
 
-### M6 — 광기 랜덤 이벤트 + 통합 검증 (1주)
+### M6 — 광기 랜덤 이벤트 + 통합 검증 (1주) — 6-1 ✅ / 6-2~6-5 ⏸ 리소스 작업 시점 이월 (개정 10)
 
 | # | 산출물 | 책임 |
 |---|--------|------|
-| 6-1 | `Sanity/MadnessEventRunner.cs` | **`TurnManager.OnTurnStartHook` 구독** — 광기 구간이면 `GetMadnessEventChance(현재SAN, PartyData.SanityThreshold)` 판정(`SWRandom.Chance`) → `PickRandomMadnessEvent()` → Executor 실행 + UI 알림 (확률 곡선=룰은 Balance, 임계값=주체 속성은 PartyData에서 주입) |
+| 6-1 ✅ | `Sanity/MadnessEventRunner.cs` | **`TurnManager.OnTurnStartHook` 구독** — 광기 구간이면 `GetMadnessEventChance(현재SAN, PartyData.SanityThreshold)` 판정(`SWRandom.Chance`) → `PickRandomMadnessEvent()` → Executor 실행 + UI 알림 (확률 곡선=룰은 Balance, 임계값=주체 속성은 PartyData에서 주입) |
 | 6-2 | 광기 이벤트 데이터 4~6종 | 부정(자해 5 / 손패 1장 버림 / SAN -5) + 긍정(AP +1 / 드로우 +1) — 가중치는 부정 합 > 긍정 합 |
 | 6-3 | 콘텐츠 데이터 | **카드 15장**(반응형 5~6장 포함), **적 3종**(SAN 압박형 1종 포함, 광기 패턴 1종만 정의), **조우 에셋**(`EnemyEncounterData` 1~3체 구성 — 구조는 M5에서 선행 완료, 여기서는 콘텐츠만) |
 | 6-4 | 밸런스 1차 조정 | `BattleBalanceData` 수치만으로 튜닝 (코드 수정 0 확인 — 데이터 주도 검증 겸함) |
@@ -143,18 +152,32 @@
 
 **DoD:** Phase 1 목표 달성 — 1인 기준 전투 1사이클이 재미 판단 가능한 상태로 플레이된다. 검증 결과에 따라 Phase 2 진입 or 코어 재조정 결정.
 
+> **⏸ 이월 결정 (개정 10):** 6-2~6-5(이벤트·콘텐츠 데이터 제작 + 밸런스 + 재미 검증)는 **게임 리소스 작업 시점에 일괄 진행** — 구성안(이벤트 5종·카드 15장·적 3종·조우 3종 스펙)은 확정 상태로 보관. 5-1 잔여 에디터 작업·씬 검증(5-3~5-6)과 같은 시점에 묶는다.
+> **⚠ 게이트 완화 (개정 11):** **정신력 시스템 유지 확정** — 코어 디자인 결정 (2026-07-22). 6-5 재미 검증은 "구조 게이트"(존폐 판단)에서 **"밸런스 게이트"**(수치·이벤트 효과 튜닝 — 전부 `SanityEventData`·`BattleBalanceData` 에셋 교체로 대응, 코드 재작업 없음)로 완화된다. 이에 따라 Phase 2 전투 코어 결합 항목(파티 3인·타겟팅)의 착수 제약도 해제 — 다만 임시 조치 대체(런 주입) 의존성 때문에 **권장 순서는 여전히 메타 계층(런 상태·저장·파이프라인) 우선**.
+
+#### 6-1 완료 기록 (2026-07-22)
+
+- **산출물:** `Sanity/MadnessEventRunner.cs` (순수 클래스 — TurnManager 계열, 생성자 주입·전투 1회 수명) + `BattleManager` 배선(생성·`OnTurnStartHook` 구독/해제·`sanityEvents` 인스펙터 풀) + `BattleBalanceData.GetMadnessEventChance` 증축
+- **명명 확정:** 계획명 `MadnessEventData` → 실구현 **`SanityEventData`** (M0 데이터 단계에서 기구현 — TargetResolver 명명 개정과 같은 계열)
+- **선택 구조 조정 (실데이터 준수):** 계획의 "풀에서 긍정/부정 선택" → **풀 균등 무작위 1건 + 이벤트 내 분기** — `SanityEventData`가 부정 `effects`를 기본 보유, `isPositiveEffect`면 `weight` 확률로 `positiveEffects` 적용(실패 시 부정 폴백). "부정 합 > 긍정 합" 원칙은 풀 구성 비율 + weight로 제어 (6-2)
+- **확률 곡선 = 룰 (Balance):** `GetMadnessEventChance(현재SAN, 임계값)` — 임계값 부근 = base(잠정 0.3), SAN 0 = max(잠정 0.6) 선형 증가. "낮을수록 통제를 잃는다" 구현. 임계값은 `ISanityHolder.SanityThreshold` 경유 (주체 속성이 홀더로 전달 — PartyData 별도 주입 불필요)
+- **판정 시점:** `OnTurnStartHook` = AP 지급·드로우 **이후** — "손패 1장 버림"이 이번 턴 손패에 정상 적용, 훅 발화 후 `BattleEnd` 체크로 이벤트로 인한 사망도 안전 중단 (M4 발화 순서 설계가 그대로 지점이 됨)
+- **결정성:** 발동 판정·풀 선택·긍정 분기 3회 무작위 전부 `SWRandom` (D3 시드 일원화)
+- **UI 알림 = 이벤트 노출만:** `OnMadnessEventTriggered(이벤트, 긍정여부)` — 알림 뷰는 6-5 검증에서 필요 판단 후 최소로 (연출 억제 원칙)
+- **임시 조치 추가:** `BattleManager.sanityEvents` 인스펙터 풀 — `startingCards`와 동일하게 Phase 2 런 상태 주입으로 대체 예정
+
 ---
 
 ## 3. 모듈 ↔ 산출물 매핑 (기획서 15-2 기준)
 
 | 모듈 | Phase 1 산출물 | 폴더 |
 |------|----------------|------|
-| 정신력 | `SanityHolder` ✅, `MadnessEventRunner` | `05_Scripts/Sanity/` |
+| 정신력 | `SanityHolder` ✅, `MadnessEventRunner` ✅ (개정 9) | `05_Scripts/Sanity/` |
 | 전투 | `BattleEntity`(Character/Enemy) ✅, `ApSystem` ✅, `CardPlayService` ✅, `IDamageCalculator` ✅, `BattleManager` ✅, `TurnManager` ✅, `EnemyAI` ✅ | `05_Scripts/Battle/` |
 | 덱·카드 | `DeckSystem` ✅, `CardInstance` ✅ | `05_Scripts/Deck/`, `05_Scripts/Card/` (계획 `Data/Runtime/`에서 변경 — 개정 2) |
 | 타겟팅 | `TargetResolver` ✅ (계획명 `TargetingResolver`에서 개정 — `Resolve` = 대상 목록 **구성**) | `05_Scripts/Battle/` (Phase 2에 분리 검토) |
 | 효과 | `EffectExecutor` ✅ (+ 기존 Effect 모듈) | `05_Scripts/Effect/` |
-| 뷰 (계획명 UI — 개정 4) | 월드: `EnemyView` ✅(게이지·의도 증축), `IntentView` ✅, `GaugeView` ✅, `BezierArrowsView` ✅ / Canvas: `CardView` ✅, `HandView` ✅, `UIGaugeView` ✅, `PartyStatusView` ✅, `CardTooltipView` ✅ / 5-6: 턴종료·AP·카운터·광기연출 | 월드 = `05_Scripts/View/` (`EchoesOfAsh.View`) / Canvas = `05_Scripts/View/UI/` (`EchoesOfAsh.View.UI`) — 하이브리드 D5 개정 7 |
+| 뷰 (계획명 UI — 개정 4) | 월드: `EnemyView` ✅(게이지·의도 증축), `IntentView` ✅, `GaugeView` ✅, `BezierArrowsView` ✅ / Canvas: `CardView` ✅, `HandView` ✅, `UIGaugeView` ✅, `PartyStatusView` ✅, `CardTooltipView` ✅ / **`BattleHUDView` ✅, `MadnessOverlayView` ✅** (개정 8) | 월드 = `05_Scripts/View/` (`EchoesOfAsh.View`) / Canvas = `05_Scripts/View/UI/` (`EchoesOfAsh.View.UI`) — 하이브리드 D5 개정 7 |
 | 입력 | `CardDragController` ✅ (+ 툴팁 구동) | 현재 `05_Scripts/Battle/` — `View/` 이동 검토 (구조 노트) |
 | 조우 데이터 | `EnemyEncounterData` ✅ (개정 4 — M6-3 구조 선행) | `05_Scripts/Data/` |
 
@@ -176,7 +199,7 @@
 
 ## 5. 리스크와 완충
 
-- **UI 작업량 과소평가** (M5) — 드래그 타겟팅이 통상 예상보다 오래 걸림. → **5-5까지 완료로 잔여는 5-6 하나 (개정 7). 하이브리드 전환도 콜라이더 판정 유지 결정으로 재작업 최소화 완료.** 잔여 지연 시 연출(5-6 광기 연출·게이지 보간)을 M6 이후로 이월하는 완충은 유지.
+- **UI 작업량 과소평가** (M5) — 드래그 타겟팅이 통상 예상보다 오래 걸림. → **M5 완료로 리스크 해소 (개정 8).** 남은 뷰 관련 작업은 디자인 시점 에디터 작업·씬 검증뿐.
 - **재미 검증 실패 시** (M6-5) — 수치 문제면 `BattleBalanceData`로 해결(빠름), 구조 문제(2단계 구간이 얕음 등)면 Phase 2 진입을 멈추고 3-1 재설계. 이 판단을 위해 M6에 검증 시간을 확보해둔 것.
 - **범위 방어** — Phase 1에 다음을 넣지 않는다: 파티 3인, 맵/노드, 유물, 상점/이벤트, 저장, 상태이상 틱 로직, 카드 강화 UI, `CardSystemWindow`. 전부 Phase 2 이후 (기획서 16장). 아트도 동일 — 뷰는 전부 플레이스홀더 유지, 기능적 아트(카드 프레임·아이콘 등)는 Phase 2, 비주얼 완성은 Phase 3 (M6 재미 검증 전 아트 투자 금지).
 
@@ -200,3 +223,5 @@
 | 개정 5 | 2026-07-18 | M5 5-3 게이지 뷰 완료 — `GaugeView` 공용 컴포넌트(FillRoot 스케일 채움·임계값 마커·정렬 규칙 barWidth 세트), `PartyStatusView` 신설, `EnemyView` 게이지 증축 + Release 통합, 에디터 라이브 테스트 체계(OnValidate + delayCall + fake null 가드), 게이지 보간 연출·5-1 잔여 5-6 이월 |
 | 개정 6 | 2026-07-20 | M5 5-4 의도 표시 뷰 완료 — `IntentView` 신설(슬롯 고정 배치·유형별 스프라이트 매핑·공격/SAN 압박 수치), `EnemyView` `Init(entity, enemyAI)` 확장(순수 클래스를 뷰에 주입하는 첫 사례), 초기 1회 직접 갱신·사망 시 숨김 |
 | 개정 7 | 2026-07-21 | M5 5-5 카드 툴팁 완료(호버 단일 주체 구동·수명/구동 참조 이원화·평정/광기 양쪽 표시·구간 강조 실시간 전환·STS식 옆 배치+화면 경계 플립) + **D5 하이브리드 개정** — Screen Space - Camera(소팅 레이어 참여·월드 좌표 보유·콜라이더 판정 유지)로 로직·판정 무수정, `View/UI/`+`EchoesOfAsh.View.UI` 분리, 변경 4파일(CardView 사이블링 승격 — 카드별 Canvas 기각·HandView 사이블링 고정·UIGaugeView 신설(마커 앵커 비율)·PartyStatusView 타입 교체), 씬 검증(5-3~5-5)은 디자인 적용 시점 이월 |
+| 개정 8 | 2026-07-22 | **M5 완료** — 5-6: `BattleHUDView`(턴 종료 버튼 `OnPhaseChanged` 활성·AP·덱/버림 카운터 단일 HUD, 턴 종료 콜백 주입 — 뷰는 로직을 모름), `MadnessOverlayView`(광기 틴트 페이드·raycastTarget=false 강제), 게이지 보간 양쪽 증축(첫 값 스냅·API 불변), EventSystem 도입(버튼용 — 카드 판정은 콜라이더 유지). 5-1 잔여 에디터 작업·씬 검증(5-3~5-6)은 디자인 시점 일괄 이월. **다음: M6 광기 랜덤 이벤트** |
+| 개정 9 | 2026-07-22 | **M6-1 완료** — `MadnessEventRunner` 순수 클래스(OnTurnStartHook 구독 — AP·드로우 후 판정, BattleEnd 안전 중단), 명명 확정 `MadnessEventData`→`SanityEventData`, 선택 구조 조정(풀 균등 무작위 + 이벤트 내 weight 분기 — 부정>긍정은 풀 구성으로 제어), `GetMadnessEventChance` 선형 곡선(base 0.3→max 0.6 잠정), 임계값 홀더 경유, 무작위 3회 전부 SWRandom(D3), `sanityEvents` 인스펙터 풀(임시 조치). **다음: 6-2 이벤트 데이터 + 6-3 콘텐츠** |
