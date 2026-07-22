@@ -28,12 +28,6 @@ namespace EchoesOfAsh.Battle
         [SerializeField] private BattleBalanceData balanceData;
         [Tooltip("1인기준으로 테스트, 나중에 확장")]
         [SerializeField] private CharacterData characterData;
-        [Tooltip("광기 랜덤 이벤트 풀 (임시 조치 - Phase 2 런 주입 대체 예정)")]
-        [SerializeField] private List<SanityEventData> sanityEvents = new();
-
-        [SWGroup("조우")]
-        [Tooltip("이번 전투의 적 구성 (항목 순서 = 행동 순서)")]
-        [SerializeField] private EnemyEncounterData enemyEncounterData;
 
         [SWGroup("배치")]
         [SerializeField] private Transform characterRoot;
@@ -144,13 +138,14 @@ namespace EchoesOfAsh.Battle
                 turnManager.OnTurnStarted -= HandleTurnStarted;
                 turnManager.OnEnemyActionsStarted -= HandleEnemyActionsStarted;
                 turnManager.OnRoundEnded -= HandleRoundEnded;
-                turnManager = null;
-            }
 
-            if (madnessEventRunner != null)
-            {
-                turnManager.OnTurnStartHook -= madnessEventRunner.HandleTurnStartHook;
-                madnessEventRunner = null;
+                if (madnessEventRunner != null)
+                {
+                    turnManager.OnTurnStartHook -= madnessEventRunner.HandleTurnStartHook;
+                    madnessEventRunner = null;
+                }
+
+                turnManager = null;
             }
 
             deckSystem = null;
@@ -214,6 +209,9 @@ namespace EchoesOfAsh.Battle
                 return false;
             }
 
+            this.dungeonState = dungeonState;
+            this.currentEncounter = encounter;
+
             if (!ValidateData())
             {
                 return false;
@@ -247,27 +245,21 @@ namespace EchoesOfAsh.Battle
                 return false;
             }
 
-            if (enemyEncounterData == null || enemyEncounterData.EnemyCount == 0)
-            {
-                SWLog.LogError("[BattleManager] 데이터 검증 실패: 조우 데이터가 비어 있습니다");
-                return false;
-            }
-
-            if (enemyEncounterData.EnemyCount > 3)
-            {
-                SWLog.LogError($"[BattleManager] 조우 적 {enemyEncounterData.EnemyCount}체입니다 - 기준 1~3");
-                return false;
-            }
-
             if (dungeonState == null || dungeonState.Deck.Count == 0)
             {
                 SWLog.LogError("[BattleManager] 검증 실패: 런 상태가 없거나 덱이 비어 있습니다");
                 return false;
             }
 
-            if (currentEncounter == null)
+            if (currentEncounter == null || currentEncounter.EnemyCount == 0)
             {
-                SWLog.LogError("[BattleManager] 검증 실패: 조우 데이터가 없습니다");
+                SWLog.LogError("[BattleManager] 검증 실패: 조우 데이터가 비어 있습니다");
+                return false;
+            }
+
+            if (currentEncounter.EnemyCount > 3)
+            {
+                SWLog.LogError($"[BattleManager] 조우 적 {currentEncounter.EnemyCount}체입니다 - 기준 1~3");
                 return false;
             }
 
@@ -299,7 +291,7 @@ namespace EchoesOfAsh.Battle
         /// </summary>
         private void SetupEnemies()
         {
-            foreach (var entry in enemyEncounterData.Entries)
+            foreach (var entry in currentEncounter.Entries)
             {
                 if (entry == null || entry.EnemyData == null)
                 {
@@ -337,9 +329,7 @@ namespace EchoesOfAsh.Battle
         /// </summary>
         private void SetupSystems()
         {
-            List<CardInstance> cardInstances = new();
-
-            deckSystem = new DeckSystem(cardInstances, balanceData);
+            deckSystem = new DeckSystem(dungeonState.Deck, balanceData);
             apSystem = new ApSystem(balanceData);
 
             effectExecutor = new EffectExecutor
@@ -358,7 +348,7 @@ namespace EchoesOfAsh.Battle
             turnManager.OnEnemyActionsStarted += HandleEnemyActionsStarted;
             turnManager.OnRoundEnded += HandleRoundEnded;
 
-            madnessEventRunner = new MadnessEventRunner(partySanityHolder, effectExecutor, balanceData, sanityEvents, characterEntity);
+            madnessEventRunner = new MadnessEventRunner(partySanityHolder, effectExecutor, balanceData, dungeonState.SanityEventDatas, characterEntity);
             turnManager.OnTurnStartHook += madnessEventRunner.HandleTurnStartHook;
 
             if (handView != null)

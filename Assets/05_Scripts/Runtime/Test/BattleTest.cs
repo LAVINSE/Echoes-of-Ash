@@ -63,8 +63,6 @@ namespace EchoesOfAsh.Test
             Subscribe();
 
             DungeonState testRunState = new DungeonState(seed, startingCards, sanityEvents);
-            SWRandom.SetSeed(seed);   // 기존 시드 고정 옵션 자리에서
-            battleManager.StartBattle(testRunState, enemyEncounterData);
 
             if (!battleManager.StartBattle(testRunState, enemyEncounterData))
             {
