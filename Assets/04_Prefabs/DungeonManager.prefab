@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3869543033173200404
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9197781290305162304}
+  - component: {fileID: 3190026900988275682}
+  m_Layer: 0
+  m_Name: DungeonManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &9197781290305162304
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3869543033173200404}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3190026900988275682
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3869543033173200404}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d659aa7f86249e4e94e85875d9621c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EchoesOfAsh.Dungeon.DungeonManager
+  battleManager: {fileID: 0}
+  mapConfigData: {fileID: 11400000, guid: 66807c471d662b64dab97a8a42812eeb, type: 2}
+  dungeonSeed: 0
+  startingCards:
+  - {fileID: 11400000, guid: 0abc4eeb025736a4e96c5502a058ae46, type: 2}
+  - {fileID: 11400000, guid: 562e864da6f13724287c1b8ebb0a4db0, type: 2}
+  - {fileID: 11400000, guid: b654101b2c669ca428073aa97cfe1e2e, type: 2}
+  sanityEventDatas: []
+  enemyEncounterDatas:
+  - {fileID: 11400000, guid: e7b43b9945e28924bb63d24076592ae4, type: 2}
