@@ -200,4 +200,25 @@ namespace EchoesOfAsh.Enum
         /// <summary>패배입니다.</summary>
         [InspectorName("패배")] Defeat,
     }
+
+    /// <summary>
+    /// 맵 노드 타입입니다.
+    /// </summary>
+    public enum EMapNodeType
+    {
+        /// <summary>전투 노드입니다.</summary>
+        [InspectorName("전투")] Battle,
+        /// <summary>엘리트 전투 노드입니다.</summary>
+        [InspectorName("엘리트")] Elite,
+        /// <summary>휴식 노드입니다.</summary>
+        [InspectorName("휴식")] Rest,
+        /// <summary>이벤트 노드입니다.</summary>
+        [InspectorName("이벤트")] Event,
+        /// <summary>상점 노드입니다.</summary>
+        [InspectorName("상점")] Shop,
+        /// <summary>보관 노드입니다.</summary>
+        [InspectorName("보관")] Storage,
+        /// <summary>보스 전투 노드입니다.</summary>
+        [InspectorName("보스")] Boss,
+    }
 }

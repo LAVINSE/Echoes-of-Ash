@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31744dfa60e017543a6e83a3271ad3b1, type: 3}
+  m_Name: MapConfig
+  m_EditorClassIdentifier: Assembly-CSharp::EchoesOfAsh.Data.MapConfigData
+  floorCount: 12
+  laneCount: 3
+  pathCount: 5
+  battleWeight: 10
+  eliteWeight: 2
+  restWeight: 2
+  eventWeight: 3
+  shopWeight: 1
+  storageWeight: 1
+  eliteMinFloor: 3
+  madnessEdgeChance: 0.15
+  ashAdvanceInterval: 2
+  floorSpacing: 250
+  laneSpacing: 220
+  positionOffset: 40
