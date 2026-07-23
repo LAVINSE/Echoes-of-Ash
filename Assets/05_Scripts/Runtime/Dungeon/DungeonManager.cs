@@ -5,6 +5,7 @@ using EchoesOfAsh.Battle;
 using EchoesOfAsh.Data;
 using EchoesOfAsh.Enum;
 using EchoesOfAsh.Map;
+using EchoesOfAsh.View.UI;
 using SW.Attributes;
 using SW.Base;
 using SW.Util;
@@ -50,6 +51,9 @@ namespace EchoesOfAsh.Dungeon
         [SerializeField] private List<SanityEventData> sanityEventDatas = new();
         [Tooltip("전투 노드에 진입할 때 선택할 수 있는 적 조우 데이터 목록입니다.")]
         [SerializeField] private List<EnemyEncounterData> enemyEncounterDatas = new();
+
+        [SWGroup("뷰")]
+        [SerializeField] private MapView mapView;
 
         private DungeonState dungeonState;
         private EDungeonPhase currentPhase = EDungeonPhase.None;
@@ -164,6 +168,14 @@ namespace EchoesOfAsh.Dungeon
 
             SWLog.Log($"[DungeonManager] 던전을 시작했습니다. 시드: {seed}");
             OnDungeonStarted?.Invoke();
+
+            if (mapView != null)
+            {
+                mapView.Initialize(mapGraph, nodeIdentifier => MoveToNode(nodeIdentifier));
+                mapView.Show();
+                RefreshMapViewState();
+            }
+
             LogAvailableNodes("맵 진입");
         }
 
@@ -173,6 +185,11 @@ namespace EchoesOfAsh.Dungeon
         /// <param name="isVictory">던전에서 승리했는지 여부입니다.</param>
         private void EndDungeon(bool isVictory)
         {
+            if (mapView != null)
+            {
+                mapView.Hide();
+            }
+
             currentPhase = EDungeonPhase.Ended;
             currentBattleNode = null;
 
@@ -291,11 +308,13 @@ namespace EchoesOfAsh.Dungeon
                 case EMapNodeType.Rest:
                     SWLog.Log("[DungeonManager] 휴식 노드에 진입했습니다. 정신력 회복 기능은 아직 적용되지 않았습니다.");
                     LogAvailableNodes("휴식 완료");
+                    RefreshMapViewState();
                     break;
 
                 default:
                     SWLog.Log($"[DungeonManager] {node.NodeType} 노드에 진입했습니다.");
                     LogAvailableNodes("노드 통과");
+                    RefreshMapViewState();
                     break;
             }
         }
@@ -326,6 +345,12 @@ namespace EchoesOfAsh.Dungeon
         private void StartBattleForNode(MapNode node)
         {
             currentBattleNode = node;
+
+            if (mapView != null)
+            {
+                mapView.Hide();
+            }
+
             currentPhase = EDungeonPhase.Battle;
 
             int encounterIndex = SWRandom.Range(0, enemyEncounterDatas.Count);
@@ -363,9 +388,32 @@ namespace EchoesOfAsh.Dungeon
 
             currentBattleNode = null;
             currentPhase = EDungeonPhase.Map;
+
+            if (mapView != null)
+            {
+                mapView.Show();
+                RefreshMapViewState();
+            }
+
             LogAvailableNodes("맵 복귀");
         }
         #endregion // 전투
+
+        #region 맵 표시
+        /// <summary>
+        /// 맵 화면의 노드 상태를 현재 던전 진행 상황에 맞게 갱신합니다.
+        /// </summary>
+        private void RefreshMapViewState()
+        {
+            if (mapView == null || dungeonState == null)
+            {
+                return;
+            }
+
+            GetAvailableNodes(availableNodeBuffer);
+            mapView.RefreshNodeStates(dungeonState.CurrentNodeIdentifier, availableNodeBuffer);
+        }
+        #endregion // 맵 표시
 
         #region 로그
         /// <summary>
