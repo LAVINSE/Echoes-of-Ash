@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 9209682473051866552}
   - component: {fileID: 1681178593128562701}
   - component: {fileID: 7659062242823906419}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Frame_Img
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -84,7 +84,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4064483520705759965}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: SanityMarker
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -121,7 +121,7 @@ GameObject:
   - component: {fileID: 8206523009016980685}
   - component: {fileID: 6055699647577185386}
   - component: {fileID: 5921033583050726056}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Name_Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -258,7 +258,7 @@ GameObject:
   - component: {fileID: 9113253022997435020}
   - component: {fileID: 3887366433902246456}
   - component: {fileID: 6124643158902809249}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Type_Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -393,7 +393,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8137730950678865509}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Visual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -436,7 +436,7 @@ GameObject:
   - component: {fileID: 5814202160024441451}
   - component: {fileID: 84653263564517798}
   - component: {fileID: 443113192208713788}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Ap_Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -573,7 +573,7 @@ GameObject:
   - component: {fileID: 2413156408887836050}
   - component: {fileID: 7820285903523082107}
   - component: {fileID: 3624661419741827693}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: CardView
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -658,8 +658,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 113067a12ec9c344d9b5d470c00efc77, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EchoesOfAsh.View.UI.CardView
-  frameImg: {fileID: 7659062242823906419}
-  iconImg: {fileID: 3563723989980910233}
+  frameImage: {fileID: 7659062242823906419}
+  iconImage: {fileID: 3563723989980910233}
   nameText: {fileID: 5921033583050726056}
   apCostText: {fileID: 443113192208713788}
   typeText: {fileID: 6124643158902809249}
@@ -680,7 +680,7 @@ GameObject:
   - component: {fileID: 8554571758642741417}
   - component: {fileID: 3890670883157029063}
   - component: {fileID: 3563723989980910233}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Icon_Img
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -161,11 +161,11 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 566171893}
-  - {fileID: 723551828}
-  - {fileID: 2066880085}
-  - {fileID: 1586288868}
   - {fileID: 590748502}
+  - {fileID: 566171893}
+  - {fileID: 2066880085}
+  - {fileID: 723551828}
+  - {fileID: 1586288868}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -222,8 +222,8 @@ Canvas:
   m_GameObject: {fileID: 250030865}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 0
-  m_Camera: {fileID: 0}
+  m_RenderMode: 1
+  m_Camera: {fileID: 2107148181}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
@@ -233,7 +233,7 @@ Canvas:
   m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
-  m_SortingLayerID: 0
+  m_SortingLayerID: -1926563661
   m_SortingOrder: 0
   m_TargetDisplay: 0
 --- !u!224 &566171893 stripped
@@ -1218,6 +1218,26 @@ PrefabInstance:
       propertyPath: battleManager
       value: 
       objectReference: {fileID: 161359733}
+    - target: {fileID: 6568247025998541727, guid: e84f763522d0bb24aacebe2511b12a41, type: 3}
+      propertyPath: enemyEncounterData
+      value: 
+      objectReference: {fileID: 11400000, guid: e7b43b9945e28924bb63d24076592ae4, type: 2}
+    - target: {fileID: 6568247025998541727, guid: e84f763522d0bb24aacebe2511b12a41, type: 3}
+      propertyPath: startingCards.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6568247025998541727, guid: e84f763522d0bb24aacebe2511b12a41, type: 3}
+      propertyPath: 'startingCards.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 0abc4eeb025736a4e96c5502a058ae46, type: 2}
+    - target: {fileID: 6568247025998541727, guid: e84f763522d0bb24aacebe2511b12a41, type: 3}
+      propertyPath: 'startingCards.Array.data[1]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 562e864da6f13724287c1b8ebb0a4db0, type: 2}
+    - target: {fileID: 6568247025998541727, guid: e84f763522d0bb24aacebe2511b12a41, type: 3}
+      propertyPath: 'startingCards.Array.data[2]'
+      value: 
+      objectReference: {fileID: 11400000, guid: b654101b2c669ca428073aa97cfe1e2e, type: 2}
     - target: {fileID: 7719398509449748717, guid: e84f763522d0bb24aacebe2511b12a41, type: 3}
       propertyPath: m_Name
       value: Battle_Test
@@ -1358,6 +1378,10 @@ PrefabInstance:
     - target: {fileID: 6103602142899149066, guid: c7f0546d00dbacc4eb1b3dde22f14b09, type: 3}
       propertyPath: m_Name
       value: MadnessOverlayView
+      objectReference: {fileID: 0}
+    - target: {fileID: 8200547221439361933, guid: c7f0546d00dbacc4eb1b3dde22f14b09, type: 3}
+      propertyPath: m_RaycastTarget
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

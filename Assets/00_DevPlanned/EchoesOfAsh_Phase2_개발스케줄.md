@@ -50,18 +50,27 @@
 - **명명 정리 (적용 개정):** DungeonState 프로퍼티 `SanityEventDatas`, DungeonManager 필드 `enemyEncounterDatas`/`sanityEventDatas`/`enemyEncounterIndex`
 - **씬 정리 노트:** Dungeon.unity의 BattleManager 프리팹 오버라이드에 제거 필드 잔여 값 존재 — 미사용 오버라이드 정리 필요 (무해)
 
-### P2-M1 — 맵 / 런 루프 (1.5주)
+### P2-M1 — 맵 / 런 루프 (1.5주) ◀ 진행 중 (1-1·1-2 완료 — 개정 5)
 
 | # | 산출물 | 책임 |
 |---|--------|------|
 | 1-1 | `Map/MapGenerator.cs` | 시드 기반 층×레인 그래프 생성 (`SWRandom` — 던전 시드): 경로 랜덤 워크 → 간선 병합 → 타입 배정 규칙 → **광기 간선 승격 + 격자 좌표 산출** (P2-D2) |
 | 1-2 | 노드 타입 데이터 | 전투 / 엘리트 / 휴식(SAN +30) / 이벤트 / 상점 / **보관** / 보스 — 노드 → 콘텐츠 참조 (전투 노드 = `EnemyEncounterData` 조우 풀 + `EnemyData.SpawnRange` 결합) |
 | 1-3 | 맵 화면 (Canvas) | **던전 도면식 표현** (P2-D2): 방·복도 렌더 + 시드 기반 좌표 지터 + 가로 심부 진행 + 잿불 침식/광기 간선 표시 + 이동 가능 방 선택 — 플레이스홀더(사각 방+통로) |
-| 1-5 | DungeonManager 화면 상태 머신 전환 | **`SWStackStateMachine` 채택 (SWUtils 신규)** — 맵 ⇄ 전투 ⇄ 노드 화면(이벤트/상점/보관)의 Push/Pop/Pause/Resume가 P2-D6 화면 구조와 1:1 일치. M0의 `ERunPhase` 최소 enum을 상태 클래스로 대체. 그래프 에셋은 화면 수 적어 코드 등록 우선 — 복잡해지면 승격 |
-| 1-6 | 잿불 침식 + 광기 간선 규칙 | 이동 카운터 → 잠식 층 판정 → 방 상태 반영 (속도 = Balance 외부화, 0 = 비활성) / 광기 간선 통행 판정 = `ISanityHolder` 참조 + 의도적 광기 진입 수단 설계 |
+| 1-5 | DungeonManager 맵 통합 | ~~SWStackStateMachine 채택~~ → **철회 (구현 검증 후):** 상태 2개·전이 선형·로직이 컨텍스트 메서드에 있어 상태 클래스가 빈 껍데기화 — 간접층만 추가. **enum 화면 상태 유지** + 맵 이동 API(`GetAvailableNodes`/`MoveToNode`/`OnNodeEntered`) 통합. **재채택 기준 기록:** ① 노드 화면이 실제 중첩 스택을 요구할 때(이벤트발 전투 → 이벤트 복귀 등) ② 상태별 매 프레임 Tick 로직이 생길 때 |
+| 1-6 | 잿불 침식 + 광기 간선 + **파티 SAN 던전 지속화** | 이동 카운터 → 잠식 층 판정 → 방 상태 반영 (속도 = Balance 외부화, 0 = 비활성) / **선행 발견(1-5): 광기 간선·휴식 SAN 회복·침식이 전부 "던전 지속 SAN"을 전제 — 현재는 전투마다 SanityHolder 신규 생성.** `DungeonState`에 SAN 이월 보관 → `BattleManager` 시작 시 주입·종료 시 기록 → 광기 복도 통행 판정·휴식 회복·의도적 광기 진입 수단을 그 위에 설계 |
 | 1-4 | 휴식·이벤트·보관 노드 기초 | 휴식 = SAN 회복 / 이벤트 = 데이터 기반 선택지 골격 / 보관 = 전송 UI 골격 (드랍 연동은 P2-M6) |
 
 **DoD:** 맵 생성 → 노드 선택 → 전투/휴식 → 맵 복귀 → 보스 노드 도달까지 런 루프 완주.
+
+#### 1-1·1-2 완료 기록 (2026-07-23)
+
+- **산출물:** `Map/MapGraph.cs` (MapNode·MapEdge·MapGraph — 순수 데이터, `[Serializable]` 저장 스키마 원본) + `Map/MapGenerator.cs` (순수 클래스) + `Data/MapConfigData.cs` (구조·가중치·광기 간선·침식 간격·도면 배치 전부 외부화) + `Test/MapGeneratorTest.cs` + `EMapNodeType` → `GameEnum.cs` 병합
+- **생성 5단계:** 경로 랜덤 워크(모든 방이 경로의 산물 — 고아 방·경로 단절 원리상 없음) → 타입 배정(첫 층 전투·보스 직전 휴식 고정, 가중치 무작위, 엘리트 최소 층, 보관 1개 보장 — 결정성 위해 순회 순서 고정 변환) → 광기 간선 승격(미연결 인접 후보 확률) → 보스 연결(마지막 층 전체) → 좌표 산출(가로 진행 + 시드 지터)
+- **광기 전용 방 = 자동 판정:** 진입 복도가 전부 광기 복도인 방에 표식 — 별도 배정 규칙 불필요
+- **이동 판정 계약:** `GetNextNodes(from, buffer, includeMadness)` — 논할당 버퍼, 잠식 방 자동 제외 (침식 규칙은 `SetAshConsumed`만 호출), 광기 복도 포함 여부는 호출자(진행 규칙) 결정
+- **불변식 검증 내장:** 테스트가 일반 복도만으로 입구→보스 BFS 도달성 검증 — 광기 간선은 지름길이지 필수 경로가 아님을 매 생성마다 확인
+- **명명 정리 (적용 개정):** `Identifier` 전체 표기, `GenerateMapGraph`, `PositionOffset`, 단계 함수명 서술형 통일
 
 ### P2-M2 — 런 중 저장 (1주)
 
@@ -186,6 +195,8 @@
 | 개정 | 일자 | 내용 |
 |------|------|------|
 | 초판 | 2026-07-22 | Phase 2 스케줄 수립 — 메타 계층 우선 순서(P2-M0~M3), 밸런스 게이트 병행 배치, Phase 1 임시 조치 5종 = P2-M0 작업 목록화, 조기 결정 P2-D1~D5 정의 |
+| 개정 6 | 2026-07-23 | **1-5 완료 + SWStackStateMachine 채택 철회** — 구현 결과 상태 클래스가 전부 컨텍스트 메서드 위임(빈 껍데기)으로 확인되어 enum 화면 상태로 회귀 (돌아가는 구조를 유틸 채택 목적으로 복잡화하지 않는다 원칙). 재채택 기준 명문화(중첩 스택 실요구·상태별 Tick). DungeonManager 맵 통합: 조우 순차 목록 폐기 → `MoveToNode` 노드 이동 + 조우 풀 무작위(임시 조치), `GetAvailableNodes` 논할당 API(1-3 MapView 소비 예정), 보스 승리 = 던전 승리, 맵 복귀 지점 = 1-6 침식 전진 연결 예정 |
+| 개정 5 | 2026-07-23 | **P2-M1 1-1·1-2 완료** — MapGraph(순수 데이터·직렬화 대비·논할당 조회·잠식 자동 제외)/MapGenerator(생성 5단계·광기 전용 방 자동 판정)/MapConfigData(전 수치 외부화)/도달성 불변식 검증 테스트. **다음: 1-5 DungeonManager SWStackStateMachine 전환 + 맵 통합** |
 | 개정 4 | 2026-07-23 | **P2-D2 확정** — 구조: STS식 층×레인(12×3 축소 규격) + 잿불 침식(시간 압박 — Balance 토글) + 광기 간선(정신력 댄스의 던전 확장 — 토글) / 표현: 던전 도면식(방·복도·시드 지터·가로 심부 진행 — 다키스트 던전 참조), 데이터·표현 분리로 M1 계획 불변. 단순 분기 트리 기각 근거(노드 수 배증 vs 계획성 상실) 기록 |
 | 개정 3 | 2026-07-23 | **P2-M0 완료** — DungeonState/DungeonManager 신설, BattleManager 주입 경로 전환(인스펙터 임시 조치 3종 → DungeonManager 상승 이동), 던전 수명 덱 확립(15-5 토대), 주입→검증→리셋 순서 계약, BattleTest 단독 경로 유지. **다음: P2-M1 (맵/런 루프 + SWStackStateMachine + P2-D2)** |
 | 개정 2 | 2026-07-22 | **명명 확정: `Run` 계열 → `Dungeon` 계열** (`DungeonState`/`DungeonManager`, `05_Scripts/Dungeon/`, `EchoesOfAsh.Dungeon`) — 씬 이름(Dungeon)·상태 수명(P2-D6: 던전 씬 수명)과 일치, 향후 `HubManager`와 씬 기준 명명 대칭 (SanityGauge→SanityHolder 명명 개정 전례). **용어 매핑 확정: 기획 용어 "런" = 던전 1회 도전 = 코드 접두어 `Dungeon`** (M4 "턴 경계 = OnRoundEnded" 매핑과 같은 방식 — 문서의 "런 중 저장" 등 기획 용어는 유지) |
