@@ -317,6 +317,14 @@ namespace EchoesOfAsh.Test
                     return;
                 }
             }
+            else if (card.TargetingType == ETargetingType.Self)
+            {
+                var partyMembers = battleManager.Party;
+                int allyIndex = Mathf.Clamp(selectedAllyIndex, 0, partyMembers.Count - 1);
+
+                // 사망 아군 선택 시 null 전달 → ResolveSelf가 시전자 폴백 (폴백 검증 경로)
+                designatedTarget = partyMembers[allyIndex];
+            }
 
             battleManager.PlayCard(card, designatedTarget);
         }

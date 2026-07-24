@@ -1430,6 +1430,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 6568247025998541727, guid: e84f763522d0bb24aacebe2511b12a41, type: 3}
+      propertyPath: partyData
+      value: 
+      objectReference: {fileID: 11400000, guid: c92d90a77174c324aa0f3cf68f68238e, type: 2}
+    - target: {fileID: 6568247025998541727, guid: e84f763522d0bb24aacebe2511b12a41, type: 3}
       propertyPath: battleManager
       value: 
       objectReference: {fileID: 161359733}
@@ -1440,6 +1444,10 @@ PrefabInstance:
     - target: {fileID: 6568247025998541727, guid: e84f763522d0bb24aacebe2511b12a41, type: 3}
       propertyPath: startingCards.Array.size
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6568247025998541727, guid: e84f763522d0bb24aacebe2511b12a41, type: 3}
+      propertyPath: characterDatas.Array.size
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 6568247025998541727, guid: e84f763522d0bb24aacebe2511b12a41, type: 3}
       propertyPath: 'startingCards.Array.data[0]'
@@ -1453,13 +1461,25 @@ PrefabInstance:
       propertyPath: 'startingCards.Array.data[2]'
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 6568247025998541727, guid: e84f763522d0bb24aacebe2511b12a41, type: 3}
+      propertyPath: 'characterDatas.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 25def2d2b6d4b1243b194ef875ac324f, type: 2}
+    - target: {fileID: 6568247025998541727, guid: e84f763522d0bb24aacebe2511b12a41, type: 3}
+      propertyPath: 'characterDatas.Array.data[1]'
+      value: 
+      objectReference: {fileID: 11400000, guid: b574b363bc47ae944b04d32418008a88, type: 2}
+    - target: {fileID: 6568247025998541727, guid: e84f763522d0bb24aacebe2511b12a41, type: 3}
+      propertyPath: 'characterDatas.Array.data[2]'
+      value: 
+      objectReference: {fileID: 11400000, guid: c1ef57e4035afeb4e803d1c9f88d5c2e, type: 2}
     - target: {fileID: 7719398509449748717, guid: e84f763522d0bb24aacebe2511b12a41, type: 3}
       propertyPath: m_Name
       value: Battle_Test
       objectReference: {fileID: 0}
     - target: {fileID: 7719398509449748717, guid: e84f763522d0bb24aacebe2511b12a41, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8806481610559596432, guid: e84f763522d0bb24aacebe2511b12a41, type: 3}
       propertyPath: m_LocalPosition.x
