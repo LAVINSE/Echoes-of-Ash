@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using EchoesOfAsh.Enum;
 using SW.Util;
 
 namespace EchoesOfAsh.Map
@@ -194,6 +195,55 @@ namespace EchoesOfAsh.Map
                     node.SetAshConsumed();
                 }
             }
+        }
+
+        /// <summary>
+        /// 저장된 노드와 경로 목록으로 맵 그래프를 재구축합니다.
+        /// 방문, 잠식, 광기 전용 상태는 노드가 직렬화 필드로 보유하므로 그대로 복원됩니다.
+        /// </summary>
+        /// <param name="savedNodes">저장된 노드 목록입니다.</param>
+        /// <param name="savedEdges">저장된 경로 목록입니다.</param>
+        /// <returns>재구축에 성공했으면 true입니다.</returns>
+        public bool RestoreFrom(IReadOnlyList<MapNode> savedNodes, IReadOnlyList<MapEdge> savedEdges)
+        {
+            if (savedNodes == null || savedNodes.Count == 0 || savedEdges == null)
+            {
+                SWLog.LogError("[MapGraph] RestoreFrom 실패: 저장된 노드 또는 경로가 없습니다.");
+                return false;
+            }
+
+            foreach (MapNode node in savedNodes)
+            {
+                if (node != null)
+                {
+                    AddNode(node);
+                }
+            }
+
+            foreach (MapEdge edge in savedEdges)
+            {
+                if (edge != null)
+                {
+                    AddEdge(edge);
+                }
+            }
+
+            foreach (MapNode node in nodes)
+            {
+                if (node.NodeType == EMapNodeType.Boss)
+                {
+                    SetBossNode(node);
+                    break;
+                }
+            }
+
+            if (bossNode == null)
+            {
+                SWLog.LogError("[MapGraph] RestoreFrom 실패: 보스 노드를 찾지 못했습니다.");
+                return false;
+            }
+
+            return true;
         }
         #endregion // 함수
     }

@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using EchoesOfAsh.Battle;
+using EchoesOfAsh.Card;
 using EchoesOfAsh.Data;
 using EchoesOfAsh.Enum;
 using EchoesOfAsh.Map;
+using EchoesOfAsh.Save;
 using EchoesOfAsh.View.UI;
 using SW.Attributes;
 using SW.Base;
@@ -14,7 +16,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Dungeon
 {
     /// <summary>
-    /// 던전의 시작과 종료, 맵 이동, 노드 화면, 전투 전환을 관리합니다.
+    /// 던전의 시작과 종료, 맵 이동, 노드 화면, 전투 전환, 런 중 저장을 관리합니다.
     /// </summary>
     public class DungeonManager : SWMonoBehaviour
     {
@@ -44,6 +46,8 @@ namespace EchoesOfAsh.Dungeon
         [SWGroup("데이터")]
         [SerializeField] private MapConfigData mapConfigData;
         [SerializeField] private PartyData partyData;
+        [Tooltip("카드 데이터베이스입니다. 저장된 덱을 코드명으로 복원할 때 사용합니다.")]
+        [SerializeField] private SWIODatabase cardDatabase;
 
         [SWGroup("던전 구성")]
         [Tooltip("던전 생성에 사용할 시드입니다. 0이면 실행 시 무작위 시드를 생성합니다.")]
@@ -195,10 +199,110 @@ namespace EchoesOfAsh.Dungeon
             }
 
             LogAvailableNodes("맵 진입");
+            SaveDungeon();
         }
 
         /// <summary>
-        /// 던전을 종료하고 결과를 알립니다.
+        /// 저장된 스냅샷으로 던전을 복원하고 맵 선택 상태로 전환합니다.
+        /// 진입 처리가 완료되지 않은 노드는 진입 처리를 다시 실행합니다.
+        /// </summary>
+        [SWButton("던전 이어하기")]
+        public void ResumeDungeon()
+        {
+            if (IsDungeonRunning)
+            {
+                SWLog.LogWarning("[DungeonManager] ResumeDungeon 무시: 던전이 이미 진행 중입니다.");
+                return;
+            }
+
+            if (battleManager == null || mapConfigData == null || partyData == null || cardDatabase == null)
+            {
+                SWLog.LogError("[DungeonManager] ResumeDungeon 실패: 필수 참조가 없습니다.");
+                return;
+            }
+
+            DungeonSaveData saveData = DungeonSaveService.Load();
+
+            if (saveData == null)
+            {
+                SWLog.LogWarning("[DungeonManager] ResumeDungeon 실패: 로드할 저장 데이터가 없습니다.");
+                return;
+            }
+
+            MapGraph mapGraph = new MapGraph();
+
+            if (!mapGraph.RestoreFrom(saveData.mapNodes, saveData.mapEdges))
+            {
+                SWLog.LogError("[DungeonManager] ResumeDungeon 실패: 맵을 복원하지 못했습니다.");
+                return;
+            }
+
+            // 재개 후 난수는 비연속 (P2-D1 스냅샷 - 같은 시드 재설정 시 소비된 난수열 재등장 방지)
+            SWRandom.SetSeed(Environment.TickCount);
+
+            DungeonState restoredState = new DungeonState(saveData.seed, null, sanityEventDatas);
+
+            foreach (DungeonCardSaveData cardSave in saveData.deckCards)
+            {
+                CardData cardData = cardDatabase.GetDataByCodeName<CardData>(cardSave.cardCodeName);
+
+                if (cardData == null)
+                {
+                    SWLog.LogError($"[DungeonManager] ResumeDungeon 실패: 코드명 '{cardSave.cardCodeName}' 카드를 찾지 못했습니다.");
+                    return;
+                }
+
+                restoredState.AddCard(new CardInstance(cardData, cardSave.isUpgrade));
+            }
+
+            if (restoredState.Deck.Count == 0)
+            {
+                SWLog.LogError("[DungeonManager] ResumeDungeon 실패: 복원한 덱이 비어 있습니다.");
+                return;
+            }
+
+            restoredState.SetMapGraph(mapGraph);
+            restoredState.RestoreProgress(
+                saveData.currentNodeIdentifier,
+                saveData.isCurrentNodeResolved,
+                saveData.carriedSanity,
+                saveData.moveCount,
+                saveData.ashConsumedFloor);
+
+            dungeonState = restoredState;
+            currentBattleNode = null;
+            currentEventData = null;
+            currentPhase = EDungeonPhase.Map;
+
+            SubscribeBattleEvents();
+
+            SWLog.Log($"[DungeonManager] 던전을 복원했습니다. 시드: {saveData.seed}, "
+                + $"노드: {saveData.currentNodeIdentifier}, 진입 처리 완료: {saveData.isCurrentNodeResolved}");
+            OnDungeonStarted?.Invoke();
+
+            if (mapView != null)
+            {
+                mapView.Initialize(dungeonState.MapGraph, nodeIdentifier => MoveToNode(nodeIdentifier));
+                mapView.Show();
+                RefreshMapViewState();
+            }
+
+            LogAvailableNodes("저장 복원");
+
+            if (!saveData.isCurrentNodeResolved)
+            {
+                MapNode unresolvedNode = FindNodeByIdentifier(saveData.currentNodeIdentifier);
+
+                if (unresolvedNode != null)
+                {
+                    SWLog.Log("[DungeonManager] 진입 처리가 완료되지 않은 노드를 다시 실행합니다.");
+                    HandleNodeEntry(unresolvedNode);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 던전을 종료하고 저장 파일을 삭제한 뒤 결과를 알립니다.
         /// </summary>
         /// <param name="isVictory">던전에서 승리했는지 여부입니다.</param>
         private void EndDungeon(bool isVictory)
@@ -216,6 +320,9 @@ namespace EchoesOfAsh.Dungeon
             currentPhase = EDungeonPhase.Ended;
             currentBattleNode = null;
             currentEventData = null;
+
+            // 런 종료 = 스냅샷 소멸. 회수/해금 반영은 메타 저장 소관 (P2-M6/M7)
+            DungeonSaveService.DeleteSave();
 
             SWLog.Log($"[DungeonManager] 던전을 종료했습니다. 결과: {(isVictory ? "승리" : "패배")}");
             OnDungeonEnded?.Invoke(isVictory);
@@ -298,6 +405,9 @@ namespace EchoesOfAsh.Dungeon
                 return true;
             }
 
+            // 진입 확정 직후, 처리 직전 저장 - 복원 시 진입 처리를 다시 실행 (노드 스킵 불가)
+            SaveDungeon();
+
             HandleNodeEntry(targetNode);
             return true;
         }
@@ -314,6 +424,29 @@ namespace EchoesOfAsh.Dungeon
                 if (candidateNode.Identifier == nodeIdentifier)
                 {
                     return candidateNode;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// 맵의 모든 노드에서 지정한 식별자에 해당하는 노드를 반환합니다.
+        /// </summary>
+        /// <param name="nodeIdentifier">찾을 노드의 식별자입니다.</param>
+        /// <returns>식별자에 해당하는 노드입니다. 노드가 없으면 null입니다.</returns>
+        private MapNode FindNodeByIdentifier(int nodeIdentifier)
+        {
+            if (dungeonState == null || dungeonState.MapGraph == null)
+            {
+                return null;
+            }
+
+            foreach (MapNode node in dungeonState.MapGraph.Nodes)
+            {
+                if (node.Identifier == nodeIdentifier)
+                {
+                    return node;
                 }
             }
 
@@ -353,6 +486,7 @@ namespace EchoesOfAsh.Dungeon
                     SWLog.Log($"[DungeonManager] {node.NodeType} 노드에 진입했습니다.");
                     LogAvailableNodes("노드 통과");
                     RefreshMapViewState();
+                    MarkNodeResolvedAndSave();
                     break;
             }
         }
@@ -388,6 +522,7 @@ namespace EchoesOfAsh.Dungeon
                 SWLog.Log($"[DungeonManager] {nodeContext} 노드 통과: 뷰 또는 데이터가 없습니다.");
                 LogAvailableNodes("노드 통과");
                 RefreshMapViewState();
+                MarkNodeResolvedAndSave();
                 return;
             }
 
@@ -426,6 +561,7 @@ namespace EchoesOfAsh.Dungeon
 
             LogAvailableNodes("노드 화면 완료");
             RefreshMapViewState();
+            MarkNodeResolvedAndSave();
         }
         #endregion // 노드 화면
 
@@ -466,6 +602,35 @@ namespace EchoesOfAsh.Dungeon
             ChangeDungeonSanity(-20);
         }
         #endregion // 정신력
+
+        #region 저장
+        /// <summary>
+        /// 현재 던전 상태를 스냅샷으로 저장합니다.
+        /// </summary>
+        private void SaveDungeon()
+        {
+            if (dungeonState == null)
+            {
+                return;
+            }
+
+            DungeonSaveService.Save(dungeonState);
+        }
+
+        /// <summary>
+        /// 현재 노드의 진입 처리를 완료로 기록하고 저장합니다.
+        /// </summary>
+        private void MarkNodeResolvedAndSave()
+        {
+            if (dungeonState == null)
+            {
+                return;
+            }
+
+            dungeonState.SetCurrentNodeResolved();
+            SaveDungeon();
+        }
+        #endregion // 저장
 
         #region 전투
         /// <summary>
@@ -526,6 +691,7 @@ namespace EchoesOfAsh.Dungeon
             }
 
             LogAvailableNodes("맵 복귀");
+            MarkNodeResolvedAndSave();
         }
         #endregion // 전투
 

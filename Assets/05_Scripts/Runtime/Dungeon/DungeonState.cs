@@ -20,6 +20,7 @@ namespace EchoesOfAsh.Dungeon
         private int carriedSanity = -1;
         private int moveCount;
         private int ashConsumedFloor = -1;
+        private bool isCurrentNodeResolved = true;
         #endregion // 필드
 
         #region 프로퍼티
@@ -41,6 +42,8 @@ namespace EchoesOfAsh.Dungeon
         public int MoveCount => moveCount;
         /// <summary>잿불에 잠식된 마지막 층입니다. 잠식된 층이 없으면 -1입니다.</summary>
         public int AshConsumedFloor => ashConsumedFloor;
+        /// <summary>현재 노드의 진입 처리가 완료되었는지 여부입니다. 미완료 상태로 복원되면 진입 처리를 다시 실행합니다.</summary>
+        public bool IsCurrentNodeResolved => isCurrentNodeResolved;
         #endregion // 프로퍼티
 
         #region 생성자
@@ -137,6 +140,15 @@ namespace EchoesOfAsh.Dungeon
         public void SetCurrentNode(int nodeIdentifier)
         {
             currentNodeIdentifier = nodeIdentifier;
+            isCurrentNodeResolved = false;
+        }
+
+        /// <summary>
+        /// 현재 노드의 진입 처리를 완료 상태로 기록합니다.
+        /// </summary>
+        public void SetCurrentNodeResolved()
+        {
+            isCurrentNodeResolved = true;
         }
 
         /// <summary>
@@ -164,6 +176,24 @@ namespace EchoesOfAsh.Dungeon
         public void SetAshConsumedFloor(int floor)
         {
             ashConsumedFloor = floor;
+        }
+
+        /// <summary>
+        /// 저장 데이터로 던전 진행 상태를 복원합니다. SetMapGraph 이후에 호출해야 합니다.
+        /// </summary>
+        /// <param name="currentNodeIdentifier">복원할 현재 노드 식별자입니다.</param>
+        /// <param name="isCurrentNodeResolved">현재 노드의 진입 처리 완료 여부입니다.</param>
+        /// <param name="carriedSanity">이월 정신력입니다.</param>
+        /// <param name="moveCount">노드 이동 누적 횟수입니다.</param>
+        /// <param name="ashConsumedFloor">잿불에 잠식된 마지막 층입니다.</param>
+        public void RestoreProgress(int currentNodeIdentifier, bool isCurrentNodeResolved,
+            int carriedSanity, int moveCount, int ashConsumedFloor)
+        {
+            this.currentNodeIdentifier = currentNodeIdentifier;
+            this.isCurrentNodeResolved = isCurrentNodeResolved;
+            this.carriedSanity = carriedSanity < 0 ? 0 : carriedSanity;
+            this.moveCount = moveCount < 0 ? 0 : moveCount;
+            this.ashConsumedFloor = ashConsumedFloor;
         }
         #endregion // 함수
     }
