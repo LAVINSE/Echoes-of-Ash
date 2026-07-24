@@ -104,7 +104,7 @@
 - **씬 배선 확인:** Dungeon.unity — `nodeScreenView`·`restEventData`·`storageEventData` 연결 확인. ⚠ 씬의 NodeScreenView 오브젝트 비활성 저장 여부 확인 필요 — 규칙: **컴포넌트 루트 = 활성, panelRoot 자식만 비활성** (루트 비활성 시 Awake 미실행·화면 미표시)
 - **실플레이 검증 이월:** 휴식/이벤트/보관 진입·선택·복귀 및 M1 DoD 런 완주는 리소스 연결 시점 일괄 검증
 
-### P2-M2 — 런 중 저장 (1주) ◀ 진행 중 (2-1·2-2·2-3 코드 완료 — 배선·검증 대기)
+### P2-M2 — 런 중 저장 (1주) ✅ 완료 (개정 12 — 저장/복원 실검증은 씬 검증 이월분과 일괄)
 
 | # | 산출물 | 책임 |
 |---|--------|------|
@@ -114,7 +114,7 @@
 
 **DoD:** 런 중 종료 → 재시작 → 같은 맵·같은 덱·같은 위치로 복원.
 
-#### P2-M2 코드 완료 기록 (2026-07-24) — 배선·검증 대기
+#### P2-M2 완료 기록 (2026-07-24)
 
 - **P2-D1 이행 (스냅샷):** 무작위 소비 지점이 이미 다수(조우 무작위·이벤트 추첨·광기 이벤트 판정 3회·셔플·침식) — "시드+행동 로그" 방식은 모든 소비 순서를 영구 계약으로 만들어 코드 수정마다 재현이 깨짐. **재개 후 난수 비연속** (`TickCount` 재시드 — 같은 시드 재설정 시 소비된 난수열 재등장 = 세이브스커밍 여지). 시드는 생성 기록·재현용으로만 저장
 - **산출물:** `Save/DungeonSaveData.cs` (version 필드 + 카드 `{codeName, isUpgrade}` — **강화가 던전 지속 상태라 codeName만으론 유실**) + `Save/DungeonSaveService.cs` (SWSaveDataManager 슬롯 `"dungeon"`, `Migrate` 계층 — v1 초판·미래 버전 거부·버전별 순차 변환 자리) + `MapGraph.RestoreFrom` (AddNode/AddEdge 재사용으로 인덱스·입구·층수 재구축, 보스 노드 타입 스캔 검증) + `DungeonState.IsCurrentNodeResolved`/`RestoreProgress` + `DungeonManager` 저장 호출·`ResumeDungeon`(SWButton "던전 이어하기")·`cardDatabase` 참조(codeName 복원)
@@ -122,7 +122,8 @@
 - **저장 시점 계약:** ① 던전 시작 직후 ② 노드 진입 확정 직후·처리 직전 (`isResolved = false`) ③ 진입 처리 완료 지점 — 전투 승리 복귀·노드 화면 완료·통과 (`isResolved = true`). **복원 = 맵 상태 + 미해결 노드면 `HandleNodeEntry` 재실행 → 노드 스킵 불가 보장** (전투 재시작·노드 화면 재표시·이벤트 재추첨은 잠정 허용)
 - **던전 종료 = 스냅샷 삭제:** 회수/해금 반영은 메타 저장 소관 (P2-M6/M7). **주의: SWSaveDataManager는 정적 단일 currentData — 던전/메타 슬롯 병용 시 SetData 순서 규약 필요 (메타 저장 도입 시 결정)**
 - **복원 경고 노트:** 복원은 빈 덱으로 생성 후 `AddCard` — DungeonState 생성자의 "시작 덱 비어 있음" 경고 1회는 무해
-- **배선·검증 대기 ⚠:** `cardDatabase` 인스펙터 연결 (전 카드 등록·codeName 유일 — SWIODatabase 중복 검사 활용) → 검증: 던전 시작 → 이동/전투/노드 화면 → 플레이 중지 → "던전 이어하기" → 같은 맵(방문/잠식 포함)·같은 덱(강화 포함)·같은 위치·SAN·침식 카운터 복원 + 미해결 노드(전투 중 종료) 재진입 확인 + 저장 버전 조작 시 마이그레이션 거부 확인
+- **프로젝트 반영 확인 (개정 12):** Save 모듈(`DungeonSaveData`/`DungeonSaveService`)·`DungeonState` 복원 경로(`SetMapGraph` 시 이동/침식 카운터 리셋 포함)·`MapGraph.RestoreFrom`·`DungeonManager` 저장 배선 전부 반영 확인. SWSaveDataManager 네임스페이스 = `SW.Data` 확정 (컴파일 통과)
+- **실검증 이월 ⚠ (씬 검증 이월분과 일괄):** `cardDatabase` 인스펙터 연결 (전 카드 등록·codeName 유일 — SWIODatabase 중복 검사 활용) → 검증: 던전 시작 → 이동/전투/노드 화면 → 플레이 중지 → "던전 이어하기" → 같은 맵(방문/잠식 포함)·같은 덱(강화 포함)·같은 위치·SAN·침식 카운터 복원 + 미해결 노드(전투 중 종료) 재진입 확인 + 저장 버전 조작 시 마이그레이션 거부 확인
 
 ### P2-M3 — 제작 도구 + 상태이상 구조 (1주)
 
@@ -238,6 +239,7 @@
 | 개정 | 일자 | 내용 |
 |------|------|------|
 | 초판 | 2026-07-22 | Phase 2 스케줄 수립 — 메타 계층 우선 순서(P2-M0~M3), 밸런스 게이트 병행 배치, Phase 1 임시 조치 5종 = P2-M0 작업 목록화, 조기 결정 P2-D1~D5 정의 |
+| 개정 12 | 2026-07-24 | **P2-M2 완료 (프로젝트 반영 확인)** — Save 모듈·DungeonState 복원 경로·MapGraph.RestoreFrom·DungeonManager 저장 배선 반영 확인, SWSaveDataManager 네임스페이스 `SW.Data` 확정. 저장/복원 실검증(이어하기·미해결 노드 재진입·마이그레이션 거부)과 `cardDatabase` 배선은 씬 검증 이월분과 일괄 처리. **다음: P2-M3 (CardSystemWindow + 상태이상 모듈)** |
 | 개정 11 | 2026-07-24 | **P2-M1 완료 + P2-D1 확정(전체 상태 스냅샷) + P2-M2 코드 완료** — 1-4 씬 배선 확인(실플레이 통합 검증은 리소스 시점 이월). D1 확정 근거: 무작위 소비 지점 다수 → 행동 로그 방식의 소비 순서 영구 계약 리스크, 재개 후 난수 비연속. M2 산출물: `Save/DungeonSaveData`(버전 + 카드 `{codeName, isUpgrade}` — 강화 유실 방지)·`Save/DungeonSaveService`(슬롯 "dungeon"·마이그레이션 계층)·`MapGraph.RestoreFrom`·`DungeonState.IsCurrentNodeResolved`/`RestoreProgress`·`DungeonManager` 저장 시점 3종 + `ResumeDungeon`. **저장 시점 계약: 진입 직전(미해결) + 처리 완료 지점(해결) — 복원 시 미해결 노드 재실행 = 노드 스킵 불가.** 사용자 제안 채택: 노드 이벤트 3필드 → `타입 → 풀` 매핑 통합 — **이행은 P2-M7 7-4 던전 구성 데이터 신설 시** (Storage의 P2-M6 매핑 이탈로 즉시 이행 시 이중 재작업). **다음: cardDatabase 배선 + M2 저장/복원 검증 → P2-M3 (CardSystemWindow + 상태이상)** |
 | 개정 10 | 2026-07-24 | **1-4 코드 완료 (씬 검증 대기) + 노드 화면 통합 결정** — 노드 타입별 뷰 분리 기각 → 선택지형 공용 `NodeScreenView` 1클래스 + `DungeonEventData`(표시명/설명 = IdentifiedObject 재사용, 선택지 1~3). 휴식/보관 = 고정 이벤트 에셋, 이벤트 = 풀 무작위(임시 조치). 휴식 회복 수치 `MapConfigData.RestSanityRecovery` 제거 → 휴식 이벤트 데이터로 이동, **의도적 광기 진입 = 휴식 선택지 데이터로 성립 (코드 0줄 — 1-6 이월분 해소)**. `EDungeonPhase.Node` 추가 (IsDungeonRunning 포함), 미배선 시 통과 처리. 전용 뷰 신설 기준 명문화(보관 실 UI = P2-M6·상점 = P2-M7 등 비선택지형 표현 등장 시) |
 | 개정 9 | 2026-07-24 | **1-6 완료** — 파티 SAN 던전 지속화(`DungeonState.CarriedSanity` 값 이월, -1 = 미기록 → BattleTest 무손상, 상한 클램프 = 전투 진입 시점 잠정), 광기 복도 통행(`IsPartyMadness` — 임계값 판정 일원화), 잿불 침식(이동 카운터 → 간격 배수마다 잠식 층 전진, **잠식 층 ≥ 현재 층 = 패배 잠정** — 갇힘 원리상 불가), `ChangeDungeonSanity` API(**전투 중 호출 가드** — 전투 중 진실 원본 = partySanityHolder). 버그 수정: Enemy_Test1 `SanityChangeEffect` 델타 부호(+5 → -5 — 최대치 클램프 조기 반환으로 무변화 위장·의도 Buff 오표시). 임시 조치: **PartyData 이중 참조**(DungeonManager = 던전 수위 판정 / BattleManager = 전투 홀더 생성 — 동일 에셋 필수, P2-M4 일원화). SAN 전투 간 이월 씬 검증 완료, 침식·광기 통행·휴식 회복은 리소스 연결 시점 이월 |

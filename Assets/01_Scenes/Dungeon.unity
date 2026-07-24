@@ -1345,6 +1345,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 11400000, guid: c92d90a77174c324aa0f3cf68f68238e, type: 2}
     - target: {fileID: 3190026900988275682, guid: 18e8f36dcdf99ab4d9bcfb5bd6f30c71, type: 3}
+      propertyPath: cardDatabase
+      value: 
+      objectReference: {fileID: 11400000, guid: 6ff58e69c08de2647a08d3d1264626ad, type: 2}
+    - target: {fileID: 3190026900988275682, guid: 18e8f36dcdf99ab4d9bcfb5bd6f30c71, type: 3}
       propertyPath: battleManager
       value: 
       objectReference: {fileID: 161359733}
@@ -1360,6 +1364,10 @@ PrefabInstance:
       propertyPath: storageEventData
       value: 
       objectReference: {fileID: 11400000, guid: a464bfdbcc47caf489444ded10d2c16f, type: 2}
+    - target: {fileID: 3190026900988275682, guid: 18e8f36dcdf99ab4d9bcfb5bd6f30c71, type: 3}
+      propertyPath: eventDatas.Array.size
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3869543033173200404, guid: 18e8f36dcdf99ab4d9bcfb5bd6f30c71, type: 3}
       propertyPath: m_Name
       value: DungeonManager
