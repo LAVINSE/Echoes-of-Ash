@@ -50,7 +50,7 @@
 - **명명 정리 (적용 개정):** DungeonState 프로퍼티 `SanityEventDatas`, DungeonManager 필드 `enemyEncounterDatas`/`sanityEventDatas`/`enemyEncounterIndex`
 - **씬 정리 노트:** Dungeon.unity의 BattleManager 프리팹 오버라이드에 제거 필드 잔여 값 존재 — 미사용 오버라이드 정리 필요 (무해)
 
-### P2-M1 — 맵 / 런 루프 (1.5주) ◀ 진행 중 (1-1·1-2·1-3·1-5 완료 — 잔여: 1-6, 1-4)
+### P2-M1 — 맵 / 런 루프 (1.5주) ◀ 진행 중 (1-1·1-2·1-3·1-5·1-6 완료 — 1-4 코드 완료·씬 검증 대기)
 
 | # | 산출물 | 책임 |
 |---|--------|------|
@@ -80,6 +80,27 @@
 - **역할 분리:** 이동 요청 = 콜백 주입(`Action<int>` — BattleHudView 패턴), 갱신 시점 = DungeonManager 주도 폴링형 (맵은 이동 시점에만 변하므로 구독형보다 단순), 상태 우선순위 = 잠식 > 현재 > 방문 > 기본 + 이동 가능 강조 + 광기 방 † 라벨
 - **풀링 없음:** 던전당 1회 생성(~30방·~40복도) — 풀링 경계 원칙(반복 스폰만) 준수
 - **씬 검증 소화:** 도면 표시·방 클릭 이동·전투 전환·복귀 포커스 실동작 확인
+
+#### 1-6 완료 기록 (2026-07-24)
+
+- **산출물:** `DungeonState` SAN 이월·침식 상태 보관 (`CarriedSanity`/`MoveCount`/`AshConsumedFloor`) + `DungeonManager` 광기 통행(`IsPartyMadness` → `GetNextNodes(includeMadness)`)·잿불 침식(`AdvanceAshErosion`)·던전 수위 SAN API(`ChangeDungeonSanity`) + `BattleManager` 시작 시 주입(`HasCarriedSanity` 폴백)·종료 시 기록(`OnBattleEnded` 발화 전) + `MapGraph.ConsumeFloorsByAsh`
+- **SAN 이월 = 값 이월:** Holder가 아닌 int 값만 이월 (-1 = 미기록 → BattleTest 단독 경로 무손상). 상한 클램프는 전투 진입 시 SanityHolder 생성자가 처리 — **던전 수위 상한 미클램프는 잠정, P2-M4 재점검**
+- **광기 통행 판정 일원화:** `CarriedSanity < PartyData.SanityThreshold` — SanityHolder 임계값 계약(M1)과 동일식
+- **침식 패배 규칙 (잠정):** 잠식 층 ≥ 현재 층 = 던전 패배. 갇힘은 원리상 불가 (모든 방 = 랜덤 워크 산물 → 일반 복도 출구 보유). `AshAdvanceInterval = 0` = 완전 비활성 (순정 STS). 침식 판정은 노드 진입 처리보다 선행 — 잠식 패배 시 노드 진입 스킵
+- **던전 수위 SAN 계약:** `ChangeDungeonSanity`는 **전투 중 호출 무시** (전투 중 진실 원본 = `partySanityHolder` — `EndBattle` 기록이 덮어쓰는 유실 방지). 의도적 광기 진입 수단은 API만 확보 → 1-4에서 휴식 선택지 데이터로 해소
+- **버그 수정 (데이터):** Enemy_Test1의 `SanityChangeEffect` 델타 부호 +5 → -5 — 파티 SAN 최대치 상태에서 +5는 클램프 조기 반환으로 이벤트조차 발화하지 않아 "미적용"으로 위장, 의도 아이콘도 Buff로 오표시. 델타 부호 규약: 음수 = 압박, 양수 = 회복 (Tooltip 명시 권장)
+- **임시 조치 기록:** **PartyData 이중 참조** — DungeonManager(던전 수위 판정: 임계값·시작 SAN) / BattleManager(전투 홀더 생성). SO 불변 데이터라 이중 참조 자체는 원칙 위반 아님, 단 **두 인스펙터는 동일 에셋 필수** (다르면 광기 판정 어긋남). **P2-M4 편성 화면 도입 시 DungeonState 경유 주입으로 일원화**
+- **씬 검증:** SAN 전투 간 이월 확인 완료. 침식·광기 통행·휴식 회복 검증은 리소스 연결 시점 이월
+
+#### 1-4 코드 완료 기록 (2026-07-24) — 씬 검증 대기
+
+- **산출물:** `Data/DungeonEventData.cs` (`DungeonEventChoice` — 문구 + SanityDelta 골격, 표시명/설명은 SWIdentifiedObject 필드 재사용, 선택지 1~3 OnValidate 검증) + `View/UI/NodeScreenView.cs` (제목+설명+선택지 3슬롯 고정 배치 — IntentView 패턴, 콜백 주입 — 뷰는 노드 타입을 모름) + `DungeonManager` 노드 화면 통합 (`EDungeonPhase.Node` 추가, `ShowNodeScreen` 헬퍼)
+- **노드 화면 통합 결정:** 노드 타입별 뷰 분리(EventNodeView/StorageNodeView) **기각** — 휴식/이벤트/보관 골격은 표현이 동일("제목+설명+선택지"). MapRoomView 단일화와 동일 논리 + 1-5 원칙(실요구 전 구조 확장 금지) 적용. **전용 뷰 신설 기준:** ① 보관 실 UI(다중 선택 목록·전송 개수 — P2-M6) ② 상점(구매 격자 — P2-M7) 등 선택지형이 아닌 표현이 실제 등장할 때
+- **데이터 구성:** 휴식 = 고정 에셋 (`restEventData` — 예: "불가에서 쉰다 +30" / "악몽을 응시한다 -20" / "떠난다 0" — **의도적 광기 진입 수단이 선택지 데이터로 성립, 코드 0줄**) / 보관 = 고정 에셋 (`storageEventData` — 통과 문구 1선택지, P2-M6에서 전용 화면 교체) / 이벤트 = `eventDatas` 풀 무작위 (임시 조치 — 던전 구성 데이터로 대체 예정)
+- **수치 소유 이동:** 휴식 회복량 `MapConfigData.RestSanityRecovery` 제거 → 휴식 이벤트 선택지 데이터가 소유 (수치 = 데이터 소유 원칙)
+- **통과 처리 방어:** 뷰 또는 데이터 미배선 시 노드 통과 처리 — 미배선 씬에서도 런 루프 완주 가능 (모듈 단독 테스트 원칙 유지)
+- **표시 방식:** 노드 화면 = 맵 위 오버레이 (맵 숨김 없음), `Node` 상태가 `MoveToNode` 차단. 화면 = enum 상태 유지 (SWStackStateMachine 재채택 기준 미충족 — 중첩 스택 실요구 아직 없음)
+- **씬 작업 대기 ⚠:** Canvas 노드 화면 패널 1개(반투명 배경 + 제목/설명 TMP + 선택지 버튼 3슬롯, 맵보다 위 사이블링) + DungeonManager 배선(`nodeScreenView`·`restEventData`·`storageEventData`·`eventDatas`) + 이벤트 에셋 제작(`DungeonEvent_Rest`·`DungeonEvent_Storage`·테스트 이벤트 1~2개) → 휴식/이벤트/보관 진입·선택·복귀 및 **M1 DoD 최종 확인**
 
 ### P2-M2 — 런 중 저장 (1주)
 
@@ -188,7 +209,7 @@
 
 - **콘텐츠 물량이 병목** (P2-M7) — 카드 50·유물 20·적 12·이벤트 10은 코드가 아니라 제작 시간. → 도구 선행(P2-M3 CardSystemWindow)으로 완충 + "코드 0줄 추가" 원칙이 깨지는 카드는 즉시 구조 재점검
 - **저장 결정성 미결 재작업** — P2-D1을 P2-M2 전에 반드시 확정. 스냅샷 방식 선택 시 리스크 최소
-- **파티 확장 파급** — 공유 SAN·피격 SAN 판정(피격자 개인 HP 기준)·전투불능 드로우 제외가 맞물림. P2-M4에서 `Test_Battle` 3인 버전으로 단독 검증 후 통합
+- **파티 확장 파급** — 공유 SAN·피격 SAN 판정(피격자 개인 HP 기준)·전투불능 드로우 제외가 맞물림. P2-M4에서 `Test_Battle` 3인 버전으로 단독 검증 후 통합. **PartyData 이중 참조(DungeonManager/BattleManager — 동일 에셋 필수)도 이 시점에 주입 경로로 일원화**
 - **범위 방어** — Phase 3 항목 침범 금지: 적 SAN 보스 프로토타이핑(**SWUtils Behavior는 이 시점의 보스 AI 후보로 보류** — 현행 데이터 주도 패턴 순환에는 과함), 캐릭터 2·3번, 유물 21개 이상, 이벤트 11개 이상, Ascension, 튜토리얼, 아트 완성. **밸런스 게이트 전에 P2-M7 수치 확정 금지** (제작은 가능, 확정은 게이트 후)
 
 ---
@@ -204,6 +225,8 @@
 | 개정 | 일자 | 내용 |
 |------|------|------|
 | 초판 | 2026-07-22 | Phase 2 스케줄 수립 — 메타 계층 우선 순서(P2-M0~M3), 밸런스 게이트 병행 배치, Phase 1 임시 조치 5종 = P2-M0 작업 목록화, 조기 결정 P2-D1~D5 정의 |
+| 개정 10 | 2026-07-24 | **1-4 코드 완료 (씬 검증 대기) + 노드 화면 통합 결정** — 노드 타입별 뷰 분리 기각 → 선택지형 공용 `NodeScreenView` 1클래스 + `DungeonEventData`(표시명/설명 = IdentifiedObject 재사용, 선택지 1~3). 휴식/보관 = 고정 이벤트 에셋, 이벤트 = 풀 무작위(임시 조치). 휴식 회복 수치 `MapConfigData.RestSanityRecovery` 제거 → 휴식 이벤트 데이터로 이동, **의도적 광기 진입 = 휴식 선택지 데이터로 성립 (코드 0줄 — 1-6 이월분 해소)**. `EDungeonPhase.Node` 추가 (IsDungeonRunning 포함), 미배선 시 통과 처리. 전용 뷰 신설 기준 명문화(보관 실 UI = P2-M6·상점 = P2-M7 등 비선택지형 표현 등장 시). **다음: 노드 화면 씬 검증 → M1 DoD 최종 확인 → P2-D1 확정 + P2-M2 착수** |
+| 개정 9 | 2026-07-24 | **1-6 완료** — 파티 SAN 던전 지속화(`DungeonState.CarriedSanity` 값 이월, -1 = 미기록 → BattleTest 무손상, 상한 클램프 = 전투 진입 시점 잠정), 광기 복도 통행(`IsPartyMadness` — 임계값 판정 일원화), 잿불 침식(이동 카운터 → 간격 배수마다 잠식 층 전진, **잠식 층 ≥ 현재 층 = 패배 잠정** — 갇힘 원리상 불가), `ChangeDungeonSanity` API(**전투 중 호출 가드** — 전투 중 진실 원본 = partySanityHolder). 버그 수정: Enemy_Test1 `SanityChangeEffect` 델타 부호(+5 → -5 — 최대치 클램프 조기 반환으로 무변화 위장·의도 Buff 오표시). 임시 조치: **PartyData 이중 참조**(DungeonManager = 던전 수위 판정 / BattleManager = 전투 홀더 생성 — 동일 에셋 필수, P2-M4 일원화). SAN 전투 간 이월 씬 검증 완료, 침식·광기 통행·휴식 회복은 리소스 연결 시점 이월 |
 | 개정 8 | 2026-07-24 | **P2-M1 1-3 완료** — MapView/MapRoomView 던전 도면식 수평 스크롤 맵 (originRoot 좌표계 단일화·복도→방 그리기 순서·자동 포커스·콜백 주입·폴링형 갱신), DungeonManager 뷰 배선. M1 잔여 = 1-6(침식·광기 통행·SAN 던전 지속화) + 1-4(노드 화면 골격) |
 | 개정 7 | 2026-07-23 | **씬 검증 이월분 일부 소화** — Dungeon 씬에서 카드 호버/드래그/드롭/툴팁 실동작 확인. 발견 이슈: 신규 씬의 기본 카메라가 원근(Perspective)이라 `ScreenToWorldPoint` 좌표가 근평면에 맺혀 콜라이더 판정 전체 실패 → **직교(Orthographic) 전환 + Test_Battle 카메라 값 복사로 해결.** 교훈 기록: 씬 신규 생성 시 카메라 직교·좌표계 확인 필수 (Hub 씬 생성 시 재발 주의). Canvas SS-Camera 설정은 정상이었음 (루트 Canvas 단일 구성 확인) |
 | 개정 6 | 2026-07-23 | **1-5 완료 + SWStackStateMachine 채택 철회** — 구현 결과 상태 클래스가 전부 컨텍스트 메서드 위임(빈 껍데기)으로 확인되어 enum 화면 상태로 회귀 (돌아가는 구조를 유틸 채택 목적으로 복잡화하지 않는다 원칙). 재채택 기준 명문화(중첩 스택 실요구·상태별 Tick). DungeonManager 맵 통합: 조우 순차 목록 폐기 → `MoveToNode` 노드 이동 + 조우 풀 무작위(임시 조치), `GetAvailableNodes` 논할당 API(1-3 MapView 소비 예정), 보스 승리 = 던전 승리, 맵 복귀 지점 = 1-6 침식 전진 연결 예정 |
