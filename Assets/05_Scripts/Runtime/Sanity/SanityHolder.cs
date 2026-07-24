@@ -146,7 +146,7 @@ namespace EchoesOfAsh.Sanity
             }
         }
         #endregion // 핸들러
-        
+
         #region 해제
         /// <summary>
         /// 능력치 객체 및 구독 해제합니다.
@@ -160,7 +160,7 @@ namespace EchoesOfAsh.Sanity
 
             isDisposed = true;
 
-            if(maxSanityStat != null)
+            if (maxSanityStat != null)
             {
                 maxSanityStat.OnValueChanged -= HandleMaxSanityValueChanged;
                 UnityEngine.Object.Destroy(maxSanityStat);

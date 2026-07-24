@@ -19,7 +19,7 @@ namespace EchoesOfAsh.View.UI
         [SerializeField] private UIGaugeView hpGauge;
         [SerializeField] private TextMeshProUGUI blockText;
 
-        [SWGroup("정신력")] 
+        [SWGroup("정신력")]
         [SerializeField] private UIGaugeView sanityGauge;
         [SerializeField] private TextMeshProUGUI sanityTypeText;
 

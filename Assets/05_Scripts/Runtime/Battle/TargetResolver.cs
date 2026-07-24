@@ -147,10 +147,10 @@ namespace EchoesOfAsh.Battle
             {
                 return;
             }
-            
-            foreach(var enemy in enemies)
+
+            foreach (var enemy in enemies)
             {
-                if(enemy != null && enemy.IsTargetable)
+                if (enemy != null && enemy.IsTargetable)
                 {
                     targetableBuffer.Add(enemy);
                 }

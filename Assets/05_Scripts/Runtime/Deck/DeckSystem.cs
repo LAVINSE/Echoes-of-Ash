@@ -87,8 +87,8 @@ namespace EchoesOfAsh.Deck
             {
                 card.ResetBattleApCost();
             }
-            
-            foreach(var card in discardPile)
+
+            foreach (var card in discardPile)
             {
                 card.ResetBattleApCost();
             }

@@ -62,7 +62,7 @@ namespace EchoesOfAsh.View.UI
             isPromoted = false;
             cachedSiblingIndex = -1;
         }
-        
+
         /// <summary>
         /// 표시할 카드를 지정하고 화면을 갱신합니다.
         /// </summary>

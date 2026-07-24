@@ -7,6 +7,9 @@ using UnityEngine.UI;
 
 namespace EchoesOfAsh.View.UI
 {
+    /// <summary>
+    /// 파티 정신력 구간에 따라 화면 광기 효과를 표시합니다.
+    /// </summary>
     public class MadnessOverlayView : SWMonoBehaviour
     {
         #region 필드
@@ -26,9 +29,6 @@ namespace EchoesOfAsh.View.UI
         private float targetAlpha;
         private float currentAlpha;
         #endregion // 필드
-
-        #region 프로퍼티
-        #endregion // 프로퍼티
 
         #region 초기화
         private void Awake()
@@ -57,9 +57,9 @@ namespace EchoesOfAsh.View.UI
         }
 
         /// <summary>
-        /// 파티 정신력을 연결한다
+        /// 파티 정신력 보유자를 연결하고 현재 상태를 즉시 반영합니다.
         /// </summary>
-        /// <param name="sanityHolder">파티 공유 정신력</param>
+        /// <param name="sanityHolder">파티 공유 정신력 보유자입니다.</param>
         public void Init(ISanityHolder sanityHolder)
         {
             Release();
@@ -77,6 +77,9 @@ namespace EchoesOfAsh.View.UI
             }
         }
 
+        /// <summary>
+        /// 연결된 정신력 이벤트를 해제하고 화면 효과를 초기화합니다.
+        /// </summary>
         public void Release()
         {
             if (sanityHolder != null)
@@ -92,16 +95,16 @@ namespace EchoesOfAsh.View.UI
         #endregion // 초기화
 
         /// <summary>
-        /// 정신력 구간 전환 시 목표 알파를 갱신한다
+        /// 정신력 구간 전환 시 목표 알파를 갱신합니다.
         /// </summary>
-        /// <param name="sanityType">현재 정신력 유형</param>
+        /// <param name="sanityType">현재 정신력 유형입니다.</param>
         private void HandleSanityTypeChanged(ESanityType sanityType)
         {
             targetAlpha = sanityType == ESanityType.Madness ? maxAlpha : 0f;
         }
 
         /// <summary>
-        /// 현재 알파를 오버레이에 적용한다
+        /// 현재 알파를 오버레이에 적용합니다.
         /// </summary>
         private void ApplyAlpha()
         {

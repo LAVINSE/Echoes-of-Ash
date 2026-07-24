@@ -86,7 +86,7 @@ namespace EchoesOfAsh.Test
             {
                 return;
             }
-            
+
             GUILayout.BeginArea(new Rect(20f, 20f, 420f, 600f));
 
             DrawGaugeControls("파티 (PartyData 경로)", partySanityHolder, partyTypeChangedCount);

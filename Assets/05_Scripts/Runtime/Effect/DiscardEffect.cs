@@ -8,7 +8,7 @@ namespace EchoesOfAsh.Effect
     public class DiscardEffect : EffectBlock
     {
         #region 필드
-        [SerializeField, Min(1)] private int count = 1; 
+        [SerializeField, Min(1)] private int count = 1;
         #endregion // 필드
 
 

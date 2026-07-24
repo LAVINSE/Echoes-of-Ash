@@ -109,14 +109,14 @@ namespace EchoesOfAsh.Test
                 Destroy(battleEntityGameObject);
             }
         }
-        
+
         private void OnGUI()
         {
-            if(!isRun)
+            if (!isRun)
             {
                 return;
             }
-            
+
             GUILayout.BeginArea(new Rect(20f, 20f, 460f, 600f));
 
             DrawCombatantControls("적 (EnemyData 경로)", enemy);

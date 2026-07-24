@@ -5,6 +5,7 @@ using UnityEngine;
 
 using SW.Base;
 using SW.EditorTools.Util;
+using SW.Util;
 
 using EchoesOfAsh.Data;
 
@@ -255,7 +256,7 @@ namespace EchoesOfAsh.EditorTools
         }
         #endregion // 설정 저장/불러오기
 
-        #region GUI
+        #region 화면
         private void OnGUI()
         {
             tabIndex = SWEditorUtils.DrawTabBar(tabIndex, tabNames);
@@ -277,7 +278,7 @@ namespace EchoesOfAsh.EditorTools
             // 목록형 탭
             DrawDataTab(ManagedTypes[tabIndex], tabIndex);
         }
-        #endregion // GUI
+        #endregion // 화면
 
         #region 목록형 탭
         /// <summary>
@@ -719,7 +720,7 @@ namespace EchoesOfAsh.EditorTools
 
                 if (guids.Length > 1)
                 {
-                    Debug.LogWarning($"[EoA Data Editor] {dataType.Name} 에셋이 {guids.Length}개 발견되었습니다. 첫 번째 에셋을 표시합니다.");
+                    SWLog.LogWarning($"[EoA Data Editor] {dataType.Name} 에셋이 {guids.Length}개 발견되었습니다. 첫 번째 에셋을 표시합니다.");
                 }
             }
         }
@@ -944,7 +945,7 @@ namespace EchoesOfAsh.EditorTools
             selectedObjectsByType[dataType] = newData;
             inspectorScrollPosition = Vector2.zero;
 
-            Debug.Log($"[EoA Data Editor] 생성 완료: {assetPath}");
+            SWLog.Log($"[EoA Data Editor] 생성 완료: {assetPath}");
         }
 
         /// <summary>
@@ -995,7 +996,7 @@ namespace EchoesOfAsh.EditorTools
 
                 if (useAutoId)
                 {
-                    serializedData.FindProperty("id").intValue = GetNextID(dataType) ;
+                    serializedData.FindProperty("id").intValue = GetNextID(dataType);
                 }
 
                 serializedData.ApplyModifiedPropertiesWithoutUndo();
@@ -1011,7 +1012,7 @@ namespace EchoesOfAsh.EditorTools
             selectedObjectsByType[dataType] = duplicated;
             inspectorScrollPosition = Vector2.zero;
 
-            Debug.Log($"[EoA Data Editor] 복제 완료: {newPath}");
+            SWLog.Log($"[EoA Data Editor] 복제 완료: {newPath}");
         }
 
         /// <summary>
@@ -1049,7 +1050,7 @@ namespace EchoesOfAsh.EditorTools
             }
 
             RefreshAssets(dataType);
-            Debug.Log($"[EoA Data Editor] 삭제 완료: {assetPath}");
+            SWLog.Log($"[EoA Data Editor] 삭제 완료: {assetPath}");
         }
 
         /// <summary>

@@ -36,7 +36,7 @@ namespace EchoesOfAsh.Data
 #if UNITY_EDITOR
         private void OnValidate()
         {
-            if(maxHpStat == null || maxHpStat.Stat == null)
+            if (maxHpStat == null || maxHpStat.Stat == null)
             {
                 SWLog.LogError($"[CharacterData] '{name}': Max_HP 스탯 에셋이 비어 있습니다.");
             }

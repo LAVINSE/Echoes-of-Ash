@@ -31,10 +31,14 @@ namespace EchoesOfAsh.View.UI
         private Action endTurnRequest;
         #endregion // 필드
 
-        #region 프로퍼티
-        #endregion // 프로퍼티
-
         #region 초기화
+        /// <summary>
+        /// 전투 진행 시스템을 연결하고 표시를 초기화합니다.
+        /// </summary>
+        /// <param name="turnManager">전투 턴 관리자입니다.</param>
+        /// <param name="apSystem">행동력 시스템입니다.</param>
+        /// <param name="deckSystem">덱 시스템입니다.</param>
+        /// <param name="endTurnRequest">턴 종료 요청 함수입니다.</param>
         public void Init(TurnManager turnManager, ApSystem apSystem, DeckSystem deckSystem, Action endTurnRequest)
         {
             if (turnManager == null || apSystem == null || deckSystem == null)
@@ -64,6 +68,9 @@ namespace EchoesOfAsh.View.UI
             HandlePileChanged(deckSystem.DrawPileCount, deckSystem.DiscardPileCount);
         }
 
+        /// <summary>
+        /// 연결된 이벤트와 버튼 입력을 해제합니다.
+        /// </summary>
         public void Release()
         {
             if (turnManager != null)
@@ -126,7 +133,7 @@ namespace EchoesOfAsh.View.UI
                 apText.text = currentAp.ToString();
             }
         }
-        
+
         /// <summary>
         /// 덱/버림 더미 수 변경 시 카운터 갱신 콜백
         /// </summary>
@@ -138,8 +145,8 @@ namespace EchoesOfAsh.View.UI
             {
                 drawPileText.text = drawCount.ToString();
             }
-            
-            if(discardPileText != null)
+
+            if (discardPileText != null)
             {
                 discardPileText.text = discardCount.ToString();
             }

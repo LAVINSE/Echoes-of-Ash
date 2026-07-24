@@ -421,7 +421,7 @@ namespace EchoesOfAsh.Battle
             {
                 madnessOverlayView.Release();
             }
-            
+
             // 던전 지속 정신력 기록
             if (dungeonState != null && partySanityHolder != null)
             {

@@ -67,7 +67,7 @@ namespace EchoesOfAsh.Effect
                 ApChangeRequest = apChangeRequest
             };
 
-            foreach(var effectBlock in effectBlocks)
+            foreach (var effectBlock in effectBlocks)
             {
                 if (effectBlock == null)
                 {

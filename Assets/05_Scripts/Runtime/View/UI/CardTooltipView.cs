@@ -56,7 +56,7 @@ namespace EchoesOfAsh.View.UI
         {
             this.rectTransform = this.transform as RectTransform;
 
-            if(uiCamera == null)
+            if (uiCamera == null)
             {
                 uiCamera = Camera.main;
             }

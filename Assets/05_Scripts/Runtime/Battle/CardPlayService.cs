@@ -99,7 +99,7 @@ namespace EchoesOfAsh.Battle
             return true;
         }
         #endregion // 판정
-        
+
         #region 사용
         /// <summary>
         /// 카드를 사용합니다.

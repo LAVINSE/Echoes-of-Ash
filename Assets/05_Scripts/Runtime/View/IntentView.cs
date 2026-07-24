@@ -78,7 +78,7 @@ namespace EchoesOfAsh.View
         [SerializeField] private List<IntentStyle> styles = new();
 
         //[SWGroup("스타일")]
-        
+
         #endregion // 필드
 
 
@@ -154,7 +154,7 @@ namespace EchoesOfAsh.View
         /// <returns>수치 문자열입니다.</returns>
         private string GetValueText(EnemyActionData actionData, EIntentType intentType)
         {
-            switch(intentType)
+            switch (intentType)
             {
                 case EIntentType.Attack:
                     return actionData.GetIntentDamageValue().ToString();
