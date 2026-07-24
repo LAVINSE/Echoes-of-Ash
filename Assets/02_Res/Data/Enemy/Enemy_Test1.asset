@@ -67,4 +67,4 @@ MonoBehaviour:
     - rid: 3116057178610073706
       type: {class: SanityChangeEffect, ns: EchoesOfAsh.Effect, asm: Assembly-CSharp}
       data:
-        delta: 5
+        delta: -5

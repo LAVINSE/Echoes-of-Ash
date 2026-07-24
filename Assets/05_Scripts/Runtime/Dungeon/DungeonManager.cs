@@ -14,7 +14,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Dungeon
 {
     /// <summary>
-    /// 던전의 시작과 종료, 맵 이동, 전투 전환을 관리합니다.
+    /// 던전의 시작과 종료, 맵 이동, 노드 화면, 전투 전환을 관리합니다.
     /// </summary>
     public class DungeonManager : SWMonoBehaviour
     {
@@ -28,6 +28,8 @@ namespace EchoesOfAsh.Dungeon
             None,
             /// <summary>맵에서 이동할 노드를 선택하는 상태입니다.</summary>
             Map,
+            /// <summary>휴식, 이벤트, 보관 등 노드 화면을 진행하는 상태입니다.</summary>
+            Node,
             /// <summary>전투를 진행하는 상태입니다.</summary>
             Battle,
             /// <summary>던전이 종료된 상태입니다.</summary>
@@ -52,13 +54,21 @@ namespace EchoesOfAsh.Dungeon
         [SerializeField] private List<SanityEventData> sanityEventDatas = new();
         [Tooltip("전투 노드에 진입할 때 선택할 수 있는 적 조우 데이터 목록입니다.")]
         [SerializeField] private List<EnemyEncounterData> enemyEncounterDatas = new();
+        [Tooltip("휴식 노드에 진입할 때 표시할 고정 이벤트입니다.")]
+        [SerializeField] private DungeonEventData restEventData;
+        [Tooltip("보관 노드에 진입할 때 표시할 고정 이벤트입니다. 골격 단계 - 전용 화면은 P2-M6에서 진행합니다.")]
+        [SerializeField] private DungeonEventData storageEventData;
+        [Tooltip("이벤트 노드에 진입할 때 무작위로 선택할 이벤트 목록입니다.")]
+        [SerializeField] private List<DungeonEventData> eventDatas = new();
 
         [SWGroup("뷰")]
         [SerializeField] private MapView mapView;
+        [SerializeField] private NodeScreenView nodeScreenView;
 
         private DungeonState dungeonState;
         private EDungeonPhase currentPhase = EDungeonPhase.None;
         private MapNode currentBattleNode;
+        private DungeonEventData currentEventData;
         private bool isBattleEventSubscribed;
 
         private readonly List<MapNode> availableNodeBuffer = new();
@@ -72,6 +82,7 @@ namespace EchoesOfAsh.Dungeon
         public EDungeonPhase CurrentPhase => currentPhase;
         /// <summary>던전을 진행하고 있는지 여부입니다.</summary>
         public bool IsDungeonRunning => currentPhase == EDungeonPhase.Map
+            || currentPhase == EDungeonPhase.Node
             || currentPhase == EDungeonPhase.Battle;
 
         /// <summary>파티가 광기 구간인지 여부입니다. 광기 복도 통행 판정에 사용합니다.</summary>
@@ -158,17 +169,17 @@ namespace EchoesOfAsh.Dungeon
             MapGenerator mapGenerator = new MapGenerator();
             MapGraph mapGraph = mapGenerator.GenerateMapGraph(mapConfigData);
 
-            newDungeonState.SetCarriedSanity(partyData.StartSanity);
-
             if (mapGraph == null)
             {
                 SWLog.LogError("[DungeonManager] StartDungeon 실패: 맵을 생성하지 못했습니다.");
                 return;
             }
 
+            newDungeonState.SetCarriedSanity(partyData.StartSanity);
             newDungeonState.SetMapGraph(mapGraph);
             dungeonState = newDungeonState;
             currentBattleNode = null;
+            currentEventData = null;
             currentPhase = EDungeonPhase.Map;
 
             SubscribeBattleEvents();
@@ -197,8 +208,14 @@ namespace EchoesOfAsh.Dungeon
                 mapView.Hide();
             }
 
+            if (nodeScreenView != null)
+            {
+                nodeScreenView.Hide();
+            }
+
             currentPhase = EDungeonPhase.Ended;
             currentBattleNode = null;
+            currentEventData = null;
 
             SWLog.Log($"[DungeonManager] 던전을 종료했습니다. 결과: {(isVictory ? "승리" : "패배")}");
             OnDungeonEnded?.Invoke(isVictory);
@@ -208,7 +225,7 @@ namespace EchoesOfAsh.Dungeon
         #region 이동
         /// <summary>
         /// 현재 위치에서 이동할 수 있는 노드를 결과 목록에 추가합니다.
-        /// 광기 전용 경로와 잿불에 잠식된 노드는 제외합니다.
+        /// 잿불에 잠식된 노드는 제외하고, 광기 전용 경로는 파티가 광기 구간일 때만 포함합니다.
         /// </summary>
         /// <param name="resultNodes">결과를 저장할 목록입니다. 기존 요소는 제거됩니다.</param>
         public void GetAvailableNodes(List<MapNode> resultNodes)
@@ -318,9 +335,18 @@ namespace EchoesOfAsh.Dungeon
                     break;
 
                 case EMapNodeType.Rest:
-                    ChangeDungeonSanity(mapConfigData.RestSanityRecovery);
-                    LogAvailableNodes("휴식 완료");
-                    RefreshMapViewState();
+                    ShowNodeScreen(restEventData, "휴식");
+                    break;
+
+                case EMapNodeType.Event:
+                    DungeonEventData randomEventData = eventDatas.Count > 0
+                        ? eventDatas[SWRandom.Range(0, eventDatas.Count)]
+                        : null;
+                    ShowNodeScreen(randomEventData, "이벤트");
+                    break;
+
+                case EMapNodeType.Storage:
+                    ShowNodeScreen(storageEventData, "보관");
                     break;
 
                 default:
@@ -349,9 +375,64 @@ namespace EchoesOfAsh.Dungeon
         }
         #endregion // 이동
 
+        #region 노드 화면
+        /// <summary>
+        /// 선택지형 노드 화면을 표시합니다. 뷰나 데이터가 없으면 통과 처리합니다.
+        /// </summary>
+        /// <param name="eventData">표시할 이벤트 데이터입니다.</param>
+        /// <param name="nodeContext">로그에 표시할 노드 상황입니다.</param>
+        private void ShowNodeScreen(DungeonEventData eventData, string nodeContext)
+        {
+            if (nodeScreenView == null || eventData == null)
+            {
+                SWLog.Log($"[DungeonManager] {nodeContext} 노드 통과: 뷰 또는 데이터가 없습니다.");
+                LogAvailableNodes("노드 통과");
+                RefreshMapViewState();
+                return;
+            }
+
+            currentPhase = EDungeonPhase.Node;
+            currentEventData = eventData;
+            nodeScreenView.Show(eventData, HandleEventChoiceSelected);
+        }
+
+        /// <summary>
+        /// 노드 화면의 선택지 선택을 처리하고 맵 선택 상태로 복귀합니다.
+        /// </summary>
+        /// <param name="choiceIndex">선택한 선택지 인덱스입니다.</param>
+        private void HandleEventChoiceSelected(int choiceIndex)
+        {
+            if (currentEventData == null || choiceIndex < 0 || choiceIndex >= currentEventData.Choices.Count)
+            {
+                SWLog.LogError($"[DungeonManager] 노드 화면 선택 실패: 인덱스 {choiceIndex}가 유효하지 않습니다.");
+                return;
+            }
+
+            DungeonEventChoice selectedChoice = currentEventData.Choices[choiceIndex];
+            SWLog.Log($"[DungeonManager] 노드 화면 선택: '{selectedChoice.ChoiceText}'");
+
+            if (nodeScreenView != null)
+            {
+                nodeScreenView.Hide();
+            }
+
+            currentEventData = null;
+            currentPhase = EDungeonPhase.Map;
+
+            if (selectedChoice.SanityDelta != 0)
+            {
+                ChangeDungeonSanity(selectedChoice.SanityDelta);
+            }
+
+            LogAvailableNodes("노드 화면 완료");
+            RefreshMapViewState();
+        }
+        #endregion // 노드 화면
+
         #region 정신력
         /// <summary>
         /// 던전 수위에서 파티 정신력을 변화시킵니다.
+        /// 전투 중에는 전투 정신력이 진실 원본이므로 호출을 무시합니다.
         /// 상한 보정은 전투 진입 시 정신력 홀더 생성 과정에서 처리합니다.
         /// </summary>
         /// <param name="delta">변화량입니다.</param>
@@ -360,6 +441,12 @@ namespace EchoesOfAsh.Dungeon
             if (dungeonState == null)
             {
                 SWLog.LogWarning("[DungeonManager] ChangeDungeonSanity 무시: 던전 상태가 없습니다.");
+                return;
+            }
+
+            if (currentPhase == EDungeonPhase.Battle)
+            {
+                SWLog.LogWarning("[DungeonManager] ChangeDungeonSanity 무시: 전투 중에는 전투 정신력이 진실 원본입니다.");
                 return;
             }
 
