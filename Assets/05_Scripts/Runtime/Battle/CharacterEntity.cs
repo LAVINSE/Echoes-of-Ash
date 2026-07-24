@@ -1,5 +1,6 @@
 using EchoesOfAsh.Battle;
 using EchoesOfAsh.Data;
+using SW.Attributes;
 using SW.Util;
 using UnityEngine;
 

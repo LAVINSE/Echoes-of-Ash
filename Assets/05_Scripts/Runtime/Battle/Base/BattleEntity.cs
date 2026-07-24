@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using EchoesOfAsh.Enum;
 using EchoesOfAsh.Interface;
+using SW.Attributes;
 using SW.Base;
 using SW.Stat;
 using SW.Util;
@@ -15,11 +16,11 @@ namespace EchoesOfAsh.Battle
     public abstract class BattleEntity : SWMonoBehaviour, IDamageable, ITargetable, IStatusReceiver
     {
         #region 필드
-        private SWStat maxHpStat;
+        [SerializeField, SWReadOnly] private int currentHp;
+        [SerializeField, SWReadOnly] private int currentBlock;
+        [SerializeField, SWReadOnly] private bool isDead;
 
-        private int currentHp;
-        private int currentBlock;
-        private bool isDead;
+        private SWStat maxHpStat;
 
         /// <summary>상태 이상 중첩 저장입니다.</summary>
         private readonly Dictionary<EStatusEffectType, int> statusStacks = new();

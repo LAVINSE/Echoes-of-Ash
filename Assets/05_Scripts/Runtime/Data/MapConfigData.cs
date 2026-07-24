@@ -19,6 +19,10 @@ namespace EchoesOfAsh.Data
         [Tooltip("생성할 무작위 경로 수입니다. 값이 클수록 그래프가 촘촘해집니다.")]
         [SerializeField, Min(2)] private int pathCount = 5;
 
+        [SWGroup("노드 규칙")]
+        [Tooltip("휴식 노드에 진입할 때 회복하는 파티 정신력입니다.")]
+        [SerializeField, Min(0)] private int restSanityRecovery = 30;
+
         [SWGroup("노드 타입 가중치")]
         [Tooltip("전투 노드의 선택 가중치입니다.")]
         [SerializeField, Min(0)] private int battleWeight = 10;
@@ -59,6 +63,9 @@ namespace EchoesOfAsh.Data
         public int LaneCount => laneCount;
         /// <summary>생성할 무작위 경로 수입니다.</summary>
         public int PathCount => pathCount;
+
+        /// <summary>휴식 노드에서 회복하는 파티 정신력입니다.</summary>
+        public int RestSanityRecovery => restSanityRecovery;
 
         /// <summary>전투 노드의 선택 가중치입니다.</summary>
         public int BattleWeight => battleWeight;

@@ -283,7 +283,8 @@ namespace EchoesOfAsh.Battle
 
             party.Add(characterEntity);
 
-            partySanityHolder = new SanityHolder(partyData.MaxSanityStat, partyData.SanityThreshold, partyData.StartSanity);
+            int startSanity = dungeonState.HasCarriedSanity ? dungeonState.CarriedSanity : partyData.StartSanity;
+            partySanityHolder = new SanityHolder(partyData.MaxSanityStat, partyData.SanityThreshold, startSanity);
         }
 
         /// <summary>
@@ -419,6 +420,12 @@ namespace EchoesOfAsh.Battle
             if (madnessOverlayView != null)
             {
                 madnessOverlayView.Release();
+            }
+            
+            // 던전 지속 정신력 기록
+            if (dungeonState != null && partySanityHolder != null)
+            {
+                dungeonState.SetCarriedSanity(partySanityHolder.CurrentSanity);
             }
 
             SWLog.Log($"[BattleManager] 전투 종료: {battleResult} (턴 {turnManager.CurrentTurn})");

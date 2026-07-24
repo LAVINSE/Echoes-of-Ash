@@ -23,7 +23,7 @@ MonoBehaviour:
   maxHpStat:
     stat: {fileID: 11400000, guid: 02bb436d51c6a224dbccef6386d6d123, type: 2}
     isUseOverride: 1
-    overrideDefaultValue: 100
+    overrideDefaultValue: 1
   maxSanityStat:
     stat: {fileID: 11400000, guid: 847516e759e34a1418b8b6d112864270, type: 2}
     isUseOverride: 1
@@ -34,13 +34,10 @@ MonoBehaviour:
   startSanity: 100
   targetRuleType: 0
   actions:
-  - actionName: "\uACF5\uACA9"
+  - actionName: "\uACF5\uACA9 (\uC815\uC2E0\uB825)"
     effects:
-    - rid: 3116056955899871232
-  - actionName: "\uBC29\uC5B4"
-    effects:
-    - rid: 3116056955899871234
-  isSanityAction: 1
+    - rid: 3116057178610073706
+  isSanityAction: 0
   sanityActions:
   - actionName: "\uD53C\uD574"
     effects:
@@ -57,15 +54,6 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 3116056955899871232
-      type: {class: DamageEffect, ns: EchoesOfAsh.Effect, asm: Assembly-CSharp}
-      data:
-        damage: 1
-        times: 1
-    - rid: 3116056955899871234
-      type: {class: BlockGainEffect, ns: EchoesOfAsh.Effect, asm: Assembly-CSharp}
-      data:
-        amount: 1
     - rid: 3116056955899871235
       type: {class: DamageEffect, ns: EchoesOfAsh.Effect, asm: Assembly-CSharp}
       data:
@@ -76,3 +64,7 @@ MonoBehaviour:
       data:
         damage: 1
         times: 3
+    - rid: 3116057178610073706
+      type: {class: SanityChangeEffect, ns: EchoesOfAsh.Effect, asm: Assembly-CSharp}
+      data:
+        delta: 5

@@ -180,6 +180,21 @@ namespace EchoesOfAsh.Map
                 resultNodes.Add(destinationNode);
             }
         }
+
+        /// <summary>
+        /// 지정한 층 이하의 모든 노드를 잿불에 잠식된 상태로 변경합니다.
+        /// </summary>
+        /// <param name="floor">잠식할 마지막 층입니다.</param>
+        public void ConsumeFloorsByAsh(int floor)
+        {
+            foreach (MapNode node in nodes)
+            {
+                if (node.Floor <= floor)
+                {
+                    node.SetAshConsumed();
+                }
+            }
+        }
         #endregion // 함수
     }
 }

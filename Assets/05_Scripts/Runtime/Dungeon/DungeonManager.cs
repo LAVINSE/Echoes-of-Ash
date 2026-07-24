@@ -41,6 +41,7 @@ namespace EchoesOfAsh.Dungeon
 
         [SWGroup("데이터")]
         [SerializeField] private MapConfigData mapConfigData;
+        [SerializeField] private PartyData partyData;
 
         [SWGroup("던전 구성")]
         [Tooltip("던전 생성에 사용할 시드입니다. 0이면 실행 시 무작위 시드를 생성합니다.")]
@@ -72,6 +73,10 @@ namespace EchoesOfAsh.Dungeon
         /// <summary>던전을 진행하고 있는지 여부입니다.</summary>
         public bool IsDungeonRunning => currentPhase == EDungeonPhase.Map
             || currentPhase == EDungeonPhase.Battle;
+
+        /// <summary>파티가 광기 구간인지 여부입니다. 광기 복도 통행 판정에 사용합니다.</summary>
+        public bool IsPartyMadness => dungeonState != null && partyData != null
+            && dungeonState.CarriedSanity < partyData.SanityThreshold;
 
         /// <summary>던전이 시작될 때 호출됩니다.</summary>
         public event Action OnDungeonStarted;
@@ -134,7 +139,7 @@ namespace EchoesOfAsh.Dungeon
                 return;
             }
 
-            if (battleManager == null || mapConfigData == null)
+            if (battleManager == null || mapConfigData == null || partyData == null)
             {
                 SWLog.LogError("[DungeonManager] StartDungeon 실패: 필수 참조가 없습니다.");
                 return;
@@ -152,6 +157,8 @@ namespace EchoesOfAsh.Dungeon
             DungeonState newDungeonState = new DungeonState(seed, startingCards, sanityEventDatas);
             MapGenerator mapGenerator = new MapGenerator();
             MapGraph mapGraph = mapGenerator.GenerateMapGraph(mapConfigData);
+
+            newDungeonState.SetCarriedSanity(partyData.StartSanity);
 
             if (mapGraph == null)
             {
@@ -235,7 +242,7 @@ namespace EchoesOfAsh.Dungeon
             dungeonState.MapGraph.GetNextNodes(
                 dungeonState.CurrentNodeIdentifier,
                 resultNodes,
-                false);
+                IsPartyMadness);
         }
 
         /// <summary>
@@ -268,6 +275,11 @@ namespace EchoesOfAsh.Dungeon
                 $"[DungeonManager] 노드로 이동했습니다. 식별자: {targetNode.Identifier}, "
                 + $"층: {targetNode.Floor}, 타입: {targetNode.NodeType}");
             OnNodeEntered?.Invoke(targetNode);
+
+            if (!AdvanceAshErosion(targetNode))
+            {
+                return true;
+            }
 
             HandleNodeEntry(targetNode);
             return true;
@@ -306,7 +318,7 @@ namespace EchoesOfAsh.Dungeon
                     break;
 
                 case EMapNodeType.Rest:
-                    SWLog.Log("[DungeonManager] 휴식 노드에 진입했습니다. 정신력 회복 기능은 아직 적용되지 않았습니다.");
+                    ChangeDungeonSanity(mapConfigData.RestSanityRecovery);
                     LogAvailableNodes("휴식 완료");
                     RefreshMapViewState();
                     break;
@@ -336,6 +348,37 @@ namespace EchoesOfAsh.Dungeon
             MoveToNode(availableNodeBuffer[0].Identifier);
         }
         #endregion // 이동
+
+        #region 정신력
+        /// <summary>
+        /// 던전 수위에서 파티 정신력을 변화시킵니다.
+        /// 상한 보정은 전투 진입 시 정신력 홀더 생성 과정에서 처리합니다.
+        /// </summary>
+        /// <param name="delta">변화량입니다.</param>
+        public void ChangeDungeonSanity(int delta)
+        {
+            if (dungeonState == null)
+            {
+                SWLog.LogWarning("[DungeonManager] ChangeDungeonSanity 무시: 던전 상태가 없습니다.");
+                return;
+            }
+
+            dungeonState.SetCarriedSanity(dungeonState.CarriedSanity + delta);
+
+            SWLog.Log($"[DungeonManager] 파티 정신력이 변화했습니다. "
+                + $"현재: {dungeonState.CarriedSanity}, 광기 여부: {IsPartyMadness}");
+            RefreshMapViewState();
+        }
+
+        /// <summary>
+        /// 광기 통행 검증용으로 파티 정신력을 20 감소시킵니다.
+        /// </summary>
+        [SWButton("테스트: 정신력 -20")]
+        private void TestReduceSanity()
+        {
+            ChangeDungeonSanity(-20);
+        }
+        #endregion // 정신력
 
         #region 전투
         /// <summary>
@@ -398,6 +441,47 @@ namespace EchoesOfAsh.Dungeon
             LogAvailableNodes("맵 복귀");
         }
         #endregion // 전투
+
+        #region 잿불 침식
+        /// <summary>
+        /// 이동 횟수를 누적하고 간격에 도달하면 잿불 침식을 한 층 전진시킵니다.
+        /// 침식이 현재 층에 도달하면 던전을 패배로 종료합니다.
+        /// </summary>
+        /// <param name="currentNode">이동을 마친 현재 노드입니다.</param>
+        /// <returns>던전을 계속 진행할 수 있으면 true입니다.</returns>
+        private bool AdvanceAshErosion(MapNode currentNode)
+        {
+            int advanceInterval = mapConfigData.AshAdvanceInterval;
+
+            if (advanceInterval <= 0)
+            {
+                return true;
+            }
+
+            int moveCount = dungeonState.IncrementMoveCount();
+
+            if (moveCount % advanceInterval != 0)
+            {
+                return true;
+            }
+
+            int consumedFloor = dungeonState.AshConsumedFloor + 1;
+            dungeonState.SetAshConsumedFloor(consumedFloor);
+            dungeonState.MapGraph.ConsumeFloorsByAsh(consumedFloor);
+
+            SWLog.Log($"[DungeonManager] 잿불 침식이 전진했습니다. 잠식 층: 0~{consumedFloor}");
+
+            if (currentNode.Floor <= consumedFloor)
+            {
+                SWLog.Log("[DungeonManager] 파티가 잿불에 잠식되었습니다. 던전을 종료합니다.");
+                EndDungeon(false);
+                return false;
+            }
+
+            RefreshMapViewState();
+            return true;
+        }
+        #endregion // 잿불 침식
 
         #region 맵 표시
         /// <summary>
