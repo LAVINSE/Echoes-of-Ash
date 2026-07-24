@@ -18,7 +18,7 @@ MonoBehaviour:
   displayName: "\uCE74\uB4DC \uD14C\uC2A4\uD2B8 1"
   description: 
   spriteIcon: {fileID: 0}
-  cardType: 0
+  cardType: 4
   rarityType: 0
   isCharacterCard: 0
   ownerCharacter: {fileID: 0}
