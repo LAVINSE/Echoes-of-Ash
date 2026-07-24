@@ -25,7 +25,7 @@ MonoBehaviour:
   apCost: 1
   targetingType: 0
   effects:
-  - rid: 3116056931190964224
+  - rid: 3116057183566430305
   isSanityEffect: 0
   sanityEffects: []
   isUpgrade: 0
@@ -35,8 +35,8 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 3116056931190964224
-      type: {class: DamageEffect, ns: EchoesOfAsh.Effect, asm: Assembly-CSharp}
+    - rid: 3116057183566430305
+      type: {class: StatusEffect, ns: EchoesOfAsh.Effect, asm: Assembly-CSharp}
       data:
-        damage: 1
-        times: 1
+        statusType: 5
+        stack: 1

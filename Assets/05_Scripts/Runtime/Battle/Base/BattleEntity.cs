@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using EchoesOfAsh.Data;
 using EchoesOfAsh.Enum;
 using EchoesOfAsh.Interface;
 using SW.Attributes;
@@ -22,8 +23,8 @@ namespace EchoesOfAsh.Battle
 
         private SWStat maxHpStat;
 
-        /// <summary>상태 이상 중첩 저장입니다.</summary>
-        private readonly Dictionary<EStatusEffectType, int> statusStacks = new();
+        /// <summary>상태 이상 생명주기 관리자입니다.</summary>
+        private readonly StatusController statusController = new();
         /// <summary>피해 공식입니다.</summary>
         private IDamageCalculator damageCalculator = new DefaultDamageCalculator();
         #endregion // 필드
@@ -86,6 +87,8 @@ namespace EchoesOfAsh.Battle
         /// </summary>
         public virtual void ResetEntity()
         {
+            statusController.ResetAll();
+            
             if (maxHpStat != null)
             {
                 maxHpStat.OnValueChanged -= HandleMaxHpValueChanged;
@@ -236,16 +239,23 @@ namespace EchoesOfAsh.Battle
         #endregion // 피해 - 방어막
 
         #region 상태이상
+        /// <summary>상태 이상 생명주기 관리자입니다 (판정·뷰 조회용).</summary>
+        public StatusController StatusController => statusController;
+
+        /// <summary>
+        /// 상태 이상 정의 목록을 등록합니다. 조립 지점(BattleManager)에서 스폰 직후 호출합니다.
+        /// </summary>
+        /// <param name="statusDatas">상태 이상 정의 목록입니다.</param>
+        public void SetStatusDatas(IReadOnlyList<StatusEffectData> statusDatas)
+            => statusController.SetDatabase(statusDatas);
+
         /// <summary>
         /// 상태 이상을 적용합니다.
         /// </summary>
         /// <param name="statusType">상태 이상 유형입니다.</param>
         /// <param name="stack">중첩 수치입니다.</param>
         public void ApplyStatus(EStatusEffectType statusType, int stack)
-        {
-            statusStacks.TryGetValue(statusType, out int currentStack);
-            statusStacks[statusType] = Mathf.Max(0, currentStack + stack);
-        }
+            => statusController.ApplyStatus(statusType, stack);
 
         /// <summary>
         /// 해당 상태 이상의 현재 중첩 수치를 반환합니다.
@@ -253,7 +263,13 @@ namespace EchoesOfAsh.Battle
         /// <param name="statusType">상태 이상 유형입니다.</param>
         /// <returns>상태 이상 중첩 수치입니다.</returns>
         public int GetStatusStack(EStatusEffectType statusType)
-            => statusStacks.TryGetValue(statusType, out int stack) ? stack : 0;
+            => statusController.GetStatusStack(statusType);
+
+        /// <summary>
+        /// 라운드 종료 시점의 상태 이상 중첩 감소를 처리합니다. 조립 지점이 라운드 종료마다 호출합니다.
+        /// </summary>
+        public void TickStatusRound()
+            => statusController.TickRound();
         #endregion // 상태이상
     }
 }

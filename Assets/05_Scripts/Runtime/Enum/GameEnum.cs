@@ -98,6 +98,19 @@ namespace EchoesOfAsh.Enum
         [InspectorName("출혈")] Bleed,
         /// <summary>중독입니다.</summary>
         [InspectorName("중독")] Poison,
+        /// <summary>취약입니다. 받는 피해가 증가합니다.</summary>
+        [InspectorName("취약")] Vulnerable,
+    }
+
+    /// <summary>
+    /// 상태 이상의 라운드 종료 시점 중첩 감소 규칙입니다.
+    /// </summary>
+    public enum EStatusDecayType
+    {
+        /// <summary>자동 감소 없음 (효과로만 제거)입니다.</summary>
+        [InspectorName("지속 (자동 감소 없음)")] None,
+        /// <summary>라운드 종료마다 1 감소 (중첩 = 남은 라운드 수)입니다.</summary>
+        [InspectorName("라운드마다 1 감소")] TurnCountdown,
     }
 
     /// <summary>

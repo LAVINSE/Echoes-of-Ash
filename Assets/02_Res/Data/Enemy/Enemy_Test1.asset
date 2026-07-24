@@ -23,7 +23,7 @@ MonoBehaviour:
   maxHpStat:
     stat: {fileID: 11400000, guid: 02bb436d51c6a224dbccef6386d6d123, type: 2}
     isUseOverride: 1
-    overrideDefaultValue: 1
+    overrideDefaultValue: 100
   maxSanityStat:
     stat: {fileID: 11400000, guid: 847516e759e34a1418b8b6d112864270, type: 2}
     isUseOverride: 1

@@ -1158,6 +1158,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -250
       objectReference: {fileID: 0}
+    - target: {fileID: 5109641480521988667, guid: ce049a371810ac04e9181150a0bdf0b7, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -68.76001
+      objectReference: {fileID: 0}
     - target: {fileID: 6891783315437960825, guid: ce049a371810ac04e9181150a0bdf0b7, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
@@ -2000,6 +2004,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4730366564788561771, guid: 07cca6c37dfe6ac4e883c43672fb8f37, type: 3}
+      propertyPath: statusDatas.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4730366564788561771, guid: 07cca6c37dfe6ac4e883c43672fb8f37, type: 3}
       propertyPath: 'enemyDatas.Array.data[0]'
       value: 
       objectReference: {fileID: 11400000, guid: 6b36dbefcdeaaf14eb42c0fbfdaba7c0, type: 2}
@@ -2007,6 +2015,10 @@ PrefabInstance:
       propertyPath: startingCards.Array.size
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 4730366564788561771, guid: 07cca6c37dfe6ac4e883c43672fb8f37, type: 3}
+      propertyPath: 'statusDatas.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: d9a5fab48f4193a4b98df77fe682e8e9, type: 2}
     - target: {fileID: 4730366564788561771, guid: 07cca6c37dfe6ac4e883c43672fb8f37, type: 3}
       propertyPath: 'startingCards.Array.data[0]'
       value: 

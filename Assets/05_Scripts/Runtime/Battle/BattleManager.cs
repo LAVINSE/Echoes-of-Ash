@@ -26,6 +26,8 @@ namespace EchoesOfAsh.Battle
         [SWGroup("데이터")]
         [SerializeField] private PartyData partyData;
         [SerializeField] private BattleBalanceData balanceData;
+        [Tooltip("이 전투에서 유효한 상태 이상 정의 목록입니다 (임시 조치)")]
+        [SerializeField] private List<StatusEffectData> statusDatas;
         [Tooltip("1인기준으로 테스트, 나중에 확장")]
         [SerializeField] private CharacterData characterData;
 
@@ -138,6 +140,7 @@ namespace EchoesOfAsh.Battle
                 turnManager.OnTurnStarted -= HandleTurnStarted;
                 turnManager.OnEnemyActionsStarted -= HandleEnemyActionsStarted;
                 turnManager.OnRoundEnded -= HandleRoundEnded;
+                turnManager.OnRoundEnded -= HandleStatusRoundTick;
 
                 if (madnessEventRunner != null)
                 {
@@ -279,6 +282,8 @@ namespace EchoesOfAsh.Battle
             }
 
             characterEntity.Init(characterData);
+            characterEntity.SetStatusDatas(statusDatas);
+            characterEntity.SetDamageCalculator(new StatusDamageCalculator());
             characterEntity.OnDied += HandleCharacterDied;
 
             party.Add(characterEntity);
@@ -310,6 +315,8 @@ namespace EchoesOfAsh.Battle
                 enemyEntity.transform.localPosition = entry.SpawnPosition;
 
                 enemyEntity.Init(entry.EnemyData);
+                enemyEntity.SetStatusDatas(statusDatas);
+                enemyEntity.SetDamageCalculator(new StatusDamageCalculator());
                 enemyEntity.OnDied += HandleEnemyDied;
 
                 enemyEntities.Add(enemyEntity);
@@ -348,6 +355,7 @@ namespace EchoesOfAsh.Battle
             turnManager.OnTurnStarted += HandleTurnStarted;
             turnManager.OnEnemyActionsStarted += HandleEnemyActionsStarted;
             turnManager.OnRoundEnded += HandleRoundEnded;
+            turnManager.OnRoundEnded += HandleStatusRoundTick;
 
             madnessEventRunner = new MadnessEventRunner(partySanityHolder, effectExecutor, balanceData, dungeonState.SanityEventDatas, characterEntity);
             turnManager.OnTurnStartHook += madnessEventRunner.HandleTurnStartHook;
@@ -430,6 +438,29 @@ namespace EchoesOfAsh.Battle
 
             SWLog.Log($"[BattleManager] 전투 종료: {battleResult} (턴 {turnManager.CurrentTurn})");
             OnBattleEnded?.Invoke(battleResult);
+        }
+
+        /// <summary>
+        /// 라운드 종료 시 전투원 전체의 상태 이상 중첩 감소를 처리합니다. 순회 순서는 파티 → 적 (스폰 순 고정)입니다.
+        /// </summary>
+        /// <param name="turn">현재 턴입니다.</param>
+        private void HandleStatusRoundTick(int turn)
+        {
+            foreach (CharacterEntity member in party)
+            {
+                if (member != null && !member.IsDead)
+                {
+                    member.TickStatusRound();
+                }
+            }
+
+            foreach (EnemyEntity enemy in enemyEntities)
+            {
+                if (enemy != null && !enemy.IsDead)
+                {
+                    enemy.TickStatusRound();
+                }
+            }
         }
         #endregion // 전투
 
