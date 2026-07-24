@@ -1,6 +1,6 @@
 # Echoes of Ash — Phase 2 개발 스케줄
 
-> 기준 문서: 기획서 v3.2 (16장 Phase 2 체크리스트) + Phase 1 개발스케줄 개정 11 · 작성일: 2026-07-22 (초판)
+> 기준 문서: 기획서 v3.2 (16장 Phase 2 체크리스트) + Phase 1 개발스케줄 개정 11 · 작성일: 2026-07-22 (개정 13 — 2026-07-24, P2-M3 완료)
 > 목표: **런 1회 완주 + 거점 순환 + 파티가 가능한 상태** — 기간 잠정 12주 (기획 2~4개월 범위)
 
 ---
@@ -125,15 +125,27 @@
 - **프로젝트 반영 확인 (개정 12):** Save 모듈(`DungeonSaveData`/`DungeonSaveService`)·`DungeonState` 복원 경로(`SetMapGraph` 시 이동/침식 카운터 리셋 포함)·`MapGraph.RestoreFrom`·`DungeonManager` 저장 배선 전부 반영 확인. SWSaveDataManager 네임스페이스 = `SW.Data` 확정 (컴파일 통과)
 - **실검증 이월 ⚠ (씬 검증 이월분과 일괄):** `cardDatabase` 인스펙터 연결 (전 카드 등록·codeName 유일 — SWIODatabase 중복 검사 활용) → 검증: 던전 시작 → 이동/전투/노드 화면 → 플레이 중지 → "던전 이어하기" → 같은 맵(방문/잠식 포함)·같은 덱(강화 포함)·같은 위치·SAN·침식 카운터 복원 + 미해결 노드(전투 중 종료) 재진입 확인 + 저장 버전 조작 시 마이그레이션 거부 확인
 
-### P2-M3 — 제작 도구 + 상태이상 구조 (1주)
+### P2-M3 — 제작 도구 + 상태이상 구조 (1주) ✅ 완료 (개정 13 — 취약 실검증은 씬 검증 이월분과 일괄)
 
 | # | 산출물 | 책임 |
 |---|--------|------|
-| 3-1 | `CardSystemWindow` | SWStatSystemWindow 패턴 복제 — 카드 열람/검색/생성 에디터 (콘텐츠 50장 제작의 도구 선행) |
+| 3-1 | `CardSystemWindow` | SWStatSystemWindow 패턴 복제 — 카드 열람/검색/생성 에디터 (콘텐츠 50장 제작의 도구 선행) → **신설 기각, 기존 `EchoesOfAshDataWindow` 증축으로 대체 (완료 기록 참조)** |
 | 3-2 | 상태이상 모듈 구조 | Study-ModuleSkill의 Effect 생명주기를 턴제로 번안 — 상태이상 정의 SO(수치·아이콘·설명) + 틱 로직 매핑 (15-4 하이브리드 구조). `IStatusReceiver` 실이행 |
 | 3-3 | 검증 상태이상 1종 | 취약(받는 피해 +50%, N턴) — 파이프라인 관통 확인용 |
 
 **DoD:** 에디터에서 카드 생성 가능. 상태이상 1종이 부여 → 틱 → 만료까지 전투에서 동작.
+
+#### P2-M3 완료 기록 (2026-07-24)
+
+- **3-1 `CardSystemWindow` 신설 기각 → 기존 창 증축으로 마감:** 카드 열람/검색/생성/복제/삭제/자동 ID는 `EchoesOfAshDataWindow`가 기충족 (창 중복 방지 — SWStackStateMachine 철회와 같은 "돌아가는 구조 복잡화 금지" 원칙). **상태이상 탭 증축**으로 제작 도구 완비 — `ManagedTypes`/`ManagedTabNames`/`DefaultPaths`/`DefaultPrefixes` 배열 5종 인덱스 정합 (`StatusEffectData`, "상태이상", `Assets/02_Res/Data/Status`, `Status_`). EditorPrefs 잔존 설정은 "기본값 복원" 1회로 정리
+- **3-2 하이브리드 구조 (기획서 15-4):** `Data/StatusEffectData` (정의 SO — 감소 규칙·배율 수치 소유, `statusEffectType` enum = 로직 매핑 키, `EStatusDecayType` 신설: 지속/라운드마다 1 감소) + `Battle/StatusController` (순수 클래스 — 부여/조회/라운드 감소/만료 단일 소유, **부여 순 순회 고정** = 발화 순서 결정성, `OnStatusChanged` 이벤트, 미정의 유형 = 경고 + 카운트다운 폴백) + `BattleEntity` 위임 (`IStatusReceiver` 실이행 — SanityHolder 위임 전례, `SetStatusDatas` 주입·`ResetEntity`에 `ResetAll` 통합)
+- **중첩 = 남은 라운드 수 (STS 방식):** 취약 2 = 2라운드 — `IStatusReceiver` 시그니처·기존 `StatusEffect` 효과 블록 **무수정**으로 성립. 배율은 중첩 수와 무관하게 활성 여부로만 적용
+- **모듈 매핑 이탈 (별도 `05_Scripts/Status/` 기각):** 정의 SO = **Data 흡수** (콘텐츠 SO 일관성 — 데이터 윈도우 관리 타입 = Data 네임스페이스), 생명주기 = **Battle 흡수** (전투 1회 수명 순수 클래스 계열 — Sanity와 달리 던전 지속 상태 아님). **재분리 기준:** 상태이상이 던전 지속 상태가 되거나(저장 편입) 틱 전용 효과 블록·뷰 계층 증축으로 파일이 불어날 때
+- **틱 시점 = `OnRoundEnded`** ("턴 경계 = 라운드 종료" 매핑 유지). 순회 = 파티 → 적 (스폰 순 고정, 사망자 스킵). **구독 순서 계약: 상태이상 감소(`HandleStatusRoundTick`) → 의도 재평가(`HandleRoundEnded` — PrepareNextTurn)** — P2-M5 도발(지속 턴 = 이 구조 재사용)이 만료 반영 후 대상 선정을 보도록 선행 고정. ⚠ 초기 반영분은 역순이었음 — 구독 두 줄 순서 교환으로 수정
+- **3-3 취약:** `Battle/StatusDamageCalculator` — 기반 계산기(`DefaultDamageCalculator`) 래핑, 대상 활성 상태이상 배율 곱, **방어막 이전 적용·소수점 버림** (STS 방식 — `TakeDamage`의 `Calculate`가 방어막 차감보다 선행). 배율 1.5는 SO 소유 (수치 = 데이터 소유 원칙). `SetDamageCalculator` 기존 확장 지점 활용 — 파티/적 스폰 직후 조립 지점 주입
+- **임시 조치:** `BattleManager.statusDatas` 인스펙터 목록 (이 전투에서 유효한 상태이상 정의) — **P2-M7 7-4 던전 구성 데이터(챕터 SO) 신설 시 이동**
+- **프로젝트 반영 확인 (개정 13):** 신규 3파일(`Data/StatusEffectData`·`Battle/StatusController`·`Battle/StatusDamageCalculator`)·enum 2종·`BattleEntity` 위임·`BattleManager` 배선(주입 2곳 + 틱 핸들러 + `ResetBattle` 해제 대칭)·데이터 윈도우 배열 5종 전부 반영 확인 (구독 순서 1건 수정 지시)
+- **실검증 이월 ⚠ (씬 검증 이월분과 일괄):** `Status_Vulnerable` 에셋(취약·디버프·카운트다운·배율 1.5) 제작 → `BattleManager.statusDatas` 등록 → 테스트 카드 또는 적 행동에 `StatusEffect` 블록(취약 2)으로 부여 → 검증: 부여(중첩 2) → 피해 7 = 10 (방어막 이전 배율) → 라운드마다 2→1→0 감소 → 만료 후 배율 미적용 + `OnStatusChanged(취약, 0)` 발화 + 전투 재시작 시 잔존 없음 + 정의 미등록 폴백 경고
 
 ---
 
@@ -175,10 +187,10 @@
 
 | # | 산출물 | 책임 |
 |---|--------|------|
-| 7-1 | 공용 카드 50장 (반응형 포함) | `CardSystemWindow`로 제작 — 코드 0줄 원칙 검증 |
+| 7-1 | 공용 카드 50장 (반응형 포함) | `EchoesOfAshDataWindow` 카드 탭으로 제작 (구 계획명 CardSystemWindow — 개정 13) — 코드 0줄 원칙 검증 |
 | 7-2 | 유물 20개 | 트리거 구조(P2-D4) + 정신력 연동 포함 |
 | 7-3 | 적 12종 + 조우 테이블 | SAN 압박 행동 포함 — `SpawnRange` 조우 풀 실가동 |
-| 7-4 | 이벤트 10개 / 상점 / 보상 화면 | 데이터 기반 선택지·구매·카드 보상 — **던전 구성 데이터(챕터 SO) 신설: 노드 이벤트 `타입 → 풀` 매핑 흡수 (개정 11 결정)** |
+| 7-4 | 이벤트 10개 / 상점 / 보상 화면 | 데이터 기반 선택지·구매·카드 보상 — **던전 구성 데이터(챕터 SO) 신설: 노드 이벤트 `타입 → 풀` 매핑 흡수 (개정 11 결정) + `statusDatas` 상태이상 정의 목록 흡수 (개정 13 결정)** |
 | 7-5 | 카드 해금 2종 | 발견형 자동 해금 + 제작형 설계도 해금 (메타 저장 연동) |
 | 7-6 | 보스 1개 | HP 페이즈 패턴 활용 (구조는 M4에서 기완성) |
 
@@ -195,13 +207,13 @@
 | 런 | `DungeonState`, `DungeonManager` | `05_Scripts/Dungeon/` |
 | 맵 | `MapGenerator`, 노드 데이터, 맵 화면 | `05_Scripts/Map/` |
 | 저장 | 저장 스키마·마이그레이션 (SWSaveDataManager 활용) — `DungeonSaveData`/`DungeonSaveService` | `05_Scripts/Save/` |
-| 상태이상 | 상태이상 SO + 틱 매핑 | `05_Scripts/Status/` |
+| 상태이상 | `StatusEffectData`(정의 SO) + `StatusController`(생명주기) + `StatusDamageCalculator` — **별도 폴더 기각 (개정 13 — P2-M3 완료 기록 참조)** | `05_Scripts/Data/`, `05_Scripts/Battle/` |
 | 유물 | 유물 SO + 트리거 리스너 | `05_Scripts/Relic/` |
 | 거점 | 시설·영입 | `05_Scripts/Hub/` |
 | 드랍·회수 | 드랍 테이블·회수 판정·보관 전송 | `05_Scripts/Drop/` |
 | (기존) 전투/뷰 | 파티 3인·타겟팅 확장 — 기존 폴더 증축 | `Battle/`, `View/`, `View/UI/` |
 
-통신 원칙 유지: C# event 우선·구독/발화 순서 결정성 (유물 다중 발동 = **획득 순 고정** — 기획서 15-2 명시), 뷰 배선 예외는 조립 지점만 (`BattleManager` + 신규 `DungeonManager`).
+통신 원칙 유지: C# event 우선·구독/발화 순서 결정성 (유물 다중 발동 = **획득 순 고정** — 기획서 15-2 명시 / 상태이상 = 부여 순 순회 + 라운드 종료 구독 순서 "감소 → 의도 재평가" — 개정 13), 뷰 배선 예외는 조립 지점만 (`BattleManager` + 신규 `DungeonManager`).
 
 ---
 
@@ -220,8 +232,8 @@
 
 ## 5. 리스크와 완충
 
-- **콘텐츠 물량이 병목** (P2-M7) — 카드 50·유물 20·적 12·이벤트 10은 코드가 아니라 제작 시간. → 도구 선행(P2-M3 CardSystemWindow)으로 완충 + "코드 0줄 추가" 원칙이 깨지는 카드는 즉시 구조 재점검
-- **저장 결정성 미결 재작업** — ~~P2-D1을 P2-M2 전에 반드시 확정~~ → **확정 완료 (스냅샷 — 개정 11).** 잔여 리스크: 강화 외 카드 가변 상태(P2-M7 이후) 추가 시 저장 스키마 버전 증가 + 마이그레이션 필수
+- **콘텐츠 물량이 병목** (P2-M7) — 카드 50·유물 20·적 12·이벤트 10은 코드가 아니라 제작 시간. → 도구 선행(P2-M3 — `EchoesOfAshDataWindow` 증축 완료)으로 완충 + "코드 0줄 추가" 원칙이 깨지는 카드는 즉시 구조 재점검
+- **저장 결정성 미결 재작업** — ~~P2-D1을 P2-M2 전에 반드시 확정~~ → **확정 완료 (스냅샷 — 개정 11).** 잔여 리스크: 강화 외 카드 가변 상태(P2-M7 이후) 추가 시 저장 스키마 버전 증가 + 마이그레이션 필수. **상태이상은 전투 한정(전투마다 리셋)이라 현재 저장 스키마 무관 — 던전 지속화 시 재분리 기준 발동 (개정 13)**
 - **파티 확장 파급** — 공유 SAN·피격 SAN 판정(피격자 개인 HP 기준)·전투불능 드로우 제외가 맞물림. P2-M4에서 `Test_Battle` 3인 버전으로 단독 검증 후 통합. **PartyData 이중 참조(DungeonManager/BattleManager — 동일 에셋 필수)도 이 시점에 주입 경로로 일원화**
 - **메타 저장 병용** — SWSaveDataManager는 정적 단일 currentData 구조. 메타 저장(해금/거점) 도입 시(P2-M6/M7) 던전 슬롯과의 SetData 순서 규약 필요
 - **범위 방어** — Phase 3 항목 침범 금지: 적 SAN 보스 프로토타이핑(**SWUtils Behavior는 이 시점의 보스 AI 후보로 보류** — 현행 데이터 주도 패턴 순환에는 과함), 캐릭터 2·3번, 유물 21개 이상, 이벤트 11개 이상, Ascension, 튜토리얼, 아트 완성. **밸런스 게이트 전에 P2-M7 수치 확정 금지** (제작은 가능, 확정은 게이트 후)
@@ -239,6 +251,7 @@
 | 개정 | 일자 | 내용 |
 |------|------|------|
 | 초판 | 2026-07-22 | Phase 2 스케줄 수립 — 메타 계층 우선 순서(P2-M0~M3), 밸런스 게이트 병행 배치, Phase 1 임시 조치 5종 = P2-M0 작업 목록화, 조기 결정 P2-D1~D5 정의 |
+| 개정 13 | 2026-07-24 | **P2-M3 완료 (프로젝트 반영 확인)** — 3-1 CardSystemWindow 신설 기각(기존 `EchoesOfAshDataWindow` 기충족 — 창 중복 방지 + 상태이상 탭 증축, 배열 5종 인덱스 정합), 3-2 하이브리드(`Data/StatusEffectData` = 정의 SO — 감소 규칙·배율 수치 소유 / `Battle/StatusController` = 생명주기 순수 클래스 — 부여 순 순회 고정·미정의 폴백 / `BattleEntity` 위임 = IStatusReceiver 실이행). **별도 Status 모듈 기각** — 정의 = Data·생명주기 = Battle 흡수 (전투 한정 상태 — Sanity와 달리 던전 지속 아님), 재분리 기준 명문화(던전 지속화·틱 블록/뷰 증축 시). **중첩 = 남은 라운드 수 (STS)** — IStatusReceiver·StatusEffect 블록 무수정. 틱 = OnRoundEnded, **구독 순서 계약: 상태이상 감소 → 의도 재평가** (P2-M5 도발 대비 — 초기 역순 반영분 1건 수정). 3-3 취약 = `StatusDamageCalculator`(기반 계산기 래핑·방어막 이전 배율·버림·배율 1.5 = SO 소유). 임시 조치: `BattleManager.statusDatas` → P2-M7 7-4 던전 구성 데이터로 이동. 취약 실검증은 씬 검증 이월분과 일괄. **다음: P2-M4 (파티 시스템 — P2-D3 확정 선행), 밸런스 게이트(6-2~6-5)는 에디터 작업으로 병행** |
 | 개정 12 | 2026-07-24 | **P2-M2 완료 (프로젝트 반영 확인)** — Save 모듈·DungeonState 복원 경로·MapGraph.RestoreFrom·DungeonManager 저장 배선 반영 확인, SWSaveDataManager 네임스페이스 `SW.Data` 확정. 저장/복원 실검증(이어하기·미해결 노드 재진입·마이그레이션 거부)과 `cardDatabase` 배선은 씬 검증 이월분과 일괄 처리. **다음: P2-M3 (CardSystemWindow + 상태이상 모듈)** |
 | 개정 11 | 2026-07-24 | **P2-M1 완료 + P2-D1 확정(전체 상태 스냅샷) + P2-M2 코드 완료** — 1-4 씬 배선 확인(실플레이 통합 검증은 리소스 시점 이월). D1 확정 근거: 무작위 소비 지점 다수 → 행동 로그 방식의 소비 순서 영구 계약 리스크, 재개 후 난수 비연속. M2 산출물: `Save/DungeonSaveData`(버전 + 카드 `{codeName, isUpgrade}` — 강화 유실 방지)·`Save/DungeonSaveService`(슬롯 "dungeon"·마이그레이션 계층)·`MapGraph.RestoreFrom`·`DungeonState.IsCurrentNodeResolved`/`RestoreProgress`·`DungeonManager` 저장 시점 3종 + `ResumeDungeon`. **저장 시점 계약: 진입 직전(미해결) + 처리 완료 지점(해결) — 복원 시 미해결 노드 재실행 = 노드 스킵 불가.** 사용자 제안 채택: 노드 이벤트 3필드 → `타입 → 풀` 매핑 통합 — **이행은 P2-M7 7-4 던전 구성 데이터 신설 시** (Storage의 P2-M6 매핑 이탈로 즉시 이행 시 이중 재작업). **다음: cardDatabase 배선 + M2 저장/복원 검증 → P2-M3 (CardSystemWindow + 상태이상)** |
 | 개정 10 | 2026-07-24 | **1-4 코드 완료 (씬 검증 대기) + 노드 화면 통합 결정** — 노드 타입별 뷰 분리 기각 → 선택지형 공용 `NodeScreenView` 1클래스 + `DungeonEventData`(표시명/설명 = IdentifiedObject 재사용, 선택지 1~3). 휴식/보관 = 고정 이벤트 에셋, 이벤트 = 풀 무작위(임시 조치). 휴식 회복 수치 `MapConfigData.RestSanityRecovery` 제거 → 휴식 이벤트 데이터로 이동, **의도적 광기 진입 = 휴식 선택지 데이터로 성립 (코드 0줄 — 1-6 이월분 해소)**. `EDungeonPhase.Node` 추가 (IsDungeonRunning 포함), 미배선 시 통과 처리. 전용 뷰 신설 기준 명문화(보관 실 UI = P2-M6·상점 = P2-M7 등 비선택지형 표현 등장 시) |

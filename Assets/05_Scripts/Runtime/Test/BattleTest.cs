@@ -23,6 +23,8 @@ namespace EchoesOfAsh.Test
         [SerializeField] private List<CardData> startingCards = new();
         [SerializeField] private List<SanityEventData> sanityEvents = new();
         [SerializeField] private EnemyEncounterData enemyEncounterData;
+        [SerializeField] private PartyData partyData;
+        [SerializeField] private List<CharacterData> characterDatas = new();
 
         [SWGroup("랜덤 시드 값")]
         [SerializeField] private bool useFixedSeed = true;
@@ -35,6 +37,7 @@ namespace EchoesOfAsh.Test
         private bool isRun;
         private bool isSubscribed;
         private int selectedEnemyIndex;
+        private int selectedAllyIndex;
         #endregion // 필드
 
 
@@ -62,7 +65,7 @@ namespace EchoesOfAsh.Test
 
             Subscribe();
 
-            DungeonState testRunState = new DungeonState(seed, startingCards, sanityEvents);
+            DungeonState testRunState = new DungeonState(seed, partyData, characterDatas, startingCards, sanityEvents);
 
             if (!battleManager.StartBattle(testRunState, enemyEncounterData))
             {
@@ -149,24 +152,33 @@ namespace EchoesOfAsh.Test
         }
 
         /// <summary>
-        /// 파티 HP / 방어막 / 공유 SAN / AP를 표시합니다.
+        /// 파티원별 HP / 방어막 / 공유 SAN / AP를 표시하고 아군 지정을 처리합니다.
         /// </summary>
         private void DrawPartyStatus()
         {
-            var character = battleManager.Character;
+            var partyMembers = battleManager.Party;
             var partySanity = battleManager.PartySanityHolder;
             var apSystem = battleManager.ApSystem;
 
-            if (character == null || partySanity == null || apSystem == null)
+            if (partyMembers == null || partyMembers.Count == 0 || partySanity == null || apSystem == null)
             {
                 return;
             }
 
-            GUILayout.Label("=== 파티 ===");
-            GUILayout.Label($"{character.DisplayName}  " +
-                            $"HP {character.CurrentHp}/{character.MaxHp}  " +
-                            $"방어막 {character.CurrentBlock}  " +
-                            $"{(character.IsDead ? "[사망]" : "[생존]")}");
+            GUILayout.Label("=== 파티 (아군 선택 = Self 카드 대상) ===");
+
+            for (int i = 0; i < partyMembers.Count; i++)
+            {
+                var member = partyMembers[i];
+                string mark = i == selectedAllyIndex ? "▶ " : "   ";
+
+                if (GUILayout.Button($"{mark}{member.DisplayName}  HP {member.CurrentHp}/{member.MaxHp}  " +
+                                     $"방어막 {member.CurrentBlock}  {(member.IsDead ? "[사망]" : "[생존]")}"))
+                {
+                    selectedAllyIndex = i;
+                }
+            }
+
             GUILayout.Label($"공유 SAN {partySanity.CurrentSanity}/{partySanity.MaxSanity}  " +
                             $"[{(partySanity.CurrentSanityType == ESanityType.Madness ? "광기" : "평정")}]");
             GUILayout.Label($"AP {apSystem.CurrentAp}");

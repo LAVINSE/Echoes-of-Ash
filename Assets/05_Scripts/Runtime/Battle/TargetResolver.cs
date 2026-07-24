@@ -45,7 +45,7 @@ namespace EchoesOfAsh.Battle
                 case ETargetingType.RandomEnemy:
                     return ResolveRandomEnemy(enemies, results);
                 case ETargetingType.Self:
-                    return ResolveSelf(caster, results);
+                    return ResolveSelf(caster, target, results);
                 default:
                     SWLog.LogError($"[TargetingResolver] Resolve 실패: 지원하지 않는 대상 지정 방식({targetingType})입니다");
                     return false;
@@ -116,17 +116,23 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 자신/아군 대상 목록을 구성합니다.
+        /// 자신/아군 대상 목록을 구성합니다. 지정 대상이 생존한 아군이면 그 아군, 아니면 시전자입니다.
         /// </summary>
         /// <param name="caster">시전자입니다.</param>
+        /// <param name="target">지정한 아군입니다. 없으면 시전자를 대상으로 합니다.</param>
         /// <param name="results">결과 목록입니다.</param>
         /// <returns>구성 성공 여부입니다.</returns>
-        private bool ResolveSelf(ITargetable caster, List<ITargetable> results)
+        private bool ResolveSelf(ITargetable caster, ITargetable target, List<ITargetable> results)
         {
+            if (target is CharacterEntity ally && ally.IsTargetable)
+            {
+                results.Add(ally);
+                return true;
+            }
 
             if (caster == null)
             {
-                SWLog.LogError("[TargetingResolver] 자신 대상 구성 실패: 시전자가 null입니다");
+                SWLog.LogError("[TargetResolver] 자신 대상 구성 실패: 시전자가 null입니다");
                 return false;
             }
 

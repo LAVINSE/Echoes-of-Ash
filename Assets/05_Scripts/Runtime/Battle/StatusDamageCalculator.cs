@@ -4,7 +4,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Battle
 {
     /// <summary>
-    /// 기폰 피해 계산 결과에 활성 상태 이상 배율을 곱하는 피해 계산기
+    /// 기본 피해 계산 결과에 활성 상태 이상 배율을 곱하는 피해 계산기
     /// </summary>
     public class StatusDamageCalculator : IDamageCalculator
     {

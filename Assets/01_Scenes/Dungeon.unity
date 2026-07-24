@@ -1439,7 +1439,7 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: e7b43b9945e28924bb63d24076592ae4, type: 2}
     - target: {fileID: 6568247025998541727, guid: e84f763522d0bb24aacebe2511b12a41, type: 3}
       propertyPath: startingCards.Array.size
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6568247025998541727, guid: e84f763522d0bb24aacebe2511b12a41, type: 3}
       propertyPath: 'startingCards.Array.data[0]'
@@ -1452,7 +1452,7 @@ PrefabInstance:
     - target: {fileID: 6568247025998541727, guid: e84f763522d0bb24aacebe2511b12a41, type: 3}
       propertyPath: 'startingCards.Array.data[2]'
       value: 
-      objectReference: {fileID: 11400000, guid: b654101b2c669ca428073aa97cfe1e2e, type: 2}
+      objectReference: {fileID: 0}
     - target: {fileID: 7719398509449748717, guid: e84f763522d0bb24aacebe2511b12a41, type: 3}
       propertyPath: m_Name
       value: Battle_Test

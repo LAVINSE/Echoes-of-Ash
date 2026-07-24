@@ -46,6 +46,8 @@ namespace EchoesOfAsh.Dungeon
         [SWGroup("데이터")]
         [SerializeField] private MapConfigData mapConfigData;
         [SerializeField] private PartyData partyData;
+        [Tooltip("파티를 구성할 캐릭터 목록입니다 (임시 조치 — P2-M4 4-4 편성 화면으로 대체 예정)")]
+        [SerializeField] private List<CharacterData> characterDatas = new();
         [Tooltip("카드 데이터베이스입니다. 저장된 덱을 코드명으로 복원할 때 사용합니다.")]
         [SerializeField] private SWIODatabase cardDatabase;
 
@@ -166,10 +168,16 @@ namespace EchoesOfAsh.Dungeon
                 return;
             }
 
+            if (characterDatas.Count == 0)
+            {
+                SWLog.LogError("[DungeonManager] StartDungeon 실패: 파티 캐릭터 목록이 비어 있습니다.");
+                return;
+            }
+
             int seed = dungeonSeed != 0 ? dungeonSeed : Environment.TickCount;
             SWRandom.SetSeed(seed);
 
-            DungeonState newDungeonState = new DungeonState(seed, startingCards, sanityEventDatas);
+            dungeonState = new DungeonState(seed, partyData, characterDatas, startingCards, sanityEventDatas);
             MapGenerator mapGenerator = new MapGenerator();
             MapGraph mapGraph = mapGenerator.GenerateMapGraph(mapConfigData);
 
@@ -179,9 +187,8 @@ namespace EchoesOfAsh.Dungeon
                 return;
             }
 
-            newDungeonState.SetCarriedSanity(partyData.StartSanity);
-            newDungeonState.SetMapGraph(mapGraph);
-            dungeonState = newDungeonState;
+            dungeonState.SetCarriedSanity(partyData.StartSanity);
+            dungeonState.SetMapGraph(mapGraph);
             currentBattleNode = null;
             currentEventData = null;
             currentPhase = EDungeonPhase.Map;
@@ -240,7 +247,7 @@ namespace EchoesOfAsh.Dungeon
             // 재개 후 난수는 비연속 (P2-D1 스냅샷 - 같은 시드 재설정 시 소비된 난수열 재등장 방지)
             SWRandom.SetSeed(Environment.TickCount);
 
-            DungeonState restoredState = new DungeonState(saveData.seed, null, sanityEventDatas);
+            dungeonState = new DungeonState(saveData.seed, partyData, characterDatas, startingCards, sanityEventDatas);
 
             foreach (DungeonCardSaveData cardSave in saveData.deckCards)
             {
@@ -252,24 +259,23 @@ namespace EchoesOfAsh.Dungeon
                     return;
                 }
 
-                restoredState.AddCard(new CardInstance(cardData, cardSave.isUpgrade));
+                dungeonState.AddCard(new CardInstance(cardData, cardSave.isUpgrade));
             }
 
-            if (restoredState.Deck.Count == 0)
+            if (dungeonState.Deck.Count == 0)
             {
                 SWLog.LogError("[DungeonManager] ResumeDungeon 실패: 복원한 덱이 비어 있습니다.");
                 return;
             }
 
-            restoredState.SetMapGraph(mapGraph);
-            restoredState.RestoreProgress(
+            dungeonState.SetMapGraph(mapGraph);
+            dungeonState.RestoreProgress(
                 saveData.currentNodeIdentifier,
                 saveData.isCurrentNodeResolved,
                 saveData.carriedSanity,
                 saveData.moveCount,
                 saveData.ashConsumedFloor);
 
-            dungeonState = restoredState;
             currentBattleNode = null;
             currentEventData = null;
             currentPhase = EDungeonPhase.Map;

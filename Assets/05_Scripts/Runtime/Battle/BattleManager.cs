@@ -24,12 +24,9 @@ namespace EchoesOfAsh.Battle
     {
         #region 필드
         [SWGroup("데이터")]
-        [SerializeField] private PartyData partyData;
         [SerializeField] private BattleBalanceData balanceData;
         [Tooltip("이 전투에서 유효한 상태 이상 정의 목록입니다 (임시 조치)")]
         [SerializeField] private List<StatusEffectData> statusDatas;
-        [Tooltip("1인기준으로 테스트, 나중에 확장")]
-        [SerializeField] private CharacterData characterData;
 
         [SWGroup("배치")]
         [SerializeField] private Transform characterRoot;
@@ -42,8 +39,6 @@ namespace EchoesOfAsh.Battle
         [SerializeField] private CardTooltipView cardTooltipView;
         [SerializeField] private BattleHUDView battleHUDView;
         [SerializeField] private MadnessOverlayView madnessOverlayView;
-
-        private CharacterEntity characterEntity;
 
         private SanityHolder partySanityHolder;
         private DeckSystem deckSystem;
@@ -73,8 +68,8 @@ namespace EchoesOfAsh.Battle
         /// <summary>전투 결과 타입입니다.</summary>
         public EBattleResult BattleResult => battleResult;
 
-        /// <summary>파티원 엔티티입니다.</summary>
-        public CharacterEntity Character => characterEntity;
+        /// <summary>파티원 엔티티 목록입니다 (스폰 순서 고정).</summary>
+        public IReadOnlyList<CharacterEntity> Party => party;
         /// <summary>적 엔티티 목록 (스폰 순서 = 행동 순서)입니다.</summary>
         public IReadOnlyList<EnemyEntity> EnemyEntities => enemyEntities;
         /// <summary>적 인공지능 목록 (적 엔티티 목록 인덱스와 일치)입니다.</summary>
@@ -160,7 +155,12 @@ namespace EchoesOfAsh.Battle
             partySanityHolder?.Dispose();
             partySanityHolder = null;
 
-            DestroyEntity(ref characterEntity);
+            for (int i = 0; i < party.Count; i++)
+            {
+                CharacterEntity member = party[i];
+                DestroyEntity(ref member);
+            }
+
             party.Clear();
 
             for (int i = 0; i < enemyEntities.Count; i++)
@@ -242,15 +242,27 @@ namespace EchoesOfAsh.Battle
         /// <returns>검증 성공 여부입니다.</returns>
         private bool ValidateData()
         {
-            if (partyData == null || balanceData == null || characterData == null)
+            if (balanceData == null)
             {
-                SWLog.LogError("[BattleManager] 데이터 검증 실패 참조가 비어있습니다");
+                SWLog.LogError("[BattleManager] 데이터 검증 실패: 참조가 비어있습니다");
                 return false;
             }
 
             if (dungeonState == null || dungeonState.Deck.Count == 0)
             {
                 SWLog.LogError("[BattleManager] 검증 실패: 런 상태가 없거나 덱이 비어 있습니다");
+                return false;
+            }
+
+            if (dungeonState.PartyData == null)
+            {
+                SWLog.LogError("[BattleManager] 검증 실패: 런 상태에 PartyData가 없습니다");
+                return false;
+            }
+
+            if (dungeonState.CharacterDatas.Count == 0 || dungeonState.CharacterDatas.Count > 3)
+            {
+                SWLog.LogError($"[BattleManager] 파티 {dungeonState.CharacterDatas.Count}인입니다 - 기준 1~3");
                 return false;
             }
 
@@ -270,24 +282,28 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 파티원 생성 및 정신력 설정합니다.
+        /// 파티원 생성 및 정신력 설정합니다. 스폰 순서 = 목록 순서 (발화 순서 결정성)입니다.
         /// </summary>
-        public void SetupParty()
+        private void SetupParty()
         {
-            characterEntity = new GameObject(characterData.name).AddComponent<CharacterEntity>();
-
-            if (characterRoot != null)
+            foreach (CharacterData characterData in dungeonState.CharacterDatas)
             {
-                characterEntity.transform.SetParent(characterRoot, false);
+                CharacterEntity member = new GameObject(characterData.name).AddComponent<CharacterEntity>();
+
+                if (characterRoot != null)
+                {
+                    member.transform.SetParent(characterRoot, false);
+                }
+
+                member.Init(characterData);
+                member.SetStatusDatas(statusDatas);
+                member.SetDamageCalculator(new StatusDamageCalculator());
+                member.OnDied += HandleCharacterDied;
+
+                party.Add(member);
             }
 
-            characterEntity.Init(characterData);
-            characterEntity.SetStatusDatas(statusDatas);
-            characterEntity.SetDamageCalculator(new StatusDamageCalculator());
-            characterEntity.OnDied += HandleCharacterDied;
-
-            party.Add(characterEntity);
-
+            PartyData partyData = dungeonState.PartyData;
             int startSanity = dungeonState.HasCarriedSanity ? dungeonState.CarriedSanity : partyData.StartSanity;
             partySanityHolder = new SanityHolder(partyData.MaxSanityStat, partyData.SanityThreshold, startSanity);
         }
@@ -354,10 +370,10 @@ namespace EchoesOfAsh.Battle
             turnManager = new TurnManager(apSystem, deckSystem, balanceData);
             turnManager.OnTurnStarted += HandleTurnStarted;
             turnManager.OnEnemyActionsStarted += HandleEnemyActionsStarted;
-            turnManager.OnRoundEnded += HandleRoundEnded;
             turnManager.OnRoundEnded += HandleStatusRoundTick;
+            turnManager.OnRoundEnded += HandleRoundEnded;
 
-            madnessEventRunner = new MadnessEventRunner(partySanityHolder, effectExecutor, balanceData, dungeonState.SanityEventDatas, characterEntity);
+            madnessEventRunner = new MadnessEventRunner(partySanityHolder, effectExecutor, balanceData, dungeonState.SanityEventDatas, party);
             turnManager.OnTurnStartHook += madnessEventRunner.HandleTurnStartHook;
 
             if (handView != null)
@@ -365,9 +381,10 @@ namespace EchoesOfAsh.Battle
                 handView.Init(deckSystem, cardPlayService, apSystem);
             }
 
-            if (partyStatusView != null)
-            {
-                partyStatusView.Init(characterEntity, partySanityHolder);
+            if (partyStatusView != null && party.Count > 0)
+            { 
+                // 잠정: 1인 표시
+                partyStatusView.Init(party[0], partySanityHolder);
             }
 
             if (cardTooltipView != null)
@@ -462,6 +479,23 @@ namespace EchoesOfAsh.Battle
                 }
             }
         }
+
+        /// <summary>
+        /// 공용 카드의 시전자인 파티 첫 생존자를 반환합니다. 전원 사망이면 null입니다
+        /// </summary>
+        /// <returns>파티 첫 생존자입니다.</returns>
+        private CharacterEntity GetDefaultCaster()
+        {
+            foreach (CharacterEntity member in party)
+            {
+                if (member != null && !member.IsDead)
+                {
+                    return member;
+                }
+            }
+
+            return null;
+        }
         #endregion // 전투
 
         #region 플레이어 행동
@@ -485,12 +519,20 @@ namespace EchoesOfAsh.Battle
                 return false;
             }
 
-            if (!targetResolver.Resolve(card.TargetingType, characterEntity, target, enemyEntities, cardTargetBuffer))
+            CharacterEntity caster = GetDefaultCaster();
+
+            if (caster == null)
+            {
+                SWLog.LogError("[BattleManager] PlayCard 실패: 생존한 파티원이 없습니다");
+                return false;
+            }
+
+            if (!targetResolver.Resolve(card.TargetingType, caster, target, enemyEntities, cardTargetBuffer))
             {
                 return false;
             }
 
-            return cardPlayService.Play(card, characterEntity, cardTargetBuffer);
+            return cardPlayService.Play(card, caster, cardTargetBuffer);
         }
 
         /// <summary>
@@ -514,9 +556,12 @@ namespace EchoesOfAsh.Battle
         /// <param name="turnNumber">턴 번호입니다.</param>
         private void HandleTurnStarted(int turnNumber)
         {
-            if (characterEntity != null && !characterEntity.IsDead)
+            foreach (CharacterEntity member in party)
             {
-                characterEntity.ResetBlock();
+                if (member != null && !member.IsDead)
+                {
+                    member.ResetBlock();
+                }
             }
         }
 
@@ -588,15 +633,17 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 파티원 사망 처리합니다.
-        /// 지금은 1인 기준, 나중에 파티원 처리예정입니다.
+        /// 파티원 사망 처리합니다. 전원 사망 시 패배로 전환합니다.
         /// </summary>
         /// <param name="deadEntity">사망한 엔티티입니다.</param>
         private void HandleCharacterDied(BattleEntity deadEntity)
         {
-            if (!isBattleRunning)
+            foreach (CharacterEntity member in party)
             {
-                return;
+                if (member != null && !member.IsDead)
+                {
+                    return;
+                }
             }
 
             EndBattle(EBattleResult.Defeat);
