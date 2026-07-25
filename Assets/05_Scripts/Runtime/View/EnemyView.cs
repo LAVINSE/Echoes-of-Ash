@@ -54,6 +54,7 @@ namespace EchoesOfAsh.View
         /// 표시할 적 엔티티입니다.
         /// </summary>
         /// <param name="entity">연결할 적 엔티티입니다.</param>
+        /// <param name="enemyAI">연결할 적 인공지능입니다.</param>
         public void Init(EnemyEntity entity, EnemyAI enemyAI)
         {
             if (entity == null)

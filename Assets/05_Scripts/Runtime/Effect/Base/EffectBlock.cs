@@ -9,9 +9,12 @@ namespace EchoesOfAsh.Effect
     [System.Serializable]
     public abstract class EffectBlock
     {
+        #region 프로퍼티
         /// <summary>의도 유형입니다.</summary>
         public virtual EIntentType? IntentContribution => null;
+        #endregion // 프로퍼티
 
+        #region 함수
         /// <summary>
         /// 효과를 실행합니다.
         /// </summary>
@@ -30,5 +33,6 @@ namespace EchoesOfAsh.Effect
         /// <returns>효과 텍스트입니다.</returns>
         public override string ToString()
             => GetDescription();
+        #endregion // 함수
     }
 }

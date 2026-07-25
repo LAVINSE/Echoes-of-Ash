@@ -1,5 +1,5 @@
+using System;
 using EchoesOfAsh.Interface;
-using UnityEngine;
 
 namespace EchoesOfAsh.Battle
 {
@@ -10,6 +10,6 @@ namespace EchoesOfAsh.Battle
     {
         /// <inheritdoc />
         public int Calculate(int baseAmount, ITargetable target)
-           => Mathf.Max(0, baseAmount);
+            => Math.Max(0, baseAmount);
     }
 }

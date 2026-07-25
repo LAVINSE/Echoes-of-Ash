@@ -5,6 +5,7 @@ using EchoesOfAsh.Data;
 using EchoesOfAsh.Deck;
 using EchoesOfAsh.Dungeon;
 using EchoesOfAsh.Effect;
+using EchoesOfAsh.Effect.Trigger;
 using EchoesOfAsh.Enum;
 using EchoesOfAsh.Interface;
 using EchoesOfAsh.Sanity;

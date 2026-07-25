@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using EchoesOfAsh.Effect;
+using EchoesOfAsh.Effect.Trigger;
 using SW.Attributes;
 using SW.Base;
 using SW.Stat;

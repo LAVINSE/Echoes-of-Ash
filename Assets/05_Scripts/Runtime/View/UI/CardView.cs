@@ -24,8 +24,8 @@ namespace EchoesOfAsh.View.UI
         [SerializeField] private TextMeshProUGUI typeText;
         [SerializeField] private GameObject sanityMarker;
 
-        [SWGroup("강조")]
         /// <summary>강조 연출이 적용되는 시각 요소의 루트입니다. 배치용 루트 트랜스폼에는 영향을 주지 않습니다.</summary>
+        [SWGroup("강조")]
         [SerializeField] private Transform visualRoot;
         /// <summary>호버 시 확대 배율입니다.</summary>
         [SerializeField, Min(1f)] private float hoverScale = 1.15f;

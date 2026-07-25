@@ -42,6 +42,8 @@ namespace EchoesOfAsh.Effect
             this.apChangeRequest = apChangeRequest;
         }
         #endregion // 생성자
+
+        #region 함수
         /// <summary>
         /// 효과 블록 목록을 순서대로 실행합니다.
         /// </summary>
@@ -56,18 +58,15 @@ namespace EchoesOfAsh.Effect
                 return;
             }
 
-            EffectContext context = new()
-            {
-                Caster = caster,
-                CasterDamageable = caster as IDamageable,
-                PartySanity = partySanity,
-                Targets = targets ?? emptyTargets,
-                DrawRequest = drawRequest,
-                DiscardRequest = discardRequest,
-                ApChangeRequest = apChangeRequest
-            };
+            EffectContext context = new(
+                caster,
+                partySanity,
+                targets ?? emptyTargets,
+                drawRequest,
+                discardRequest,
+                apChangeRequest);
 
-            foreach (var effectBlock in effectBlocks)
+            foreach (EffectBlock effectBlock in effectBlocks)
             {
                 if (effectBlock == null)
                 {
@@ -78,5 +77,6 @@ namespace EchoesOfAsh.Effect
                 effectBlock.Apply(context);
             }
         }
+        #endregion // 함수
     }
 }

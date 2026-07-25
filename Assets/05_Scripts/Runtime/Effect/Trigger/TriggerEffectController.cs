@@ -1,15 +1,15 @@
 using System.Collections.Generic;
+using EchoesOfAsh.Battle;
 using EchoesOfAsh.Card;
 using EchoesOfAsh.Effect;
 using EchoesOfAsh.Enum;
 using EchoesOfAsh.Interface;
 using SW.Util;
-using UnityEngine;
 
-namespace EchoesOfAsh.Battle
+namespace EchoesOfAsh.Effect.Trigger
 {
     /// <summary>
-    /// 트리거 효과 등록 및 사용
+    /// 전투 중 트리거 효과를 등록하고 발동합니다.
     /// </summary>
     public class TriggerEffectController
     {
@@ -24,6 +24,11 @@ namespace EchoesOfAsh.Battle
             /// <summary>트리거 효과입니다.</summary>
             public readonly TriggerEffect Effect;
 
+            /// <summary>
+            /// 트리거 효과 등록 단위를 생성합니다.
+            /// </summary>
+            /// <param name="owner">효과 소유자입니다.</param>
+            /// <param name="effect">트리거 효과입니다.</param>
             public TriggerEntry(CharacterEntity owner, TriggerEffect effect)
             {
                 Owner = owner;
@@ -40,12 +45,9 @@ namespace EchoesOfAsh.Battle
         private readonly List<ITargetable> ownerTargetBuffer = new();
         #endregion // 필드
 
-        #region 프로퍼티
-        #endregion // 프로퍼티
-
         #region 생성자
         /// <summary>
-        /// 트리거 효과 디스패처를 생성합니다.
+        /// 트리거 효과 컨트롤러를 생성합니다.
         /// </summary>
         /// <param name="effectExecutor">효과 실행기입니다.</param>
         /// <param name="partySanityHolder">파티 공유 정신력입니다.</param>
@@ -61,11 +63,12 @@ namespace EchoesOfAsh.Battle
         }
         #endregion // 생성자
 
+        #region 함수
         /// <summary>
         /// 소유자의 트리거 효과 목록을 등록합니다. 등록 순서 = 발화 순서입니다.
         /// </summary>
         /// <param name="owner">효과 소유자입니다.</param>
-        /// <param name="triggeredEffects">등록할 트리거 효과 목록입니다.</param>
+        /// <param name="triggerEffects">등록할 트리거 효과 목록입니다.</param>
         public void Register(CharacterEntity owner, IReadOnlyList<TriggerEffect> triggerEffects)
         {
             if (owner == null)
@@ -96,7 +99,7 @@ namespace EchoesOfAsh.Battle
                     || triggerEffect.TriggerType == ETriggerType.DealDamage
                     || triggerEffect.TriggerType == ETriggerType.BattleEnd)
                 {
-                    // 피격/가해 발화 지점은 P2-M7 유물 시점에 배선됩니다 (기획서 8-1 — 전달 파라미터 상이)
+                    // 피격, 가해 및 전투 종료 발화 지점은 관련 기능 구현 시 연결합니다.
                     SWLog.LogWarning($"[TriggerEffectController] '{owner.DisplayName}' {triggerEffect.TriggerType} 트리거는 아직 발화 지점이 없습니다");
                 }
 
@@ -182,5 +185,6 @@ namespace EchoesOfAsh.Battle
         {
             Raise(ETriggerType.CardPlayed);
         }
+        #endregion // 함수
     }
 }

@@ -22,8 +22,8 @@ namespace EchoesOfAsh.View.UI
         [SerializeField] private RectTransform sanityMarkerRect;
 
 #if UNITY_EDITOR
-        [SWGroup("테스트")]
         /// <summary>슬라이더 조작 시 게이지를 즉시 갱신할지 여부입니다.</summary>
+        [SWGroup("테스트")]
         [SerializeField] private bool testLiveUpdate;
         [SerializeField, Range(0f, 1f)] private float testFillRatio = 1f;
         [SerializeField, Range(0f, 1f)] private float testThresholdRatio = 0.3f;

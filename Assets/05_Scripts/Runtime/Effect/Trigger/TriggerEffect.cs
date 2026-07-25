@@ -4,21 +4,22 @@ using EchoesOfAsh.Enum;
 using SW.Attributes;
 using UnityEngine;
 
-namespace EchoesOfAsh.Effect
+namespace EchoesOfAsh.Effect.Trigger
 {
     /// <summary>
-    /// 방동 시점과 정신력 조건에 따라 효과 블록을 실행하는 트리거
+    /// 발동 시점과 정신력 조건에 따라 효과 블록을 실행하는 트리거 효과입니다.
     /// </summary>
     [System.Serializable]
     public class TriggerEffect
     {
         #region 필드
-        [Tooltip("효과가 발동하는 시점입니다")]
+        [Tooltip("효과가 발동하는 시점입니다.")]
         [SerializeField] private ETriggerType triggerType;
 
-        [Tooltip("발동에 필요한 파티 정신력 구간 조건입니다")]
+        [Tooltip("발동에 필요한 파티 정신력 구간 조건입니다.")]
         [SerializeField] private ESanityCondition sanityCondition;
 
+        [Tooltip("발동 시 순서대로 실행할 효과 블록 목록입니다.")]
         [SerializeReference, SWSubClassSelector(true)] private List<EffectBlock> effects = new();
         #endregion // 필드
 
@@ -31,6 +32,7 @@ namespace EchoesOfAsh.Effect
         public IReadOnlyList<EffectBlock> Effects => effects;
         #endregion // 프로퍼티
 
+        #region 함수
         /// <summary>
         /// 조건과 효과를 조합한 표시용 설명을 반환합니다.
         /// </summary>
@@ -38,6 +40,7 @@ namespace EchoesOfAsh.Effect
         public string GetDescription()
         {
             StringBuilder stringBuilder = new();
+            bool hasEffectDescription = false;
 
             switch (sanityCondition)
             {
@@ -51,11 +54,24 @@ namespace EchoesOfAsh.Effect
 
             switch (triggerType)
             {
-                case ETriggerType.BattleStart: stringBuilder.Append("전투 시작 시: "); break;
-                case ETriggerType.TurnStart: stringBuilder.Append("턴 시작 시: "); break;
-                case ETriggerType.CardPlayed: stringBuilder.Append("카드 사용 시: "); break;
-                case ETriggerType.TakeDamage: stringBuilder.Append("피격 시: "); break;
-                case ETriggerType.DealDamage: stringBuilder.Append("가해 시: "); break;
+                case ETriggerType.BattleStart:
+                    stringBuilder.Append("전투 시작 시: ");
+                    break;
+                case ETriggerType.TurnStart:
+                    stringBuilder.Append("턴 시작 시: ");
+                    break;
+                case ETriggerType.CardPlayed:
+                    stringBuilder.Append("카드 사용 시: ");
+                    break;
+                case ETriggerType.TakeDamage:
+                    stringBuilder.Append("피격 시: ");
+                    break;
+                case ETriggerType.DealDamage:
+                    stringBuilder.Append("가해 시: ");
+                    break;
+                case ETriggerType.BattleEnd:
+                    stringBuilder.Append("전투 종료 시: ");
+                    break;
             }
 
             for (int index = 0; index < effects.Count; index++)
@@ -65,15 +81,17 @@ namespace EchoesOfAsh.Effect
                     continue;
                 }
 
-                if (index > 0)
+                if (hasEffectDescription)
                 {
                     stringBuilder.Append(", ");
                 }
 
                 stringBuilder.Append(effects[index].GetDescription());
+                hasEffectDescription = true;
             }
 
             return stringBuilder.ToString();
         }
+        #endregion // 함수
     }
 }

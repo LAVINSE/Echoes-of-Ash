@@ -16,14 +16,14 @@ namespace EchoesOfAsh.View
     public class BezierArrowsView : SWMonoBehaviour
     {
         #region 필드
-        [SWGroup("프리팹")]
         /// <summary>화살촉 프리팹입니다.</summary>
+        [SWGroup("프리팹")]
         [SerializeField] private GameObject arrowHeadPrefab;
         /// <summary>화살표 몸통 마디 프리팹입니다.</summary>
         [SerializeField] private GameObject arrowNodePrefab;
 
-        [SWGroup("화살표")]
         /// <summary>몸통 마디 개수입니다.</summary>
+        [SWGroup("화살표")]
         [SerializeField, Min(1)] private int arrowNodeCount = 12;
         /// <summary>곡선이 위로 솟는 높이입니다.</summary>
         [SerializeField, Min(0f)] private float curveHeight = 2f;
