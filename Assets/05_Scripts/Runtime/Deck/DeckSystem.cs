@@ -18,6 +18,8 @@ namespace EchoesOfAsh.Deck
         private readonly List<CardInstance> drawPile = new();
         private readonly List<CardInstance> hand = new();
         private readonly List<CardInstance> discardPile = new();
+        private readonly List<CardInstance> exclusionPile = new();
+        private Func<CardInstance, bool> drawExclusionPredicate;
         #endregion // 필드
 
         #region 프로퍼티
@@ -28,6 +30,8 @@ namespace EchoesOfAsh.Deck
         public int DrawPileCount => drawPile.Count;
         /// <summary>버림 더미 수입니다.</summary>
         public int DiscardPileCount => discardPile.Count;
+        /// <summary>드로우 제외 더미 수입니다. 전투불능 파티원의 전용 카드가 대기합니다.</summary>
+        public int ExclusionPileCount => exclusionPile.Count;
         /// <summary>최대 손패 수입니다.</summary>
         public int MaxHandSize => maxHandSize;
 
@@ -92,6 +96,11 @@ namespace EchoesOfAsh.Deck
             {
                 card.ResetBattleApCost();
             }
+
+            foreach (var card in exclusionPile)
+            {
+                card.ResetBattleApCost();
+            }
         }
         #endregion // 초기화
 
@@ -123,6 +132,14 @@ namespace EchoesOfAsh.Deck
                 int lastIndex = drawPile.Count - 1;
                 CardInstance card = drawPile[lastIndex];
                 drawPile.RemoveAt(lastIndex);
+
+                // 제외 대상은 손패 대신 제외 더미로 이동하고, 이번 드로우는 소모하지 않습니다
+                if (IsExcluded(card))
+                {
+                    exclusionPile.Add(card);
+                    i--;
+                    continue;
+                }
 
                 if (hand.Count >= maxHandSize)
                 {
@@ -222,6 +239,84 @@ namespace EchoesOfAsh.Deck
             NotifyChanged();
         }
         #endregion // 버림
+
+        #region 드로우 제외
+        /// <summary>
+        /// 드로우 제외 판정을 설정하고 즉시 제외 상태를 갱신합니다.
+        /// 판정이 true인 카드는 덱과 버림 더미에서 제외 더미로 이동해 드로우되지 않습니다.
+        /// </summary>
+        /// <param name="predicate">제외 판정입니다. null이면 제외 없음입니다.</param>
+        public void SetDrawExclusion(Func<CardInstance, bool> predicate)
+        {
+            drawExclusionPredicate = predicate;
+            RefreshDrawExclusion();
+        }
+
+        /// <summary>
+        /// 현재 판정 기준으로 제외 상태를 다시 계산합니다.
+        /// 제외 대상이 된 카드는 덱과 버림 더미에서 제외 더미로 이동하고,
+        /// 제외가 해제된 카드는 버림 더미로 복귀합니다. 손패는 대상이 아닙니다.
+        /// </summary>
+        public void RefreshDrawExclusion()
+        {
+            bool isChanged = false;
+
+            // 제외 해제 카드 → 버림 더미 복귀 (부활 대비 — 역방향 순회로 안전 제거)
+            for (int index = exclusionPile.Count - 1; index >= 0; index--)
+            {
+                CardInstance card = exclusionPile[index];
+
+                if (!IsExcluded(card))
+                {
+                    exclusionPile.RemoveAt(index);
+                    discardPile.Add(card);
+                    isChanged = true;
+                }
+            }
+
+            isChanged |= MoveExcludedCards(drawPile);
+            isChanged |= MoveExcludedCards(discardPile);
+
+            if (isChanged)
+            {
+                NotifyChanged();
+            }
+        }
+
+        /// <summary>
+        /// 더미에서 제외 대상 카드를 제외 더미로 이동합니다.
+        /// </summary>
+        /// <param name="pile">검사할 더미입니다.</param>
+        /// <returns>이동한 카드가 있으면 true입니다.</returns>
+        private bool MoveExcludedCards(List<CardInstance> pile)
+        {
+            bool isMoved = false;
+
+            for (int index = pile.Count - 1; index >= 0; index--)
+            {
+                CardInstance card = pile[index];
+
+                if (IsExcluded(card))
+                {
+                    pile.RemoveAt(index);
+                    exclusionPile.Add(card);
+                    isMoved = true;
+                }
+            }
+
+            return isMoved;
+        }
+
+        /// <summary>
+        /// 카드가 드로우 제외 대상인지 판정합니다.
+        /// </summary>
+        /// <param name="card">판정할 카드입니다.</param>
+        /// <returns>제외 대상이면 true입니다.</returns>
+        private bool IsExcluded(CardInstance card)
+        {
+            return drawExclusionPredicate != null && card != null && drawExclusionPredicate(card);
+        }
+        #endregion // 드로우 제외
 
         #region 카드 사용
         /// <summary>

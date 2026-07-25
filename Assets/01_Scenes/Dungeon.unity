@@ -1443,11 +1443,11 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: e7b43b9945e28924bb63d24076592ae4, type: 2}
     - target: {fileID: 6568247025998541727, guid: e84f763522d0bb24aacebe2511b12a41, type: 3}
       propertyPath: startingCards.Array.size
-      value: 3
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 6568247025998541727, guid: e84f763522d0bb24aacebe2511b12a41, type: 3}
       propertyPath: characterDatas.Array.size
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6568247025998541727, guid: e84f763522d0bb24aacebe2511b12a41, type: 3}
       propertyPath: 'startingCards.Array.data[0]'
@@ -1462,13 +1462,21 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 11400000, guid: b654101b2c669ca428073aa97cfe1e2e, type: 2}
     - target: {fileID: 6568247025998541727, guid: e84f763522d0bb24aacebe2511b12a41, type: 3}
+      propertyPath: 'startingCards.Array.data[3]'
+      value: 
+      objectReference: {fileID: 11400000, guid: af99dc3e1908fcc4e901708d84dfefee, type: 2}
+    - target: {fileID: 6568247025998541727, guid: e84f763522d0bb24aacebe2511b12a41, type: 3}
+      propertyPath: 'startingCards.Array.data[4]'
+      value: 
+      objectReference: {fileID: 11400000, guid: af99dc3e1908fcc4e901708d84dfefee, type: 2}
+    - target: {fileID: 6568247025998541727, guid: e84f763522d0bb24aacebe2511b12a41, type: 3}
       propertyPath: 'characterDatas.Array.data[0]'
       value: 
-      objectReference: {fileID: 11400000, guid: 25def2d2b6d4b1243b194ef875ac324f, type: 2}
+      objectReference: {fileID: 11400000, guid: b574b363bc47ae944b04d32418008a88, type: 2}
     - target: {fileID: 6568247025998541727, guid: e84f763522d0bb24aacebe2511b12a41, type: 3}
       propertyPath: 'characterDatas.Array.data[1]'
       value: 
-      objectReference: {fileID: 11400000, guid: b574b363bc47ae944b04d32418008a88, type: 2}
+      objectReference: {fileID: 11400000, guid: 25def2d2b6d4b1243b194ef875ac324f, type: 2}
     - target: {fileID: 6568247025998541727, guid: e84f763522d0bb24aacebe2511b12a41, type: 3}
       propertyPath: 'characterDatas.Array.data[2]'
       value: 

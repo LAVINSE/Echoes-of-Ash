@@ -55,6 +55,7 @@ namespace EchoesOfAsh.Battle
         private EBattleResult battleResult = EBattleResult.None;
         private bool isBattleRunning;
 
+        private readonly Dictionary<CardData, CharacterEntity> cardOwnerLookup = new();
         private readonly List<CharacterEntity> party = new();
         private readonly List<EnemyEntity> enemyEntities = new();
         private readonly List<EnemyAI> enemyAIs = new();
@@ -161,6 +162,7 @@ namespace EchoesOfAsh.Battle
                 DestroyEntity(ref member);
             }
 
+            cardOwnerLookup.Clear();
             party.Clear();
 
             for (int i = 0; i < enemyEntities.Count; i++)
@@ -354,6 +356,14 @@ namespace EchoesOfAsh.Battle
         private void SetupSystems()
         {
             deckSystem = new DeckSystem(dungeonState.Deck, balanceData);
+
+            BuildCardOwnerLookup();
+            deckSystem.SetDrawExclusion(card =>
+            {
+                CharacterEntity owner = GetCardOwner(card);
+                return owner != null && owner.IsDead;
+            });
+
             apSystem = new ApSystem(balanceData);
 
             effectExecutor = new EffectExecutor
@@ -496,6 +506,75 @@ namespace EchoesOfAsh.Battle
 
             return null;
         }
+
+        /// <summary>
+        /// 파티 구성원의 전용 카드 목록으로 카드 → 소유자 조회 표를 구성합니다.
+        /// 강화 버전 데이터도 함께 등록해 강화 카드의 소유 판정 유실을 방지합니다.
+        /// </summary>
+        private void BuildCardOwnerLookup()
+        {
+            cardOwnerLookup.Clear();
+
+            foreach (CharacterEntity member in party)
+            {
+                if (member == null || member.CharacterData == null)
+                {
+                    continue;
+                }
+
+                foreach (CardData cardData in member.CharacterData.ExclusiveCards)
+                {
+                    if (cardData == null)
+                    {
+                        continue;
+                    }
+
+                    if (!cardOwnerLookup.TryAdd(cardData, member))
+                    {
+                        SWLog.LogError($"[BattleManager] 전용 카드 '{cardData.name}'가 여러 캐릭터에 중복 등록되었습니다");
+                        continue;
+                    }
+
+                    if (cardData.UpgradeCard != null)
+                    {
+                        cardOwnerLookup.TryAdd(cardData.UpgradeCard, member);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 카드의 소유 캐릭터를 반환합니다. 공용 카드면 null입니다.
+        /// </summary>
+        /// <param name="card">판정할 카드입니다.</param>
+        /// <returns>소유 캐릭터입니다. 공용 카드면 null입니다.</returns>
+        private CharacterEntity GetCardOwner(CardInstance card)
+        {
+            if (card == null || card.CardData == null)
+            {
+                return null;
+            }
+
+            return cardOwnerLookup.TryGetValue(card.CardData, out CharacterEntity owner) ? owner : null;
+        }
+
+        /// <summary>
+        /// 카드의 시전자를 반환합니다.
+        /// 전용 카드는 소유자가 시전하며, 공용 카드와 소유자 전투불능 시에는 파티 첫 생존자입니다.
+        /// </summary>
+        /// <param name="card">사용할 카드입니다.</param>
+        /// <returns>시전자입니다. 전원 사망이면 null입니다.</returns>
+        private CharacterEntity GetCasterFor(CardInstance card)
+        {
+            CharacterEntity owner = GetCardOwner(card);
+
+            if (owner != null && !owner.IsDead)
+            {
+                return owner;
+            }
+
+            return GetDefaultCaster();
+        }
         #endregion // 전투
 
         #region 플레이어 행동
@@ -519,7 +598,7 @@ namespace EchoesOfAsh.Battle
                 return false;
             }
 
-            CharacterEntity caster = GetDefaultCaster();
+            CharacterEntity caster = GetCasterFor(card);
 
             if (caster == null)
             {
@@ -638,6 +717,9 @@ namespace EchoesOfAsh.Battle
         /// <param name="deadEntity">사망한 엔티티입니다.</param>
         private void HandleCharacterDied(BattleEntity deadEntity)
         {
+            // 전투불능자의 전용 카드를 드로우 풀에서 제외합니다
+            deckSystem?.RefreshDrawExclusion();
+
             foreach (CharacterEntity member in party)
             {
                 if (member != null && !member.IsDead)

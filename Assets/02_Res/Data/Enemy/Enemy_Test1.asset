@@ -34,9 +34,9 @@ MonoBehaviour:
   startSanity: 100
   targetRuleType: 0
   actions:
-  - actionName: "\uACF5\uACA9 (\uC815\uC2E0\uB825)"
+  - actionName: "\uACF5\uACA9"
     effects:
-    - rid: 3116057178610073706
+    - rid: 3116057203371671636
   isSanityAction: 0
   sanityActions:
   - actionName: "\uD53C\uD574"
@@ -64,7 +64,8 @@ MonoBehaviour:
       data:
         damage: 1
         times: 3
-    - rid: 3116057178610073706
-      type: {class: SanityChangeEffect, ns: EchoesOfAsh.Effect, asm: Assembly-CSharp}
+    - rid: 3116057203371671636
+      type: {class: DamageEffect, ns: EchoesOfAsh.Effect, asm: Assembly-CSharp}
       data:
-        delta: -5
+        damage: 3
+        times: 1

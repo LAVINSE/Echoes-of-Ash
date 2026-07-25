@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using SW.Attributes;
 using SW.Base;
 using SW.Stat;
@@ -18,6 +19,9 @@ namespace EchoesOfAsh.Data
         [SerializeField] private bool isOptionalStat;
         [SerializeField, SWCondition("isOptionalStat", true)] private SWStatOverride[] optionalStats;
 
+        [SWGroup("전용 카드")]
+        [SerializeField] private List<CardData> exclusiveCards = new();
+
         [SWGroup("표시")]
         [SerializeField] private Sprite characterPortraitSprite;
         #endregion // 필드
@@ -27,6 +31,8 @@ namespace EchoesOfAsh.Data
         public SWStatOverride MaxHpStat => maxHpStat;
         /// <summary>추가 능력치 사용 여부입니다.</summary>
         public bool IsOptionalStat => isOptionalStat;
+
+        public IReadOnlyList<CardData> ExclusiveCards => exclusiveCards;
 
         /// <summary>캐릭터 초상화 스프라이트입니다.</summary>
         public Sprite CharacterPortraitSprite => characterPortraitSprite;
@@ -39,6 +45,20 @@ namespace EchoesOfAsh.Data
             if (maxHpStat == null || maxHpStat.Stat == null)
             {
                 SWLog.LogError($"[CharacterData] '{name}': Max_HP 스탯 에셋이 비어 있습니다.");
+            }
+
+            for (int index = 0; index < exclusiveCards.Count; index++)
+            {
+                if (exclusiveCards[index] == null)
+                {
+                    SWLog.LogWarning($"[CharacterData] '{name}': 전용 카드 목록 {index}번이 비어 있습니다.");
+                    continue;
+                }
+
+                if (exclusiveCards.IndexOf(exclusiveCards[index]) != index)
+                {
+                    SWLog.LogError($"[CharacterData] '{name}': 전용 카드 '{exclusiveCards[index].name}'가 중복 등록되었습니다.");
+                }
             }
         }
 #endif // UNITY_EDITOR

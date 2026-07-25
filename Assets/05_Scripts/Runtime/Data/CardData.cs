@@ -18,9 +18,6 @@ namespace EchoesOfAsh.Data
         [SWGroup("타입")]
         [SerializeField] private ECardType cardType;
         [SerializeField] private ERarityType rarityType;
-        [Tooltip("활성화하면 캐릭터 전용 카드, 비활성화하면 공용 카드")]
-        [SerializeField] private bool isCharacterCard;
-        [SerializeField, SWCondition("isCharacterCard", true)] private CharacterData ownerCharacter;
 
         [SWGroup("비용 / 대상")]
         [SerializeField, Range(0, 5)] private int apCost;
@@ -49,10 +46,6 @@ namespace EchoesOfAsh.Data
         public ECardType CardType => cardType;
         /// <summary>카드 희귀도입니다.</summary>
         public ERarityType RarityType => rarityType;
-        /// <summary>캐릭터 전용 카드 여부입니다.</summary>
-        public bool IsCharacterCard => isCharacterCard;
-        /// <summary>소속 캐릭터입니다.</summary>
-        public CharacterData OwnerCharacter => ownerCharacter;
 
         /// <summary>카드 비용입니다.</summary>
         public int ApCost => apCost;

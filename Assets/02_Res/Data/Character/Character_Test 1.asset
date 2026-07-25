@@ -17,10 +17,13 @@ MonoBehaviour:
   codeName: 
   displayName: 
   description: 
+  spriteIcon: {fileID: 0}
   maxHpStat:
     stat: {fileID: 11400000, guid: 02bb436d51c6a224dbccef6386d6d123, type: 2}
     isUseOverride: 1
-    overrideDefaultValue: 100
+    overrideDefaultValue: 1
   isOptionalStat: 0
   optionalStats: []
+  exclusiveCards:
+  - {fileID: 11400000, guid: af99dc3e1908fcc4e901708d84dfefee, type: 2}
   characterPortraitSprite: {fileID: 0}

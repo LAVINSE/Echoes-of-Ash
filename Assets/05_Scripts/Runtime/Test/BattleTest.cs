@@ -248,7 +248,7 @@ namespace EchoesOfAsh.Test
                 return;
             }
 
-            GUILayout.Label($"=== 손패 ({deckSystem.Hand.Count}장)  덱 {deckSystem.DrawPileCount} / 버림 {deckSystem.DiscardPileCount} ===");
+            GUILayout.Label($"=== 손패 ({deckSystem.Hand.Count}장)  덱 {deckSystem.DrawPileCount} / 버림 {deckSystem.DiscardPileCount} / 제외 {deckSystem.ExclusionPileCount} ===");
 
             bool isPlayerAction = battleManager.TurnManager != null
                 && battleManager.TurnManager.CurrentPhase == ETurnPhase.PlayerAction;
