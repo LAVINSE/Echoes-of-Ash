@@ -65,22 +65,33 @@ namespace EchoesOfAsh.Enum
     /// <summary>
     /// 유물 발동 유형입니다.
     /// </summary>
-    public enum ERelicTriggerType
+    public enum ETriggerType
     {
-        /// <summary>패시브입니다.</summary>
-        [InspectorName("패시브")] Passive,
         /// <summary>전투 시작 시 1회입니다.</summary>
-        [InspectorName("전투 시작 시 1회")] OnBattleStart,
+        [InspectorName("전투 시작 시 1회")] BattleStart,
         /// <summary>매 턴 시작 시입니다.</summary>
         [InspectorName("매 턴 시작 시")] TurnStart,
         /// <summary>카드를 사용할 때마다 발동합니다.</summary>
-        [InspectorName("카드 사용할 때마다")] OnCardPlay,
+        [InspectorName("카드 사용할 때마다")] CardPlayed,
         /// <summary>피격당할 때마다 발동합니다.</summary>
-        [InspectorName("피격당할 때마다")] OnTakeDamage,
+        [InspectorName("피격당할 때마다")] TakeDamage,
         /// <summary>피해를 입힐 때마다 발동합니다.</summary>
-        [InspectorName("피해를 입힐 때마다")] OnDealDamage,
+        [InspectorName("피해를 입힐 때마다")] DealDamage,
         /// <summary>전투 종료 시 1회입니다.</summary>
-        [InspectorName("전투 종료 시 1회")] OnBattleEnd,
+        [InspectorName("전투 종료 시 1회")] BattleEnd,
+    }
+
+    /// <summary>
+    /// 트리거 효과의 정신력 구간 발동 조건입니다.
+    /// </summary>
+    public enum ESanityCondition
+    {
+        /// <summary>구간과 무관하게 발동합니다.</summary>
+        [InspectorName("조건 없음")] None,
+        /// <summary>평정 구간에만 발동합니다.</summary>
+        [InspectorName("평정에만")] CalmOnly,
+        /// <summary>광기 구간에만 발동합니다.</summary>
+        [InspectorName("광기에만")] MadnessOnly,
     }
 
     /// <summary>

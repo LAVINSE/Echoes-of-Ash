@@ -52,6 +52,8 @@ namespace EchoesOfAsh.Battle
         private DungeonState dungeonState;
         private EnemyEncounterData currentEncounter;
 
+        private TriggerEffectController triggerEffectController;
+
         private EBattleResult battleResult = EBattleResult.None;
         private bool isBattleRunning;
 
@@ -137,6 +139,19 @@ namespace EchoesOfAsh.Battle
                 turnManager.OnEnemyActionsStarted -= HandleEnemyActionsStarted;
                 turnManager.OnRoundEnded -= HandleRoundEnded;
                 turnManager.OnRoundEnded -= HandleStatusRoundTick;
+
+                if (triggerEffectController != null)
+                {
+                    turnManager.OnTurnStarted -= triggerEffectController.HandleTurnStarted;
+
+                    if (cardPlayService != null)
+                    {
+                        cardPlayService.OnCardPlayed -= triggerEffectController.HandleCardPlayed;
+                    }
+
+                    triggerEffectController.Clear();
+                    triggerEffectController = null;
+                }
 
                 if (madnessEventRunner != null)
                 {
@@ -233,6 +248,8 @@ namespace EchoesOfAsh.Battle
 
             isBattleRunning = true;
             OnBattleStarted?.Invoke();
+
+            triggerEffectController.Raise(ETriggerType.BattleStart);
 
             turnManager.StartBattle();
             return true;
@@ -377,11 +394,21 @@ namespace EchoesOfAsh.Battle
             cardPlayService = new CardPlayService(apSystem, deckSystem, effectExecutor, partySanityHolder);
             targetResolver = new TargetResolver();
 
+            triggerEffectController = new TriggerEffectController(effectExecutor, partySanityHolder);
+
+            foreach (CharacterEntity member in party)
+            {
+                triggerEffectController.Register(member, member.CharacterData.Passives);
+            }
+
             turnManager = new TurnManager(apSystem, deckSystem, balanceData);
             turnManager.OnTurnStarted += HandleTurnStarted;
+            turnManager.OnTurnStarted += triggerEffectController.HandleTurnStarted;
             turnManager.OnEnemyActionsStarted += HandleEnemyActionsStarted;
             turnManager.OnRoundEnded += HandleStatusRoundTick;
             turnManager.OnRoundEnded += HandleRoundEnded;
+
+            cardPlayService.OnCardPlayed += triggerEffectController.HandleCardPlayed;
 
             madnessEventRunner = new MadnessEventRunner(partySanityHolder, effectExecutor, balanceData, dungeonState.SanityEventDatas, party);
             turnManager.OnTurnStartHook += madnessEventRunner.HandleTurnStartHook;

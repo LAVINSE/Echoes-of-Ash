@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using EchoesOfAsh.Effect;
 using SW.Attributes;
 using SW.Base;
 using SW.Stat;
@@ -20,7 +21,12 @@ namespace EchoesOfAsh.Data
         [SerializeField, SWCondition("isOptionalStat", true)] private SWStatOverride[] optionalStats;
 
         [SWGroup("전용 카드")]
+        [Tooltip("목록에 없는 카드는 전부 공용 카드")]
         [SerializeField] private List<CardData> exclusiveCards = new();
+
+        [SWGroup("패시브")]
+        [Tooltip("전투 중 발동하는 캐릭터 고유 트리거 효과 목록입니다")]
+        [SerializeField] private List<TriggerEffect> passives = new();
 
         [SWGroup("표시")]
         [SerializeField] private Sprite characterPortraitSprite;
@@ -32,7 +38,11 @@ namespace EchoesOfAsh.Data
         /// <summary>추가 능력치 사용 여부입니다.</summary>
         public bool IsOptionalStat => isOptionalStat;
 
+        /// <summary>캐릭터 전용 카드 목록입니다. 캐릭터 전투불능 시 드로우 풀에서 제외됩니다.</summary>
         public IReadOnlyList<CardData> ExclusiveCards => exclusiveCards;
+
+        /// <summary>캐릭터 고유 패시브 트리거 효과 목록입니다.</summary>
+        public IReadOnlyList<TriggerEffect> Passives => passives;
 
         /// <summary>캐릭터 초상화 스프라이트입니다.</summary>
         public Sprite CharacterPortraitSprite => characterPortraitSprite;

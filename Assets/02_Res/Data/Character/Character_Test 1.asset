@@ -26,4 +26,16 @@ MonoBehaviour:
   optionalStats: []
   exclusiveCards:
   - {fileID: 11400000, guid: af99dc3e1908fcc4e901708d84dfefee, type: 2}
+  passives:
+  - triggerType: 1
+    sanityCondition: 0
+    effects:
+    - rid: 3116057203371671652
   characterPortraitSprite: {fileID: 0}
+  references:
+    version: 2
+    RefIds:
+    - rid: 3116057203371671652
+      type: {class: BlockGainEffect, ns: EchoesOfAsh.Effect, asm: Assembly-CSharp}
+      data:
+        amount: 1
