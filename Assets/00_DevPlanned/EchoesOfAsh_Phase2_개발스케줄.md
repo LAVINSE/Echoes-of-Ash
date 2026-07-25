@@ -1,6 +1,6 @@
 # Echoes of Ash — Phase 2 개발 스케줄
 
-> 기준 문서: 기획서 v3.2 (16장 Phase 2 체크리스트) + Phase 1 개발스케줄 개정 11 · 작성일: 2026-07-22 (개정 15 — 2026-07-25, P2-M4 4-2 완료)
+> 기준 문서: 기획서 v3.2 (16장 Phase 2 체크리스트) + Phase 1 개발스케줄 개정 11 · 작성일: 2026-07-22 (개정 16 — 2026-07-25, P2-D4 확정 + P2-M4 4-3 완료)
 > 목표: **런 1회 완주 + 거점 순환 + 파티가 가능한 상태** — 기간 잠정 12주 (기획 2~4개월 범위)
 
 ---
@@ -159,7 +159,7 @@
 |---|--------|------|
 | 4-1 | 파티 3인 전투 | `CharacterEntity` 복수 스폰 (`characterData` → 목록), 공유 덱·공유 턴·공유 SAN 유지 (구조는 이미 공유 설계 — 확장만) → ✅ 완료 (개정 14 — 완료 기록 참조) |
 | 4-2 | 전용 카드 소속 | 카드 ↔ 소유 캐릭터 연결 (P2-D3 결정) — **전투불능 시 전용 카드 드로우 풀 제외** (`DeckSystem` 필터) → ✅ 완료 (개정 15 — 완료 기록 참조) |
-| 4-3 | 캐릭터 패시브 기초 | 검사 1인 + 테스트 캐릭터 — 패시브는 유물 트리거 구조 재사용 (P2-D4와 통합 설계) |
+| 4-3 | 캐릭터 패시브 기초 | 검사 1인 + 테스트 캐릭터 — 패시브는 유물 트리거 구조 재사용 (P2-D4와 통합 설계) → ✅ 완료 (개정 16 — 완료 기록 참조) |
 | 4-4 | 뷰 확장 | `PartyStatusView` 3인 배치, 적 대상 선정 표시(누굴 노리는지), 파티 편성 화면 기초 (Canvas) + **아군 지정 UI 연결** (4-1 이월분 — 아래 완료 기록 참조) |
 
 **DoD:** 3인 파티로 전투 1사이클 — 1인 전투불능 시 전용 카드가 드로우에서 제외되고, 부활 규칙 자리만 확보.
@@ -190,7 +190,19 @@
 - **저장 무관:** 제외 더미 수명 = DeckSystem 수명 = 전투 1회. CardInstance는 DungeonState.Deck과 공유되므로 전투 종료 후 별도 복원 불필요 — 대신 `ResetDeckSystem`의 AP 보정 초기화에 제외 더미 포함 (필수)
 - **프로젝트 반영 확인 (개정 15):** `CharacterData`·`CardData`·`DeckSystem`(필드·`ExclusionPileCount`·제외 region·Draw 안전망·리셋)·`BattleManager`(조회 표 3메서드·SetupSystems 배선·PlayCard·HandleCharacterDied·ResetBattle) + `Character_Test 1` 전용 카드 등록(`Card_Test_Character`) 전부 반영 확인
 - **실검증 이월 ⚠ (씬 검증 이월분과 일괄):** 소유자 생존 시 전용 카드 시전자 = 소유자 → 소유자 처치 시 덱/버림의 전용 카드 제외 카운터 이동·재드로우 미등장 → 손패 잔존 카드 폴백 시전 + 버림 후 재드로우 차단 → 재전투 시 제외 잔존 없음 → 중복 등록 에러 로그
-- **사소 권장:** `ExclusiveCards` 프로퍼티 summary 주석·`exclusiveCards` Tooltip 추가 (스타일 일관성 — 7-1 콘텐츠 제작 전 권장)
+- **사소 권장:** `ExclusiveCards` 프로퍼티 summary 주석·`exclusiveCards` Tooltip 추가 (스타일 일관성 — 7-1 콘텐츠 제작 전 권장) → ✅ 반영 확인 (개정 16)
+
+#### 4-3 완료 기록 (2026-07-25)
+
+- **P2-D4 확정 이행 — 훅 열거 매핑** (결정 근거는 조기 결정 표 참조). 패시브·유물 공용 구조의 최소 단위 완성
+- **enum 중복 신설 방지 (사용자 발견):** 초안은 `ETriggerType` 신설이었으나 기존 `ERelicTriggerType`이 이미 존재 — 미사용 확인 후 **재사용 + `ETriggerType` 개명** (패시브 공용화로 "Relic" 이름 범위 불일치 — Run→Dungeon 개명 전례) + **`Passive` 값 제거** (디스패처에 발화 지점이 없는 함정값 — 상시 배율형은 피해 계산기 래핑으로 확정) + **`BattleEnd` 유지** (기획서 8-1 재검토 항목 — 미배선 경고로 자리 보존). `ESanityCondition` 신설 (None/CalmOnly/MadnessOnly)
+- **산출물:** `Effect/Trigger/TriggerEffect.cs` (인라인 직렬화 — 시점 + 정신력 조건 + 효과 블록 + `GetDescription` 조합) + `Effect/Trigger/TriggerEffectController.cs` (순수 클래스 — 등록·발화 단일 소유) + `CharacterData.passives` 목록 + `BattleManager` 배선. **배치 조정 (사용자):** 계획의 Data/Battle 분산 대신 **Effect 모듈 하위 `Effect/Trigger/` 통합** (네임스페이스 `EchoesOfAsh.Effect.Trigger`) — 트리거 구조가 효과 실행 계열임을 반영
+- **결정성 계약:** 등록 순서 = 발화 순서 (단일 목록 순회 — StatusController 부여 순 전례). 파티 패시브 = 스폰 순 등록, P2-M7 유물 = 획득 순 등록으로 기획서 15-2 충족. 발화 시점 검사: 소유자 사망 스킵 + 정신력 조건 + 빈 블록 등록 거부 + 미배선 3종(피격/가해/전투종료) 경고
+- **BattleManager 배선:** **구독 순서 계약 — 방어막 리셋(`HandleTurnStarted`) → 패시브 트리거** (리셋이 패시브 방어막을 지우지 않도록 선행 고정, M3 "감소 → 의도 재평가" 계열). `BattleStart` 발화 = `OnBattleStarted` 후 · `turnManager.StartBattle()` 전 (뷰 초기화 후 발동 → 게이지 즉시 반영). `ResetBattle` 해제 대칭 (구독 2종 해제 + `Clear` + null)
+- **검사 패시브 = 데이터 성립:** TurnStart + CalmOnly + BlockGain 3 — 코드 0줄 (15-3 원칙 관통 확인). 트리거 효과의 신규 메커니즘은 커스텀 EffectBlock 폴백 — 신규 블록은 공용 부품화되어 후반 0줄 비율 상승
+- **의존 방향 노트 ⚠ (P2-M7 이월):** `Effect.Trigger`가 `Battle`(CharacterEntity)·`Card`(CardInstance)를 역참조 — 기존 Battle → Effect 단방향에 상호 참조 발생 (단일 어셈블리라 동작 무해, 원칙 수준 노트). **해소 예정: P2-M7 유물 등록 확장 시** ① Owner를 `ITargetable` 전환 (사망 판정 = `!IsTargetable` — MadnessEventRunner 공변 전달 전례, 소유자 없는 유물 등록에도 필요) ② `HandleCardPlayed`의 CardInstance 파라미터 미사용 — BattleManager 기명 핸들러 경유로 Card 참조 제거
+- **프로젝트 반영 확인 (개정 16):** enum 교체(`ETriggerType`/`ESanityCondition`)·`TriggerEffect`·`TriggerEffectController`·`CharacterData`(passives + 4-2 사소 권장분)·`BattleManager`(생성·등록·구독 순서·BattleStart 발화·해제 대칭) 전부 반영 확인
+- **실검증 이월 ⚠ (씬 검증 이월분과 일괄):** 검사 패시브 에셋 입력(TurnStart·평정·방어막 3) → 매 턴 시작 방어막 3 (리셋 후 부여 순서) → 광기 진입 시 미발동·회복 시 재발동 → 소유자 처치 시 미발동 → CardPlayed 트리거 항목 발동 → 미배선 트리거 등록 경고
 
 ### P2-M5 — 타겟팅 완성 (1주)
 
@@ -236,7 +248,7 @@
 | 맵 | `MapGenerator`, 노드 데이터, 맵 화면 | `05_Scripts/Map/` |
 | 저장 | 저장 스키마·마이그레이션 (SWSaveDataManager 활용) — `DungeonSaveData`/`DungeonSaveService` | `05_Scripts/Save/` |
 | 상태이상 | `StatusEffectData`(정의 SO) + `StatusController`(생명주기) + `StatusDamageCalculator` — **별도 폴더 기각 (개정 13 — P2-M3 완료 기록 참조)** | `05_Scripts/Data/`, `05_Scripts/Battle/` |
-| 유물 | 유물 SO + 트리거 리스너 | `05_Scripts/Relic/` |
+| 유물 | 유물 SO(RelicData)·획득 관리 — **트리거 구조는 패시브 공용이라 `Effect/Trigger/`에 배치 완료 (개정 16 — `TriggerEffect`/`TriggerEffectController`)**, Relic 폴더에는 P2-M7에서 유물 고유분만 | `05_Scripts/Relic/`, `05_Scripts/Effect/Trigger/` |
 | 거점 | 시설·영입 | `05_Scripts/Hub/` |
 | 드랍·회수 | 드랍 테이블·회수 판정·보관 전송 | `05_Scripts/Drop/` |
 | (기존) 전투/뷰 | 파티 3인·타겟팅 확장 — 기존 폴더 증축 | `Battle/`, `View/`, `View/UI/` |
@@ -252,7 +264,7 @@
 | P2-D1 | **시드 결정성 범위**: 같은 시드 = 같은 런 보장 여부 (런 중 저장 방식과 직결) | P2-M2 전 | ✅ 확정 (개정 11) — **전체 상태 스냅샷.** 무작위 소비 지점 다수(조우·이벤트 추첨·광기 판정·셔플·침식)로 "시드+행동 로그"는 소비 순서 영구 계약 요구 → 코드 수정마다 재현 파손. 시드는 맵 생성 기록·재현용으로만, **재개 후 난수 비연속** (같은 시드 재설정 시 소비된 난수열 재등장 = 세이브스커밍 여지 차단) |
 | P2-D2 | **노드 그래프 구조** | P2-M1 착수 시 | ✅ 확정 — **구조: STS식 층×레인 그래프** (축소 규격 12층×3레인 — 노드 수 선형·전체 공개·경로 계획 성립, 단순 분기 트리는 노드 수 배증 또는 계획성 상실로 기각) **+ 잿불 침식** (이동마다 입구층부터 잠식 — 시간 압박 축, 속도는 Balance 외부화·0이면 순정 STS) **+ 광기 간선** (광기 상태에서만 열리는 간선·노드 — 정신력 댄스의 던전 확장, 토글 가능. 의도적 광기 진입 수단 필요 — M1 규칙 설계). **표현: 던전 도면식** — 노드=방·간선=복도, 시드 기반 좌표 지터(결정성 유지), **가로 심부 진행**(입구→폐허 심부 — 침식=입구부터 타들어오는 재). 데이터(그래프)와 표현(MapView) 분리 — 다키스트 던전 참조. 플레이스홀더=사각 방+통로, 양피지·지명·랜드마크는 리소스 단계 |
 | P2-D3 | **전용 카드 소속 표현**: CardData가 소유 캐릭터 참조 vs CharacterData가 전용 카드 목록 보유 | P2-M4 전 | ✅ 확정 (개정 14) — **CharacterData가 전용 카드 목록 보유.** 근거: ① 전투불능 드로우 제외 필터 = 파티 구성원(최대 3)의 목록 합산만 순회 — 카드 전수 역추적 불필요 ② 공용 카드 무수정 (빈 소유자 필드·오배정 사고 여지 차단, 캐릭터 추가 시 기존 카드 에셋 무수정 = 개방-폐쇄) ③ 캐릭터 에셋 1개 = 전용 카드 구성 한눈에. 카드→주인 역조회(툴팁 "전용" 표시 등)는 전투 시작 시 1회 표 구성으로 해소 → **✅ 이행 완료 (개정 15 — 4-2)** |
-| P2-D4 | **유물 트리거 구조**: 전투 이벤트 구독형 리스너 vs 훅 열거 매핑 (캐릭터 패시브와 공용) | P2-M7 전 (P2-M4 패시브와 통합 설계) | 미결 — **4-3 착수 시 확정 필요 (다음 결정)** |
+| P2-D4 | **유물 트리거 구조**: 전투 이벤트 구독형 리스너 vs 훅 열거 매핑 (캐릭터 패시브와 공용) | P2-M7 전 (P2-M4 패시브와 통합 설계) | ✅ 확정 (개정 16) — **훅 열거 매핑.** 기각: 리스너형 — 유물 56개 × 클래스 = 15-3 "코드 0줄" 위반 + "획득 순 고정"(15-2)이 개별 구독 관리에 분산. 근거: ① 15-4 enum 기준표에 유물 트리거 명시 (닫힌 집합) ② 단일 디스패처 목록 순회 = **등록 순 = 발화 순** (StatusController 부여 순 전례 — 결정성 구조적 보장) ③ 특수 유물 = 커스텀 EffectBlock 폴백 (신규 블록은 공용 부품화 — 후반 0줄 비율 상승). 부수 확정: **패시브 = `TriggerEffect` 인라인 직렬화** (CharacterData 보유 — 독립 콘텐츠 아님, RelicData가 동일 타입 목록 보유로 구조 공유) / **상시 배율형 효과 = 피해 계산기 래핑 영역** (트리거 구조 밖 — StatusDamageCalculator 전례) → ✅ 이행 완료 (개정 16 — 4-3) |
 | P2-D5 | 어그로 산정식 (피해 기여 가중 등) | P2-M5 | 밸런스 영역 — Balance 외부화 |
 | P2-D6 | **씬 구성** | P2-M0 착수 시 | ✅ 확정 — **2씬: Hub(거점) + Dungeon(던전 = 런 1회)**. 맵은 씬이 아니라 Dungeon 씬 내 Canvas 화면 — 맵 ⇄ 전투 ⇄ 노드 화면(이벤트/상점/보관)을 씬 로드 없이 전환 (전투 인프라 1회 구성·런 템포 보존·DungeonState 수명 = Dungeon 씬 수명). `DungeonManager` = Dungeon 씬 내 화면 상태 머신 + 거점⇄던전 씬 전환 소유 |
 
@@ -279,6 +291,7 @@
 | 개정 | 일자 | 내용 |
 |------|------|------|
 | 초판 | 2026-07-22 | Phase 2 스케줄 수립 — 메타 계층 우선 순서(P2-M0~M3), 밸런스 게이트 병행 배치, Phase 1 임시 조치 5종 = P2-M0 작업 목록화, 조기 결정 P2-D1~D5 정의 |
+| 개정 16 | 2026-07-25 | **P2-D4 확정 + P2-M4 4-3 완료 (프로젝트 반영 확인)** — D4: **훅 열거 매핑** (기각: 리스너형 — 콘텐츠당 클래스 = 15-3 위반 + 획득 순 고정 분산 / 근거: 단일 디스패처 = **등록 순 = 발화 순** 구조적 보장·특수분 = 커스텀 EffectBlock 폴백). 부수 확정: 패시브 = 인라인 직렬화(CharacterData 보유·RelicData와 구조 공유) / 상시 배율형 = 피해 계산기 래핑 영역. **enum 중복 신설 방지 (사용자 발견):** 기존 `ERelicTriggerType` 재사용 — `ETriggerType` 개명 + `Passive` 값 제거(발화 지점 없는 함정값) + `BattleEnd` 유지(8-1 재검토 — 미배선 경고). 산출물: `Effect/Trigger/TriggerEffect`·`TriggerEffectController`(등록 순 발화·사망자 스킵·정신력 조건·미배선 3종 경고) + `CharacterData.passives` + BattleManager 배선(**구독 순서 계약: 방어막 리셋 → 패시브** / BattleStart = OnBattleStarted 후·StartBattle 전 / 해제 대칭). 검사 패시브 = 데이터 성립(코드 0줄). **의존 방향 노트: Effect.Trigger ↔ Battle·Card 상호 참조 — P2-M7 유물 등록 확장 시 ITargetable 전환 + 카드 파라미터 제거로 해소 예정.** 실검증은 씬 검증 이월분과 일괄. **다음: 4-4 (뷰 확장 — CharacterView·PartyStatusView 3인·적 대상 표시·편성 화면 기초)** |
 | 개정 15 | 2026-07-25 | **P2-M4 4-2 완료 (프로젝트 반영 확인)** — P2-D3 이행: `CharacterData.exclusiveCards` 신설 + `CardData` 소유자 참조 2종 제거 (기각안 잔재 정리 — 직렬화 잔존 무해). `DeckSystem` 드로우 제외 = **제외 더미 물리 이동 + 판정 주입** (무한 재셔플 원리상 차단·Deck→Battle 의존 차단) + Draw 안전망(버림 경유 재드로우 차단·`i--` 미소모) + **양방향 갱신 = 부활 자리 확보** (해제 → 버림 복귀). `BattleManager` 소유 조회 표(전투 시작 1회 — 원본+강화 등록·중복 에러·ResetBattle Clear), 시전자 확장 `GetCasterFor`(전용 = 소유자, 사망 시 첫 생존자 폴백). **잠정 규칙: 손패의 전용 카드는 제외 대상 아님** (기획 문언 "드로우 풀" 준수). 제외 더미 = 전투 수명 → 저장 스키마 v1 무수정. 실검증은 씬 검증 이월분과 일괄. **다음: 4-3 (캐릭터 패시브 기초 — P2-D4 유물 트리거 구조 결정 선행)** |
 | 개정 14 | 2026-07-24 | **P2-D3 확정 + P2-M4 4-1 완료 (프로젝트 반영 확인)** — D3: CharacterData가 전용 카드 목록 보유 (드로우 제외 필터 = 파티 순회·공용 카드 무수정·개방-폐쇄, 역조회 = 전투 시작 시 1회 표). 4-1: 파티 구성(PartyData+캐릭터 목록) = **DungeonState 소유 — PartyData 이중 참조 일원화 조기 이행** (단일 원본 = DungeonManager 인스펙터, BattleManager 데이터 필드 2종 제거 = **Phase 1 임시 조치 전량 해소, Aggro 폴백 1건 제외**). 파티 구성 = 저장 제외 유지 (4-4 편성 가변화 시 스키마 v2). 복수 스폰(스폰 순 = 목록 순)·전원 사망 = 패배. 잠정 규칙 3종: 공용 카드 시전자 = 첫 생존자(4-2 확장) / Self = 지정 아군 우선·시전자 폴백 / 광기 이벤트 대상 = 판정 시점 첫 생존자(고정 시전자 폐기 — `IReadOnlyList<ITargetable>` 공변 전달로 Sanity→Battle 의존 차단). **아군 지정 UI = 4-4 이월** (권장: CharacterView 신설 — EnemyView 대칭 콜라이더로 드롭 경로 재사용, 드래그 Self = 시전자 폴백 정상 동작). M3 구독 순서 수정분 반영 확인. 실검증: 아군 방어막 부여 확인, 잔여 절차는 씬 검증 이월분과 일괄. **다음: 4-2 (전용 카드 소속 + DeckSystem 드로우 제외 필터)** |
 | 개정 13 | 2026-07-24 | **P2-M3 완료 (프로젝트 반영 확인)** — 3-1 CardSystemWindow 신설 기각(기존 `EchoesOfAshDataWindow` 기충족 — 창 중복 방지 + 상태이상 탭 증축, 배열 5종 인덱스 정합), 3-2 하이브리드(`Data/StatusEffectData` = 정의 SO — 감소 규칙·배율 수치 소유 / `Battle/StatusController` = 생명주기 순수 클래스 — 부여 순 순회 고정·미정의 폴백 / `BattleEntity` 위임 = IStatusReceiver 실이행). **별도 Status 모듈 기각** — 정의 = Data·생명주기 = Battle 흡수 (전투 한정 상태 — Sanity와 달리 던전 지속 아님), 재분리 기준 명문화(던전 지속화·틱 블록/뷰 증축 시). **중첩 = 남은 라운드 수 (STS)** — IStatusReceiver·StatusEffect 블록 무수정. 틱 = OnRoundEnded, **구독 순서 계약: 상태이상 감소 → 의도 재평가** (P2-M5 도발 대비 — 초기 역순 반영분 1건 수정). 3-3 취약 = `StatusDamageCalculator`(기반 계산기 래핑·방어막 이전 배율·버림·배율 1.5 = SO 소유). 임시 조치: `BattleManager.statusDatas` → P2-M7 7-4 던전 구성 데이터로 이동. 취약 실검증은 씬 검증 이월분과 일괄. **다음: P2-M4 (파티 시스템 — P2-D3 확정 선행), 밸런스 게이트(6-2~6-5)는 에디터 작업으로 병행** |
