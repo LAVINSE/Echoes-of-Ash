@@ -50,6 +50,11 @@ namespace EchoesOfAsh.Dungeon
         [SerializeField] private List<CharacterData> characterDatas = new();
         [Tooltip("카드 데이터베이스입니다. 저장된 덱을 코드명으로 복원할 때 사용합니다.")]
         [SerializeField] private SWIODatabase cardDatabase;
+        [Tooltip("편성 화면에서 선택할 수 있는 보유 캐릭터 목록입니다 (임시 조치 — 메타 저장 도입 시 대체)")]
+        [SerializeField] private List<CharacterData> availableCharacters = new();
+
+        [Tooltip("캐릭터 데이터베이스입니다. 저장된 파티를 코드명으로 복원할 때 사용합니다 (카드 DB와 같은 에셋 연결 가능)")]
+        [SerializeField] private SWIODatabase characterDatabase;
 
         [SWGroup("던전 구성")]
         [Tooltip("던전 생성에 사용할 시드입니다. 0이면 실행 시 무작위 시드를 생성합니다.")]
@@ -70,6 +75,7 @@ namespace EchoesOfAsh.Dungeon
         [SWGroup("뷰")]
         [SerializeField] private MapView mapView;
         [SerializeField] private NodeScreenView nodeScreenView;
+        [SerializeField] private PartySetupView partySetupView;
 
         private DungeonState dungeonState;
         private EDungeonPhase currentPhase = EDungeonPhase.None;
@@ -77,6 +83,7 @@ namespace EchoesOfAsh.Dungeon
         private DungeonEventData currentEventData;
         private bool isBattleEventSubscribed;
 
+        private readonly List<CharacterData> selectedParty = new();
         private readonly List<MapNode> availableNodeBuffer = new();
         private readonly StringBuilder stringBuilder = new();
         #endregion // 필드
@@ -143,6 +150,47 @@ namespace EchoesOfAsh.Dungeon
         }
         #endregion // 초기화
 
+        #region 파티 편성
+        /// <summary>
+        /// 파티 편성 화면을 표시합니다. 화면이 없으면 기본 파티로 바로 시작합니다.
+        /// </summary>
+        [SWButton("파티 편성 후 던전 시작")]
+        public void OpenPartySetup()
+        {
+            if (IsDungeonRunning)
+            {
+                SWLog.LogWarning("[DungeonManager] OpenPartySetup 무시: 던전이 이미 진행 중입니다.");
+                return;
+            }
+
+            if (partySetupView == null || availableCharacters.Count == 0)
+            {
+                SWLog.Log("[DungeonManager] 편성 화면 미배선: 기본 파티로 던전을 시작합니다.");
+                StartDungeon();
+                return;
+            }
+
+            partySetupView.Show(availableCharacters, startingCards, HandlePartyConfirmed);
+        }
+
+        /// <summary>
+        /// 편성 확정을 처리하고 던전을 시작합니다.
+        /// </summary>
+        /// <param name="members">확정된 파티 구성입니다 (선택 순서 = 파티 순서).</param>
+        private void HandlePartyConfirmed(List<CharacterData> members)
+        {
+            selectedParty.Clear();
+            selectedParty.AddRange(members);
+
+            if (partySetupView != null)
+            {
+                partySetupView.Hide();
+            }
+
+            StartDungeon();
+        }
+        #endregion // 파티 편성
+
         #region 던전
         /// <summary>
         /// 던전 상태와 맵을 생성하고 맵 선택 상태로 전환합니다.
@@ -168,7 +216,9 @@ namespace EchoesOfAsh.Dungeon
                 return;
             }
 
-            if (characterDatas.Count == 0)
+            List<CharacterData> partyMembers = selectedParty.Count > 0 ? selectedParty : characterDatas;
+
+            if (partyMembers.Count == 0)
             {
                 SWLog.LogError("[DungeonManager] StartDungeon 실패: 파티 캐릭터 목록이 비어 있습니다.");
                 return;
@@ -177,7 +227,7 @@ namespace EchoesOfAsh.Dungeon
             int seed = dungeonSeed != 0 ? dungeonSeed : Environment.TickCount;
             SWRandom.SetSeed(seed);
 
-            dungeonState = new DungeonState(seed, partyData, characterDatas, startingCards, sanityEventDatas);
+            dungeonState = new DungeonState(seed, partyData, partyMembers, startingCards, sanityEventDatas);
             MapGenerator mapGenerator = new MapGenerator();
             MapGraph mapGraph = mapGenerator.GenerateMapGraph(mapConfigData);
 
@@ -244,10 +294,43 @@ namespace EchoesOfAsh.Dungeon
                 return;
             }
 
+            // 저장된 파티 복원 (스키마 v2). 구버전 저장은 인스펙터 기본 파티로 폴백합니다
+            List<CharacterData> partyMembers = characterDatas;
+
+            if (saveData.partyCharacterCodeNames != null && saveData.partyCharacterCodeNames.Count > 0)
+            {
+                if (characterDatabase == null)
+                {
+                    SWLog.LogError("[DungeonManager] ResumeDungeon 실패: 캐릭터 데이터베이스가 없습니다.");
+                    return;
+                }
+
+                List<CharacterData> restoredParty = new();
+
+                foreach (string codeName in saveData.partyCharacterCodeNames)
+                {
+                    CharacterData characterData = characterDatabase.GetDataByCodeName<CharacterData>(codeName);
+
+                    if (characterData == null)
+                    {
+                        SWLog.LogError($"[DungeonManager] ResumeDungeon 실패: 코드명 '{codeName}' 캐릭터를 찾지 못했습니다.");
+                        return;
+                    }
+
+                    restoredParty.Add(characterData);
+                }
+
+                partyMembers = restoredParty;
+            }
+            else
+            {
+                SWLog.LogWarning("[DungeonManager] 구버전 저장: 파티를 인스펙터 기본 목록으로 복원합니다.");
+            }
+            
             // 재개 후 난수는 비연속 (P2-D1 스냅샷 - 같은 시드 재설정 시 소비된 난수열 재등장 방지)
             SWRandom.SetSeed(Environment.TickCount);
+            dungeonState = new DungeonState(saveData.seed, partyData, partyMembers, startingCards, sanityEventDatas);
 
-            dungeonState = new DungeonState(saveData.seed, partyData, characterDatas, startingCards, sanityEventDatas);
 
             foreach (DungeonCardSaveData cardSave in saveData.deckCards)
             {
@@ -326,6 +409,8 @@ namespace EchoesOfAsh.Dungeon
             currentPhase = EDungeonPhase.Ended;
             currentBattleNode = null;
             currentEventData = null;
+
+            selectedParty.Clear();
 
             // 런 종료 = 스냅샷 소멸. 회수/해금 반영은 메타 저장 소관 (P2-M6/M7)
             DungeonSaveService.DeleteSave();

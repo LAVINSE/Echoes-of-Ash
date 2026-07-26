@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 40c70ddc5843e2448bd12db3d2f46d61, type: 3}
-  m_Name: CardDataBase
+  m_Name: Card_DataBase
   m_EditorClassIdentifier: SWUtils.Runtime::SW.Base.SWIODatabase
   datas:
   - {fileID: 11400000, guid: 0abc4eeb025736a4e96c5502a058ae46, type: 2}

@@ -31,6 +31,7 @@ namespace EchoesOfAsh.View
 
         [SWGroup("의도")]
         [SerializeField] private IntentView intentView;
+        [SerializeField] private TMP_Text targetText;
 
         [SWGroup("판정")]
         [SerializeField] private Collider2D targetCollider;
@@ -73,7 +74,8 @@ namespace EchoesOfAsh.View
             entity.OnSanityTypeChanged += HandleSanityTypeChanged;
 
             enemyAI.OnIntentChanged += HandleIntentChanged;
-
+            enemyAI.OnTargetChanged += HandleTargetChanged;
+         
             if (nameText != null)
             {
                 nameText.text = entity.DisplayName;
@@ -85,6 +87,7 @@ namespace EchoesOfAsh.View
             HandleSanityTypeChanged(entity.CurrentSanityType);
 
             HandleIntentChanged(entity, enemyAI.NextAction);
+            HandleTargetChanged(entity, enemyAI.NextTarget);
         }
 
         /// <summary>
@@ -104,6 +107,8 @@ namespace EchoesOfAsh.View
             if (enemyAI != null)
             {
                 enemyAI.OnIntentChanged -= HandleIntentChanged;
+                enemyAI.OnTargetChanged -= HandleTargetChanged;
+
             }
 
             enemyAI = null;
@@ -197,6 +202,26 @@ namespace EchoesOfAsh.View
             }
 
             intentView.SetIntent(action);
+        }
+
+        /// <summary>
+        /// 예고 대상 변경 시 대상 이름 표시를 갱신합니다.
+        /// </summary>
+        /// <param name="enemy">적 엔티티입니다.</param>
+        /// <param name="target">예고된 대상입니다. 파티를 노리지 않으면 null입니다.</param>
+        private void HandleTargetChanged(EnemyEntity enemy, CharacterEntity target)
+        {
+            if (targetText == null)
+            {
+                return;
+            }
+
+            targetText.gameObject.SetActive(target != null);
+
+            if (target != null)
+            {
+                targetText.text = $"→ {target.DisplayName}";
+            }
         }
     }
 }

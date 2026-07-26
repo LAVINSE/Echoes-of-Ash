@@ -46,5 +46,8 @@ namespace EchoesOfAsh.Save
 
         /// <summary>던전 덱의 카드 목록입니다.</summary>
         public List<DungeonCardSaveData> deckCards = new();
+
+        /// <summary>파티 캐릭터 코드명 목록입니다 (스키마 v2 — 편성 화면 도입)</summary>
+        public List<string> partyCharacterCodeNames = new();
     }
 }

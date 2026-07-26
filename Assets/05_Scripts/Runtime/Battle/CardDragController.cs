@@ -28,6 +28,8 @@ namespace EchoesOfAsh.Battle
         [SerializeField] private LayerMask cardLayerMask;
         [Tooltip("적 레이어")]
         [SerializeField] private LayerMask enemyLayerMask;
+        [Tooltip("아군 레이어")]
+        [SerializeField] private LayerMask characterLayerMask;
         [Tooltip("카드 사용 기준선")]
         [SerializeField] private float playLineY = -2f;
 
@@ -180,8 +182,8 @@ namespace EchoesOfAsh.Battle
             targetingArrow.EndAiming();
 
             bool isPlayed = isSingleTarget
-                ? TryPlayOnEnemy(cardView, pointerWorldPosition)
-                : TryPlayAboveLine(cardView, pointerWorldPosition);
+               ? TryPlayOnEnemy(cardView, pointerWorldPosition)
+               : TryPlayOnAlly(cardView, pointerWorldPosition) || TryPlayAboveLine(cardView, pointerWorldPosition);
 
             // 성공 시 뷰는 OnHandChanged 재구성으로 풀에 반환됨 — 재사용 대비 소팅 레이어만 복원
             cardView.SetDragging(false);
@@ -344,6 +346,36 @@ namespace EchoesOfAsh.Battle
             }
 
             return battleManager.PlayCard(cardView.CardInstance);
+        }
+
+        /// <summary>
+        /// 포인터 위치의 아군에게 자신/아군 대상 카드를 사용합니다.
+        /// </summary>
+        /// <param name="cardView">사용할 카드 뷰입니다.</param>
+        /// <param name="pointerWorldPosition">포인터의 월드 좌표입니다.</param>
+        /// <returns>사용 성공 여부입니다.</returns>
+        private bool TryPlayOnAlly(CardView cardView, Vector2 pointerWorldPosition)
+        {
+            if (cardView.CardInstance.TargetingType != ETargetingType.Self)
+            {
+                return false;
+            }
+
+            Collider2D hit = Physics2D.OverlapPoint(pointerWorldPosition, characterLayerMask);
+
+            if (hit == null)
+            {
+                return false;
+            }
+
+            CharacterEntity ally = hit.GetComponentInParent<CharacterEntity>();
+
+            if (ally == null || !ally.IsTargetable)
+            {
+                return false;
+            }
+
+            return battleManager.PlayCard(cardView.CardInstance, ally);
         }
         #endregion // 판정
 

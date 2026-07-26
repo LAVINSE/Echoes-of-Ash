@@ -36,6 +36,7 @@ namespace EchoesOfAsh.Battle
         [SWGroup("뷰")]
         [SerializeField] private HandView handView;
         [SerializeField] private EnemyView enemyViewPrefab;
+        [SerializeField] private CharacterView characterViewPrefab;
         [SerializeField] private PartyStatusView partyStatusView;
         [SerializeField] private CardTooltipView cardTooltipView;
         [SerializeField] private BattleHUDView battleHUDView;
@@ -59,6 +60,7 @@ namespace EchoesOfAsh.Battle
         private bool isBattleRunning;
 
         private readonly Dictionary<CardData, CharacterEntity> cardOwnerLookup = new();
+        private readonly List<CharacterView> characterViews = new();
         private readonly List<CharacterEntity> party = new();
         private readonly List<EnemyEntity> enemyEntities = new();
         private readonly List<EnemyAI> enemyAIs = new();
@@ -171,6 +173,16 @@ namespace EchoesOfAsh.Battle
 
             partySanityHolder?.Dispose();
             partySanityHolder = null;
+
+            foreach (CharacterView characterView in characterViews)
+            {
+                if (characterView != null)
+                {
+                    characterView.Release();
+                }
+            }
+
+            characterViews.Clear();
 
             for (int i = 0; i < party.Count; i++)
             {
@@ -320,6 +332,13 @@ namespace EchoesOfAsh.Battle
                 member.SetDamageCalculator(new StatusDamageCalculator());
                 member.OnDied += HandleCharacterDied;
 
+                if (characterViewPrefab != null)
+                {
+                    CharacterView characterView = Instantiate(characterViewPrefab, member.transform);
+                    characterView.Init(member);
+                    characterViews.Add(characterView);
+                }
+
                 party.Add(member);
             }
 
@@ -357,7 +376,7 @@ namespace EchoesOfAsh.Battle
 
                 enemyEntities.Add(enemyEntity);
 
-                EnemyAI enemyAI = new EnemyAI(enemyEntity);
+                EnemyAI enemyAI = new EnemyAI(enemyEntity, party);
                 enemyAIs.Add(enemyAI);
 
                 if (enemyViewPrefab != null)
@@ -420,9 +439,8 @@ namespace EchoesOfAsh.Battle
             }
 
             if (partyStatusView != null && party.Count > 0)
-            { 
-                // 잠정: 1인 표시
-                partyStatusView.Init(party[0], partySanityHolder);
+            {
+                partyStatusView.Init(party, partySanityHolder);
             }
 
             if (cardTooltipView != null)
@@ -696,7 +714,7 @@ namespace EchoesOfAsh.Battle
 
                 EnemyAI enemyAI = enemyAIs[i];
 
-                if (!enemyAI.SelectTargets(party, enemyTargetBuffer))
+                if (!enemyAI.SelectTargets(enemyTargetBuffer))
                 {
                     continue;
                 }

@@ -20,6 +20,9 @@ namespace EchoesOfAsh.Battle
 
         private readonly EnemyEntity entity;
         private readonly List<CharacterEntity> targetableBuffer = new();
+
+        private CharacterEntity nextTarget;
+        private readonly IReadOnlyList<CharacterEntity> party;
         #endregion // 필드
 
         #region 프로퍼티
@@ -30,6 +33,11 @@ namespace EchoesOfAsh.Battle
 
         /// <summary>의도 변경 시 호출됩니다.</summary>
         public event Action<EnemyEntity, EnemyActionData> OnIntentChanged;
+
+        /// <summary>예고된 다음 행동의 대상입니다. 파티를 노리지 않는 행동이면 null입니다.</summary>
+        public CharacterEntity NextTarget => nextTarget;
+        /// <summary>예고 대상 변경 시 호출됩니다.</summary>
+        public event Action<EnemyEntity, CharacterEntity> OnTargetChanged;
         #endregion // 프로퍼티
 
         #region 생성자
@@ -37,7 +45,7 @@ namespace EchoesOfAsh.Battle
         /// 적 인공지능를 생성합니다.
         /// </summary>
         /// <param name="entity">제어할 적 엔티티입니다.</param>
-        public EnemyAI(EnemyEntity entity)
+        public EnemyAI(EnemyEntity entity, IReadOnlyList<CharacterEntity> party)
         {
             if (entity == null || entity.EnemyData == null)
             {
@@ -46,9 +54,11 @@ namespace EchoesOfAsh.Battle
             }
 
             this.entity = entity;
+            this.party = party;
 
             EvaluatePattern();
             DecideNextAction();
+            PickNextTarget();
         }
         #endregion // 생성자
 
@@ -101,12 +111,12 @@ namespace EchoesOfAsh.Battle
 
         #region 대상 선정
         /// <summary>
-        /// 대상 선정 규칙에 따라 파티에서 대상을 선정합니다.
+        /// 실행할 행동의 대상 목록을 구성합니다.
+        /// 예고 대상이 생존해 있으면 그대로 사용하고, 아니면 실행 시점에 다시 선정합니다.
         /// </summary>
-        /// <param name="party">파티원 목록입니다.</param>
         /// <param name="results">선정 결과입니다.</param>
         /// <returns>선정 성공 여부입니다.</returns>
-        public bool SelectTargets(IReadOnlyList<CharacterEntity> party, List<ITargetable> results)
+        public bool SelectTargets(List<ITargetable> results)
         {
             if (results == null)
             {
@@ -115,6 +125,51 @@ namespace EchoesOfAsh.Battle
             }
 
             results.Clear();
+
+            CharacterEntity target = nextTarget;
+
+            // 예고 대상이 없거나(비공격 행동) 전투불능이면 실행 시점에 선정합니다
+            if (target == null || !target.IsTargetable)
+            {
+                target = PickTargetByRule();
+            }
+
+            if (target == null)
+            {
+                SWLog.LogError($"[EnemyAI] '{entity.DisplayName}' 대상 선정 실패: 대상 지정 가능한 파티원이 없습니다");
+                return false;
+            }
+
+            results.Add(target);
+            return true;
+        }
+
+        /// <summary>
+        /// 예고된 행동이 파티를 노리면(공격·정신력 타격) 대상을 미리 확정하고 알립니다.
+        /// </summary>
+        private void PickNextTarget()
+        {
+            CharacterEntity previousTarget = nextTarget;
+            nextTarget = null;
+
+            if (nextAction != null
+                && (nextAction.GetIntentDamageValue() > 0 || nextAction.GetIntentSanityPressureValue() > 0))
+            {
+                nextTarget = PickTargetByRule();
+            }
+
+            if (previousTarget != nextTarget)
+            {
+                OnTargetChanged?.Invoke(entity, nextTarget);
+            }
+        }
+
+        /// <summary>
+        /// 대상 선정 규칙에 따라 파티에서 대상 한 명을 선정합니다.
+        /// </summary>
+        /// <returns>선정한 파티원입니다. 없으면 null입니다.</returns>
+        private CharacterEntity PickTargetByRule()
+        {
             targetableBuffer.Clear();
 
             if (party != null)
@@ -130,25 +185,21 @@ namespace EchoesOfAsh.Battle
 
             if (targetableBuffer.Count == 0)
             {
-                SWLog.LogError($"[EnemyAI] '{entity.DisplayName}' 대상 선정 실패: 대상 지정 가능한 파티원이 없습니다");
-                return false;
+                return null;
             }
 
             switch (entity.EnemyData.TargetRuleType)
             {
                 case EEnemyTargetRuleType.Random:
-                    results.Add(SWRandom.Pick(targetableBuffer));
-                    return true;
+                    return SWRandom.Pick(targetableBuffer);
                 case EEnemyTargetRuleType.Aggro:
-                    // TODO: 도발/어그로 수치 도입 시 구현. 그 전까지 무작위와 동일 처리
-                    results.Add(SWRandom.Pick(targetableBuffer));
-                    return true;
+                    // TODO: 도발/어그로 수치 도입 시 구현 (P2-M5). 그 전까지 무작위와 동일 처리
+                    return SWRandom.Pick(targetableBuffer);
                 case EEnemyTargetRuleType.Fixed:
-                    results.Add(targetableBuffer[0]);
-                    return true;
+                    return targetableBuffer[0];
                 default:
                     SWLog.LogError($"[EnemyAI] 대상 선정 실패: 지원하지 않는 규칙({entity.EnemyData.TargetRuleType})입니다");
-                    return false;
+                    return null;
             }
         }
         #endregion // 대상 선정

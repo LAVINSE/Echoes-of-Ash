@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using EchoesOfAsh.Card;
+using EchoesOfAsh.Data;
 using EchoesOfAsh.Dungeon;
 using SW.Data;
 using SW.Util;
@@ -77,6 +79,17 @@ namespace EchoesOfAsh.Save
                 });
             }
 
+            // 파티 구성 기록 (스키마 v2)
+            saveData.partyCharacterCodeNames.Clear();
+
+            foreach (CharacterData characterData in dungeonState.CharacterDatas)
+            {
+                if (characterData != null)
+                {
+                    saveData.partyCharacterCodeNames.Add(characterData.CodeName);
+                }
+            }
+
             SWSaveDataManager.SetData(saveData);
             return SWSaveDataManager.SaveAll(null, SaveSlot, false, true, false);
         }
@@ -130,6 +143,12 @@ namespace EchoesOfAsh.Save
             {
                 SWLog.LogError($"[DungeonSaveService] 마이그레이션 실패: 저장 버전 {saveData.version}이 현재 버전 {CurrentVersion}보다 높습니다.");
                 return false;
+            }
+
+            if (saveData.version == 1)
+            {
+                saveData.partyCharacterCodeNames ??= new List<string>();
+                saveData.version = 2;
             }
 
             // 버전별 순차 마이그레이션 - v1이 초판이므로 현재 케이스 없음

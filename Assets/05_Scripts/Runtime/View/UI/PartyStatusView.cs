@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using EchoesOfAsh.Battle;
 using EchoesOfAsh.Enum;
 using EchoesOfAsh.Interface;
@@ -15,9 +16,9 @@ namespace EchoesOfAsh.View.UI
     public class PartyStatusView : SWMonoBehaviour
     {
         #region 필드
-        [SWGroup("표시")]
-        [SerializeField] private UIGaugeView hpGauge;
-        [SerializeField] private TextMeshProUGUI blockText;
+        [SWGroup("파티 슬롯")]
+        [Tooltip("파티원 표시 슬롯입니다. 3개 사전 배치, 인원수만큼 활성화합니다")]
+        [SerializeField] private List<PartyCharacterSlotView> characterSlotViews = new();
 
         [SWGroup("정신력")]
         [SerializeField] private UIGaugeView sanityGauge;
@@ -27,20 +28,19 @@ namespace EchoesOfAsh.View.UI
         [SerializeField] private Color calmColor = new(0.35f, 0.65f, 0.95f, 1f);
         [SerializeField] private Color madnessColor = new(0.75f, 0.25f, 0.85f, 1f);
 
-        private CharacterEntity character;
         private ISanityHolder sanityHolder;
         #endregion // 필드
 
 
         #region 초기화
         /// <summary>
-        /// 초기화합니다.
+        /// 초기화합니다. 파티 인원수만큼 슬롯을 활성화합니다.
         /// </summary>
-        /// <param name="character">표시할 파티원 엔티티입니다.</param>
-        /// <param name="sanityHolder">파티원 정신력입니다.</param>
-        public void Init(CharacterEntity character, ISanityHolder sanityHolder)
+        /// <param name="partyMembers">표시할 파티원 목록입니다 (스폰 순서 고정).</param>
+        /// <param name="sanityHolder">파티 공유 정신력입니다.</param>
+        public void Init(IReadOnlyList<CharacterEntity> partyCharacters, ISanityHolder sanityHolder)
         {
-            if (character == null || sanityHolder == null)
+            if (partyCharacters == null || partyCharacters.Count == 0 || sanityHolder == null)
             {
                 SWLog.LogError("[PartyStatusView] Init 실패: 의존성 중 null이 있습니다");
                 return;
@@ -48,17 +48,29 @@ namespace EchoesOfAsh.View.UI
 
             Release();
 
-            this.character = character;
             this.sanityHolder = sanityHolder;
 
-            character.OnHpChanged += HandleHpChanged;
-            character.OnBlockChanged += HandleBlockChanged;
+            for (int index = 0; index < characterSlotViews.Count; index++)
+            {
+                PartyCharacterSlotView slot = characterSlotViews[index];
+
+                if (slot == null)
+                {
+                    continue;
+                }
+
+                bool isUsed = index < partyCharacters.Count;
+                slot.gameObject.SetActive(isUsed);
+
+                if (isUsed)
+                {
+                    slot.Init(partyCharacters[index]);
+                }
+            }
 
             sanityHolder.OnSanityChanged += HandleSanityChanged;
             sanityHolder.OnSanityTypeChanged += HandleSanityTypeChanged;
 
-            HandleHpChanged(character.CurrentHp, character.MaxHp);
-            HandleBlockChanged(character.CurrentBlock);
             HandleSanityChanged(sanityHolder.CurrentSanity, sanityHolder.MaxSanity);
             HandleSanityTypeChanged(sanityHolder.CurrentSanityType);
 
@@ -69,14 +81,16 @@ namespace EchoesOfAsh.View.UI
         }
 
         /// <summary>
-        /// 파티원과 정신력 이벤트 구독을 해제합니다.
+        /// 슬롯과 정신력 이벤트 구독을 해제합니다.
         /// </summary>
         public void Release()
         {
-            if (character != null)
+            foreach (PartyCharacterSlotView slot in characterSlotViews)
             {
-                character.OnHpChanged -= HandleHpChanged;
-                character.OnBlockChanged -= HandleBlockChanged;
+                if (slot != null)
+                {
+                    slot.Release();
+                }
             }
 
             if (sanityHolder != null)
@@ -85,39 +99,9 @@ namespace EchoesOfAsh.View.UI
                 sanityHolder.OnSanityTypeChanged -= HandleSanityTypeChanged;
             }
 
-            character = null;
             sanityHolder = null;
-
         }
         #endregion // 초기화
-
-        /// <summary>
-        /// HP 변경 시 게이지를 갱신합니다.
-        /// </summary>
-        /// <param name="current">현재 HP입니다.</param>
-        /// <param name="max">최대 HP입니다.</param>
-        private void HandleHpChanged(int current, int max)
-        {
-            if (hpGauge != null)
-            {
-                hpGauge.SetValue(current, max);
-            }
-        }
-
-        /// <summary>
-        /// 방어막이 변경되면 표시를 갱신하며, 값이 0이면 숨깁니다.
-        /// </summary>
-        /// <param name="block">현재 방어막입니다.</param>
-        private void HandleBlockChanged(int block)
-        {
-            if (blockText == null)
-            {
-                return;
-            }
-
-            blockText.gameObject.SetActive(block > 0);
-            blockText.text = block.ToString();
-        }
 
         /// <summary>
         /// 정신력 변경 시 게이지를 갱신합니다.
