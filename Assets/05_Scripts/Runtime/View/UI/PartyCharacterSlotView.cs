@@ -33,7 +33,7 @@ namespace EchoesOfAsh.View.UI
         {
             if (characterEntity == null)
             {
-                SWLog.LogError("[PartyMemberSlotView] Init 실패: 파티원 엔티티가 null입니다");
+                SWLog.LogError("[PartyCharacterSlotView] Init 실패: 파티원 엔티티가 null입니다");
                 return;
             }
 

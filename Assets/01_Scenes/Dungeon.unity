@@ -806,6 +806,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 8002909151417671015, guid: 460243e34368708419948425edb1ee0f, type: 3}
   m_PrefabInstance: {fileID: 8078223757784958499}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1733389349 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2661171772618306404, guid: 460243e34368708419948425edb1ee0f, type: 3}
+  m_PrefabInstance: {fileID: 8078223757784958499}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ba19b3d9b607304482dba49d1bf4dbf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EchoesOfAsh.View.UI.PartySetupView
 --- !u!224 &1804488629 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4776445813399189346, guid: f52b03b58d288c24aa6a8727a68c9b31, type: 3}
@@ -1371,13 +1382,37 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2146261031}
     - target: {fileID: 3190026900988275682, guid: 18e8f36dcdf99ab4d9bcfb5bd6f30c71, type: 3}
+      propertyPath: partySetupView
+      value: 
+      objectReference: {fileID: 1733389349}
+    - target: {fileID: 3190026900988275682, guid: 18e8f36dcdf99ab4d9bcfb5bd6f30c71, type: 3}
       propertyPath: storageEventData
       value: 
       objectReference: {fileID: 11400000, guid: a464bfdbcc47caf489444ded10d2c16f, type: 2}
     - target: {fileID: 3190026900988275682, guid: 18e8f36dcdf99ab4d9bcfb5bd6f30c71, type: 3}
+      propertyPath: characterDatabase
+      value: 
+      objectReference: {fileID: 11400000, guid: 2ce035cb10be1284c950ccbeba68e2bb, type: 2}
+    - target: {fileID: 3190026900988275682, guid: 18e8f36dcdf99ab4d9bcfb5bd6f30c71, type: 3}
       propertyPath: eventDatas.Array.size
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3190026900988275682, guid: 18e8f36dcdf99ab4d9bcfb5bd6f30c71, type: 3}
+      propertyPath: availableCharacters.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3190026900988275682, guid: 18e8f36dcdf99ab4d9bcfb5bd6f30c71, type: 3}
+      propertyPath: 'availableCharacters.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: b574b363bc47ae944b04d32418008a88, type: 2}
+    - target: {fileID: 3190026900988275682, guid: 18e8f36dcdf99ab4d9bcfb5bd6f30c71, type: 3}
+      propertyPath: 'availableCharacters.Array.data[1]'
+      value: 
+      objectReference: {fileID: 11400000, guid: c1ef57e4035afeb4e803d1c9f88d5c2e, type: 2}
+    - target: {fileID: 3190026900988275682, guid: 18e8f36dcdf99ab4d9bcfb5bd6f30c71, type: 3}
+      propertyPath: 'availableCharacters.Array.data[2]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 25def2d2b6d4b1243b194ef875ac324f, type: 2}
     - target: {fileID: 3869543033173200404, guid: 18e8f36dcdf99ab4d9bcfb5bd6f30c71, type: 3}
       propertyPath: m_Name
       value: DungeonManager

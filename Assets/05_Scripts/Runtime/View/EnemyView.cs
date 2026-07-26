@@ -189,6 +189,11 @@ namespace EchoesOfAsh.View
             {
                 intentView.Clear();
             }
+
+            if (targetText != null)
+            {
+                targetText.gameObject.SetActive(false);
+            }
         }
 
         /// <summary>

@@ -36,7 +36,7 @@ namespace EchoesOfAsh.View.UI
         /// <summary>
         /// 초기화합니다. 파티 인원수만큼 슬롯을 활성화합니다.
         /// </summary>
-        /// <param name="partyMembers">표시할 파티원 목록입니다 (스폰 순서 고정).</param>
+        /// <param name="partyCharacters">표시할 파티원 목록입니다 (스폰 순서 고정).</param>
         /// <param name="sanityHolder">파티 공유 정신력입니다.</param>
         public void Init(IReadOnlyList<CharacterEntity> partyCharacters, ISanityHolder sanityHolder)
         {

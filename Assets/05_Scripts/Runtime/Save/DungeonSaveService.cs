@@ -17,7 +17,7 @@ namespace EchoesOfAsh.Save
         /// <summary>던전 스냅샷 저장 슬롯 이름입니다. 메타 저장(해금/거점)은 별도 슬롯으로 분리 예정입니다.</summary>
         public const string SaveSlot = "dungeon";
         /// <summary>현재 저장 스키마 버전입니다.</summary>
-        public const int CurrentVersion = 1;
+        public const int CurrentVersion = 2;
         #endregion // 상수
 
         #region 함수
@@ -145,17 +145,21 @@ namespace EchoesOfAsh.Save
                 return false;
             }
 
+            // 버전별 순차 마이그레이션 — 단계를 거치며 현재 버전까지 끌어올립니다
             if (saveData.version == 1)
             {
+                // v1 → v2: 파티 명단 필드 신설 — 구버전은 빈 목록 (복원 시 인스펙터 기본 파티 폴백)
                 saveData.partyCharacterCodeNames ??= new List<string>();
                 saveData.version = 2;
             }
 
-            // 버전별 순차 마이그레이션 - v1이 초판이므로 현재 케이스 없음
-            // 예: if (saveData.version == 1) { 신규 필드 기본값 채움; saveData.version = 2; }
+            if (saveData.version != CurrentVersion)
+            {
+                SWLog.LogError($"[DungeonSaveService] 마이그레이션 실패: 버전 {saveData.version}에서 {CurrentVersion}까지의 변환 단계가 없습니다.");
+                return false;
+            }
 
-            SWLog.LogError($"[DungeonSaveService] 마이그레이션 실패: 지원하지 않는 저장 버전 {saveData.version}입니다.");
-            return false;
+            return true;
         }
         #endregion // 함수
     }

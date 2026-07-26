@@ -75,6 +75,7 @@ namespace EchoesOfAsh.Battle
 
             EvaluatePattern();
             DecideNextAction();
+            PickNextTarget();
         }
         #endregion // 다음 턴 준비
 
