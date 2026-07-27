@@ -24,6 +24,14 @@ namespace EchoesOfAsh.View
         #endregion // 프로퍼티
 
         #region 초기화
+        private void Awake()
+        {
+            if (bodyRenderer != null)
+            {
+                originColor = bodyRenderer.color;
+            }
+        }
+
         /// <summary>
         /// 초기화
         /// </summary>
@@ -39,11 +47,6 @@ namespace EchoesOfAsh.View
             Release();
 
             this.characterEntity = characterEntity;
-
-            if (bodyRenderer != null)
-            {
-                originColor = bodyRenderer.color;
-            }
 
             characterEntity.OnDied += HandleDied;
 
