@@ -20,6 +20,7 @@ namespace EchoesOfAsh.Save
     /// 거점 누적 진행(기획 용어: 메타 진행)의 저장 스키마입니다. 던전 스냅샷과 별개 슬롯("hub")에 저장됩니다.
     /// v1 = 자원 보유량. 해금·시설·보유 캐릭터는 도입 시 버전 증가 + 마이그레이션으로 편입합니다 (기획서 15-5).
     /// </summary>
+    [System.Serializable]
     public class HubSaveData
     {
         /// <summary>현재 스키마 버전입니다.</summary>

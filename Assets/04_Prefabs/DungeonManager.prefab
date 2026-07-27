@@ -46,6 +46,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EchoesOfAsh.Dungeon.DungeonManager
   battleManager: {fileID: 0}
   mapConfigData: {fileID: 11400000, guid: 66807c471d662b64dab97a8a42812eeb, type: 2}
+  partyData: {fileID: 11400000, guid: c92d90a77174c324aa0f3cf68f68238e, type: 2}
+  characterDatas: []
+  cardDatabase: {fileID: 11400000, guid: 6ff58e69c08de2647a08d3d1264626ad, type: 2}
+  availableCharacters:
+  - {fileID: 11400000, guid: b574b363bc47ae944b04d32418008a88, type: 2}
+  - {fileID: 11400000, guid: c1ef57e4035afeb4e803d1c9f88d5c2e, type: 2}
+  - {fileID: 11400000, guid: 25def2d2b6d4b1243b194ef875ac324f, type: 2}
+  characterDatabase: {fileID: 11400000, guid: 2ce035cb10be1284c950ccbeba68e2bb, type: 2}
+  itemDatabase: {fileID: 11400000, guid: 6afe847e3b34f66498bd6a2ec99fb9ed, type: 2}
   dungeonSeed: 0
   startingCards:
   - {fileID: 11400000, guid: 0abc4eeb025736a4e96c5502a058ae46, type: 2}
@@ -54,3 +63,9 @@ MonoBehaviour:
   sanityEventDatas: []
   enemyEncounterDatas:
   - {fileID: 11400000, guid: e7b43b9945e28924bb63d24076592ae4, type: 2}
+  restEventData: {fileID: 11400000, guid: ffb990e5a9e1b7f4a987b5d84fecb696, type: 2}
+  storageEventData: {fileID: 11400000, guid: a464bfdbcc47caf489444ded10d2c16f, type: 2}
+  eventDatas: []
+  mapView: {fileID: 0}
+  nodeScreenView: {fileID: 0}
+  partySetupView: {fileID: 0}

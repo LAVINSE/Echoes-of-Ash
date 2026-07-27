@@ -46,6 +46,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EchoesOfAsh.Battle.CardDragController
   battleManager: {fileID: 0}
   targetingArrow: {fileID: 0}
+  tooltipView: {fileID: 0}
   targetCamera: {fileID: 0}
   cardLayerMask:
     serializedVersion: 2
@@ -53,6 +54,7 @@ MonoBehaviour:
   enemyLayerMask:
     serializedVersion: 2
     m_Bits: 128
+  characterLayerMask:
+    serializedVersion: 2
+    m_Bits: 256
   playLineY: -2
-  dragSortingLayerName: CardDrag
-  cardSortingLayerName: Card

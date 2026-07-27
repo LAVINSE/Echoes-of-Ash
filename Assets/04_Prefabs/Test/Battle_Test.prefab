@@ -45,5 +45,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EchoesOfAsh.Test.BattleTest
   battleManager: {fileID: 0}
+  startingCards:
+  - {fileID: 11400000, guid: 2294fdb8174a84a4cbead8f5fd9ed1b1, type: 2}
+  sanityEvents: []
+  enemyEncounterData: {fileID: 11400000, guid: e7b43b9945e28924bb63d24076592ae4, type: 2}
+  partyData: {fileID: 11400000, guid: c92d90a77174c324aa0f3cf68f68238e, type: 2}
+  characterDatas:
+  - {fileID: 11400000, guid: b574b363bc47ae944b04d32418008a88, type: 2}
+  - {fileID: 11400000, guid: 25def2d2b6d4b1243b194ef875ac324f, type: 2}
+  - {fileID: 11400000, guid: c1ef57e4035afeb4e803d1c9f88d5c2e, type: 2}
   useFixedSeed: 1
   seed: 12345
+  isShowTestGui: 1

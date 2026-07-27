@@ -44,10 +44,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e528c1647151b6e47a3f683db26c8e8c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EchoesOfAsh.Battle.BattleManager
-  partyData: {fileID: 0}
-  balanceData: {fileID: 0}
-  characterData: {fileID: 0}
-  startingCards: []
-  enemyDatas: []
-  characterRoot: {fileID: 0}
-  enemyRoot: {fileID: 0}
+  balanceData: {fileID: 11400000, guid: 340c1977cd22bce458630f988a4f0e5b, type: 2}
+  statusDatas:
+  - {fileID: 11400000, guid: d9a5fab48f4193a4b98df77fe682e8e9, type: 2}
+  - {fileID: 11400000, guid: 1b0b93c403f8cea479c0b93304f08cb7, type: 2}
+  characterRoot: {fileID: 8253593243724700799}
+  enemyRoot: {fileID: 8253593243724700799}
+  partyFormation: {fileID: 2719981912684798997, guid: 2f213fff04f9cac47afaf95b628086c3, type: 3}
+  handView: {fileID: 0}
+  enemyViewPrefab: {fileID: 2495086312046816145, guid: c85eacc3995435a458691d9e92cd5bab, type: 3}
+  characterViewPrefab: {fileID: 1155958496690357938, guid: 18a5728610defdf488355922832a6a77, type: 3}
+  partyStatusView: {fileID: 0}
+  cardTooltipView: {fileID: 0}
+  battleHUDView: {fileID: 0}
+  madnessOverlayView: {fileID: 0}

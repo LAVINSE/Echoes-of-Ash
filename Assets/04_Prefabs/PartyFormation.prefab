@@ -154,7 +154,7 @@ MonoBehaviour:
   partyCount: 2
   firstFormation: {fileID: 4130786341926714233}
   secondFormation: {fileID: 8487314840466845088}
-  ThirdFormation: {fileID: 2056768700344017951}
+  thirdFormation: {fileID: 2056768700344017951}
 --- !u!1 &6660448174101689319
 GameObject:
   m_ObjectHideFlags: 0

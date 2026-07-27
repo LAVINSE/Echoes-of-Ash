@@ -326,14 +326,21 @@ namespace EchoesOfAsh.Battle
         /// </summary>
         private void SetupParty()
         {
-            foreach (CharacterData characterData in dungeonState.CharacterDatas)
+            int partyCount = dungeonState.CharacterDatas.Count;
+
+            for (int index = 0; index < partyCount; index++)
             {
+                CharacterData characterData = dungeonState.CharacterDatas[index];
                 CharacterEntity member = new GameObject(characterData.name).AddComponent<CharacterEntity>();
 
                 if (characterRoot != null)
                 {
                     member.transform.SetParent(characterRoot, false);
                 }
+
+                member.transform.localPosition = partyFormation != null
+                ? partyFormation.GetSpawnPosition(partyCount, index)
+                : Vector3.zero;
 
                 member.Init(characterData);
                 member.SetStatusDatas(statusDatas);
