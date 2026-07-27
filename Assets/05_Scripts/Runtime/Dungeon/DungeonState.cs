@@ -23,6 +23,11 @@ namespace EchoesOfAsh.Dungeon
         private int moveCount;
         private int ashConsumedFloor = -1;
         private bool isCurrentNodeResolved = true;
+
+        /// <summary>던전 중 획득해 들고 있는 아이템 목록입니다. 회수 판정 전까지의 임시 보유분입니다.</summary>
+        private readonly List<ItemStackData> carriedItems = new();
+        /// <summary>던전 중 소지 아이템 목록입니다.</summary>
+        public IReadOnlyList<ItemStackData> CarriedItems => carriedItems;
         #endregion // 필드
 
         #region 프로퍼티
@@ -228,5 +233,41 @@ namespace EchoesOfAsh.Dungeon
             this.ashConsumedFloor = ashConsumedFloor;
         }
         #endregion // 함수
+
+        #region 드랍 소지
+    
+
+        /// <summary>
+        /// 소지 목록에 아이템을 추가합니다. 같은 아이템은 수량을 합산합니다.
+        /// </summary>
+        /// <param name="itemData">획득한 아이템입니다.</param>
+        /// <param name="count">수량입니다.</param>
+        public void AddCarriedItem(ItemData itemData, int count)
+        {
+            if (itemData == null || count <= 0)
+            {
+                return;
+            }
+
+            foreach (ItemStackData stack in carriedItems)
+            {
+                if (stack.ItemData == itemData)
+                {
+                    stack.AddCount(count);
+                    return;
+                }
+            }
+
+            carriedItems.Add(new ItemStackData(itemData, count));
+        }
+
+        /// <summary>
+        /// 소지 목록을 비웁니다. 보관 전송 또는 회수 반영 후 호출합니다.
+        /// </summary>
+        public void ClearCarriedItems()
+        {
+            carriedItems.Clear();
+        }
+        #endregion // 드랍 소지
     }
 }

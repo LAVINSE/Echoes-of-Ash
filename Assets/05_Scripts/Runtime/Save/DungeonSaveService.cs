@@ -1,41 +1,42 @@
-using System.Collections.Generic;
 using EchoesOfAsh.Card;
 using EchoesOfAsh.Data;
 using EchoesOfAsh.Dungeon;
-using SW.Data;
 using SW.Util;
 
 namespace EchoesOfAsh.Save
 {
     /// <summary>
-    /// 던전 스냅샷의 저장, 로드, 마이그레이션을 담당합니다.
-    /// SWSaveDataManager의 "dungeon" 슬롯을 사용합니다.
+    /// 던전 스냅샷 구획의 기록, 판독, 소멸을 담당합니다.
+    /// 파일 입출력은 GameSaveService에 위임합니다 - 던전 소멸은 파일 삭제가 아니라 깃발 하강이며 거점 구획은 보존됩니다.
+    /// 잠정 규칙: 개발 중에는 마이그레이션 없이 버전 불일치 = 폐기합니다 (데이터 보존 시작 시점에 계층 복원 — 기획서 15-5).
     /// </summary>
     public static class DungeonSaveService
     {
         #region 상수
-        /// <summary>던전 스냅샷 저장 슬롯 이름입니다. 메타 저장(해금/거점)은 별도 슬롯으로 분리 예정입니다.</summary>
-        public const string SAVE_SLOT = "dungeon";
-        /// <summary>현재 저장 스키마 버전입니다.</summary>
-        public const int CURRENT_VERSION = 2;
+        /// <summary>현재 저장 스키마 버전입니다. 구버전 스냅샷을 강제 폐기하고 싶을 때만 증가시킵니다.</summary>
+        public const int CURRENT_VERSION = 1;
         #endregion // 상수
 
         #region 함수
         /// <summary>
-        /// 던전 저장 파일이 있는지 확인합니다.
+        /// 진행 중인 던전 스냅샷이 있는지 확인합니다.
         /// </summary>
-        /// <returns>저장 파일이 있으면 true입니다.</returns>
+        /// <returns>스냅샷이 있으면 true입니다.</returns>
         public static bool HasSave()
         {
-            return SWSaveDataManager.HasSave(SAVE_SLOT);
+            return GameSaveService.Current.hasDungeon;
         }
 
         /// <summary>
-        /// 던전 저장 파일을 삭제합니다. 던전 종료 시 호출합니다.
+        /// 던전 스냅샷을 소멸시킵니다. 던전 종료 시 호출합니다. 거점 구획은 보존됩니다.
         /// </summary>
         public static void DeleteSave()
         {
-            SWSaveDataManager.Delete(SAVE_SLOT);
+            GameSaveData gameData = GameSaveService.Current;
+            gameData.hasDungeon = false;
+            gameData.dungeon = new DungeonSaveData();
+
+            GameSaveService.Save();
         }
 
         /// <summary>
@@ -79,9 +80,7 @@ namespace EchoesOfAsh.Save
                 });
             }
 
-            // 파티 구성 기록 (스키마 v2)
-            saveData.partyCharacterCodeNames.Clear();
-
+            // 파티 구성 기록 (편성 화면 도입분)
             foreach (CharacterData characterData in dungeonState.CharacterDatas)
             {
                 if (characterData != null)
@@ -90,76 +89,50 @@ namespace EchoesOfAsh.Save
                 }
             }
 
-            SWSaveDataManager.SetData(saveData);
-            return SWSaveDataManager.SaveAll(null, SAVE_SLOT, false, true, false);
+            // 소지 드랍 기록 (P2-M6 - 회수 판정 전까지의 임시 보유분)
+            foreach (ItemStackData stack in dungeonState.CarriedItems)
+            {
+                if (stack == null || stack.ItemData == null)
+                {
+                    continue;
+                }
+
+                saveData.carriedItems.Add(new ItemCountSaveData
+                {
+                    codeName = stack.ItemData.CodeName,
+                    count = stack.Count,
+                });
+            }
+
+            GameSaveData gameData = GameSaveService.Current;
+            gameData.dungeon = saveData;
+            gameData.hasDungeon = true;
+
+            return GameSaveService.Save();
         }
 
         /// <summary>
-        /// 던전 스냅샷을 로드하고 마이그레이션을 적용합니다.
+        /// 던전 스냅샷을 읽어옵니다. 버전이 다르면 폐기합니다 (개발 중 잠정 규칙 - 마이그레이션 없음).
         /// </summary>
-        /// <returns>로드한 저장 데이터입니다. 실패하면 null입니다.</returns>
+        /// <returns>읽어온 저장 데이터입니다. 실패하면 null입니다.</returns>
         public static DungeonSaveData Load()
         {
-            if (!HasSave())
+            GameSaveData gameData = GameSaveService.Current;
+
+            if (!gameData.hasDungeon || gameData.dungeon == null)
             {
-                SWLog.LogWarning("[DungeonSaveService] Load 실패: 저장 파일이 없습니다.");
+                SWLog.LogWarning("[DungeonSaveService] Load 실패: 진행 중인 던전 스냅샷이 없습니다.");
                 return null;
             }
 
-            SWSaveDataManager.SetData(new DungeonSaveData());
-
-            bool isLoaded = false;
-            SWSaveDataManager.LoadAll(success => isLoaded = success, SAVE_SLOT, false);
-
-            if (!isLoaded)
+            if (gameData.dungeon.version != CURRENT_VERSION)
             {
-                SWLog.LogError("[DungeonSaveService] Load 실패: 저장 파일을 읽지 못했습니다.");
+                SWLog.LogWarning($"[DungeonSaveService] 던전 저장 버전({gameData.dungeon.version})이 현재 버전({CURRENT_VERSION})과 다릅니다 - 스냅샷을 폐기합니다.");
+                DeleteSave();
                 return null;
             }
 
-            DungeonSaveData saveData = SWSaveDataManager.GetData<DungeonSaveData>();
-
-            if (saveData == null || !Migrate(saveData))
-            {
-                return null;
-            }
-
-            return saveData;
-        }
-
-        /// <summary>
-        /// 저장 데이터를 현재 스키마 버전으로 순차 마이그레이션합니다.
-        /// </summary>
-        /// <param name="saveData">마이그레이션할 저장 데이터입니다.</param>
-        /// <returns>현재 버전으로 변환했으면 true입니다.</returns>
-        private static bool Migrate(DungeonSaveData saveData)
-        {
-            if (saveData.version == CURRENT_VERSION)
-            {
-                return true;
-            }
-
-            if (saveData.version > CURRENT_VERSION)
-            {
-                SWLog.LogError($"[DungeonSaveService] 마이그레이션 실패: 저장 버전 {saveData.version}이 현재 버전 {CURRENT_VERSION}보다 높습니다.");
-                return false;
-            }
-
-            // 버전별 순차 마이그레이션 — 단계를 거치며 현재 버전까지 끌어올립니다
-            if (saveData.version == 1)
-            {
-                // v1 → v2: 파티 명단 필드 신설 — 구버전은 빈 목록 (복원 시 인스펙터 기본 파티 폴백)
-                saveData.partyCharacterCodeNames ??= new List<string>();
-                saveData.version = 2;
-            }
-
-            if (saveData.version != CURRENT_VERSION)
-            {
-                SWLog.LogError($"[DungeonSaveService] 마이그레이션 실패: 버전 {saveData.version}에서 {CURRENT_VERSION}까지의 변환 단계가 없습니다.");
-                return false;
-            }
-
-            return true;
+            return gameData.dungeon;
         }
         #endregion // 함수
     }

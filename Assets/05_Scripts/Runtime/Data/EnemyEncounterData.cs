@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using SW.Attributes;
 using SW.Base;
@@ -31,6 +32,10 @@ namespace EchoesOfAsh.Data
         #region 필드
         [SWGroup("구성")]
         [SerializeField] private List<EncounterEntry> entries = new();
+
+        [SWGroup("드랍")]
+        [Tooltip("이 조우 승리 시 굴릴 드랍 테이블입니다. 비우면 드랍 없음")]
+        [SerializeField] private DropTableData dropTable;
         #endregion // 필드
 
         #region 프로퍼티
@@ -38,6 +43,9 @@ namespace EchoesOfAsh.Data
         public IReadOnlyList<EncounterEntry> Entries => entries;
         /// <summary>조우 적 수입니다.</summary>
         public int EnemyCount => entries.Count;
+
+        /// <summary>승리 시 굴릴 드랍 테이블입니다. 없으면 null입니다.</summary>
+        public DropTableData DropTable => dropTable;
         #endregion // 프로퍼티
     }
 }

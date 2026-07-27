@@ -52,9 +52,10 @@ namespace EchoesOfAsh.Dungeon
         [SerializeField] private SWIODatabase cardDatabase;
         [Tooltip("편성 화면에서 선택할 수 있는 보유 캐릭터 목록입니다 (임시 조치 — 메타 저장 도입 시 대체)")]
         [SerializeField] private List<CharacterData> availableCharacters = new();
-
         [Tooltip("캐릭터 데이터베이스입니다. 저장된 파티를 코드명으로 복원할 때 사용합니다 (카드 DB와 같은 에셋 연결 가능)")]
         [SerializeField] private SWIODatabase characterDatabase;
+        [Tooltip("아이템 codeName 복원용 데이터베이스입니다 (저장 스키마 v3)")]
+        [SerializeField] private SWIODatabase itemDatabase;
 
         [SWGroup("던전 구성")]
         [Tooltip("던전 생성에 사용할 시드입니다. 0이면 실행 시 무작위 시드를 생성합니다.")]
@@ -85,6 +86,7 @@ namespace EchoesOfAsh.Dungeon
 
         private readonly List<CharacterData> selectedParty = new();
         private readonly List<MapNode> availableNodeBuffer = new();
+        private readonly List<ItemStackData> dropRollBuffer = new();
         private readonly StringBuilder stringBuilder = new();
         #endregion // 필드
 
@@ -345,6 +347,20 @@ namespace EchoesOfAsh.Dungeon
                 dungeonState.AddCard(new CardInstance(cardData, cardSave.isUpgrade));
             }
 
+            // 소지 드랍 복원 (P2-M6)
+            foreach (ItemCountSaveData itemSave in saveData.carriedItems)
+            {
+                ItemData itemData = itemDatabase.GetDataByCodeName<ItemData>(itemSave.codeName);
+
+                if (itemData == null)
+                {
+                    SWLog.LogWarning($"[DungeonManager] 코드명 '{itemSave.codeName}' 아이템을 찾지 못해 건너뜁니다.");
+                    continue;
+                }
+
+                dungeonState.AddCarriedItem(itemData, itemSave.count);
+            }
+
             if (dungeonState.Deck.Count == 0)
             {
                 SWLog.LogError("[DungeonManager] ResumeDungeon 실패: 복원한 덱이 비어 있습니다.");
@@ -396,6 +412,8 @@ namespace EchoesOfAsh.Dungeon
         /// <param name="isVictory">던전에서 승리했는지 여부입니다.</param>
         private void EndDungeon(bool isVictory)
         {
+            ResolveCarriedItems(isVictory);
+            
             if (mapView != null)
             {
                 mapView.Hide();
@@ -570,6 +588,7 @@ namespace EchoesOfAsh.Dungeon
                     break;
 
                 case EMapNodeType.Storage:
+                    TransferCarriedToStorage();
                     ShowNodeScreen(storageEventData, "보관");
                     break;
 
@@ -781,6 +800,19 @@ namespace EchoesOfAsh.Dungeon
                 RefreshMapViewState();
             }
 
+            // 드랍 굴림 - 소지 목록으로 이동합니다 (회수 판정은 던전 종료 시)
+            if (currentEncounterData != null && currentEncounterData.DropTable != null)
+            {
+                dropRollBuffer.Clear();
+                currentEncounterData.DropTable.Roll(dropRollBuffer);
+
+                foreach (ItemStack drop in dropRollBuffer)
+                {
+                    dungeonState.AddCarriedItem(drop.ItemData, drop.Count);
+                    SWLog.Log($"[DungeonManager] 드랍 획득: {drop.ItemData.DisplayName} x{drop.Count}");
+                }
+            }
+
             LogAvailableNodes("맵 복귀");
             MarkNodeResolvedAndSave();
         }
@@ -842,6 +874,62 @@ namespace EchoesOfAsh.Dungeon
             mapView.RefreshNodeStates(dungeonState.CurrentNodeIdentifier, availableNodeBuffer);
         }
         #endregion // 맵 표시
+
+        /// <summary>
+        /// 소지 아이템 전량을 거점(메타)으로 전송합니다. 전송 즉시 저장되므로 이후 사망해도 보존됩니다.
+        /// </summary>
+        private void TransferCarriedToStorage()
+        {
+            if (dungeonState == null || dungeonState.CarriedItems.Count == 0)
+            {
+                SWLog.Log("[DungeonManager] 보관 전송: 소지 아이템이 없습니다.");
+                return;
+            }
+
+            foreach (ItemStackData stack in dungeonState.CarriedItems)
+            {
+                MetaSaveService.AddItem(stack.ItemData.CodeName, stack.Count);
+            }
+
+            MetaSaveService.Save();
+            SWLog.Log($"[DungeonManager] 보관 전송 완료: {dungeonState.CarriedItems.Count}종을 거점으로 보냈습니다.");
+            dungeonState.ClearCarriedItems();
+        }
+
+        /// <summary>
+        /// 던전 종료 시 소지 아이템의 회수를 판정합니다.
+        /// 승리 = 전량 회수, 패배 = 기본 자원만 회수하고 나머지는 소실됩니다 (기획서 2-1).
+        /// </summary>
+        /// <param name="isVictory">던전 승리 여부입니다.</param>
+        private void ResolveCarriedItems(bool isVictory)
+        {
+            if (dungeonState == null || dungeonState.CarriedItems.Count == 0)
+            {
+                return;
+            }
+
+            int recoveredCount = 0;
+
+            foreach (ItemStackData stack in dungeonState.CarriedItems)
+            {
+                if (!isVictory && !stack.ItemData.IsBaseResource)
+                {
+                    SWLog.Log($"[DungeonManager] 회수 실패(소실): {stack.ItemData.DisplayName} x{stack.Count}");
+                    continue;
+                }
+
+                MetaSaveService.AddItem(stack.ItemData.CodeName, stack.Count);
+                recoveredCount++;
+            }
+
+            if (recoveredCount > 0)
+            {
+                MetaSaveService.Save();
+            }
+
+            SWLog.Log($"[DungeonManager] 회수 판정 완료: {recoveredCount}종 회수 ({(isVictory ? "생존 귀환" : "기본 자원만")})");
+            dungeonState.ClearCarriedItems();
+        }
 
         #region 로그
         /// <summary>

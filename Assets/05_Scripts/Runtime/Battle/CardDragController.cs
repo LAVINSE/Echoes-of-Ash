@@ -36,7 +36,6 @@ namespace EchoesOfAsh.Battle
         private CardView hoveredCard;
         private CardView draggedCard;
         private bool isAimedTargeting;
-        private bool isSingleTarget;
         private Vector3 originLocalPosition;
         private Quaternion originLocalRotation;
 

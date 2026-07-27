@@ -18,12 +18,12 @@ namespace EchoesOfAsh.Save
 
     /// <summary>
     /// 던전 1회 도전의 저장 스냅샷입니다 (P2-D1 - 전체 상태 스냅샷).
-    /// 가변 런 상태만 저장하고, 정적 구성(조우 풀, 이벤트 풀, 밸런스)은 저장하지 않습니다.
+    /// GameSaveData의 던전 구획으로 저장되며, 가변 런 상태만 담고 정적 구성(조우 풀, 이벤트 풀, 밸런스)은 저장하지 않습니다.
     /// </summary>
     [System.Serializable]
     public class DungeonSaveData
     {
-        /// <summary>저장 스키마 버전입니다. 필드 추가/변경 시 증가시키고 마이그레이션을 추가합니다.</summary>
+        /// <summary>저장 스키마 버전입니다. 개발 중에는 마이그레이션 없이 버전 불일치 = 폐기입니다 (구버전 강제 폐기가 필요할 때만 증가).</summary>
         public int version;
 
         /// <summary>던전 생성에 사용한 시드입니다 (생성 기록/재현용 - 재개 시 난수 연속성은 보장하지 않습니다).</summary>
@@ -47,7 +47,10 @@ namespace EchoesOfAsh.Save
         /// <summary>던전 덱의 카드 목록입니다.</summary>
         public List<DungeonCardSaveData> deckCards = new();
 
-        /// <summary>파티 캐릭터 코드명 목록입니다 (스키마 v2 — 편성 화면 도입)</summary>
+        /// <summary>파티 캐릭터 코드명 목록입니다 (편성 화면 도입분).</summary>
         public List<string> partyCharacterCodeNames = new();
+
+        /// <summary>던전 중 소지한 드랍 아이템 목록입니다. codeName 기준으로 복원합니다 (P2-M6).</summary>
+        public List<ItemCountSaveData> carriedItems = new();
     }
 }
