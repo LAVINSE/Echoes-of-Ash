@@ -35,6 +35,7 @@ namespace EchoesOfAsh.Battle
 
         private CardView hoveredCard;
         private CardView draggedCard;
+        private bool isAimedTargeting;
         private bool isSingleTarget;
         private Vector3 originLocalPosition;
         private Quaternion originLocalRotation;
@@ -130,7 +131,10 @@ namespace EchoesOfAsh.Battle
             SetHoveredCard(null);
 
             draggedCard = cardView;
-            isSingleTarget = cardView.CardInstance.TargetingType == ETargetingType.Single;
+
+            ETargetingType targetingType = cardView.CardInstance.TargetingType;
+            isAimedTargeting = targetingType == ETargetingType.Single
+                || targetingType == ETargetingType.Self;
 
             Transform cardTransform = cardView.transform;
             originLocalPosition = cardTransform.localPosition;
@@ -138,7 +142,7 @@ namespace EchoesOfAsh.Battle
 
             cardView.SetDragging(true);
 
-            if (isSingleTarget)
+            if (isAimedTargeting)
             {
                 // 카드는 손패에 고정하고 화살표로 대상을 지정합니다 (STS 표준 UX)
                 targetingArrow.BeginAiming(cardTransform.position);
@@ -155,7 +159,7 @@ namespace EchoesOfAsh.Battle
         /// <param name="pointerWorldPosition">포인터의 월드 좌표입니다.</param>
         private void UpdateDrag(Vector2 pointerWorldPosition)
         {
-            if (isSingleTarget)
+            if (isAimedTargeting)
             {
                 targetingArrow.UpdateAiming(pointerWorldPosition);
                 return;
@@ -179,11 +183,15 @@ namespace EchoesOfAsh.Battle
             CardView cardView = draggedCard;
             draggedCard = null;
 
-            targetingArrow.EndAiming();
+             targetingArrow.EndAiming();
 
-            bool isPlayed = isSingleTarget
-               ? TryPlayOnEnemy(cardView, pointerWorldPosition)
-               : TryPlayOnAlly(cardView, pointerWorldPosition) || TryPlayAboveLine(cardView, pointerWorldPosition);
+            // 조준 카드는 해당 대상 위에서만 성립하고, 빗나가면 취소됩니다 (Single/Self 대칭)
+            bool isPlayed = cardView.CardInstance.TargetingType switch
+            {
+                ETargetingType.Single => TryPlayOnEnemy(cardView, pointerWorldPosition),
+                ETargetingType.Self => TryPlayOnAlly(cardView, pointerWorldPosition),
+                _ => TryPlayAboveLine(cardView, pointerWorldPosition),
+            };
 
             // 성공 시 뷰는 OnHandChanged 재구성으로 풀에 반환됨 — 재사용 대비 소팅 레이어만 복원
             cardView.SetDragging(false);
