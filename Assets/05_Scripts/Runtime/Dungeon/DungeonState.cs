@@ -26,8 +26,6 @@ namespace EchoesOfAsh.Dungeon
 
         /// <summary>던전 중 획득해 들고 있는 아이템 목록입니다. 회수 판정 전까지의 임시 보유분입니다.</summary>
         private readonly List<ItemStackData> carriedItems = new();
-        /// <summary>던전 중 소지 아이템 목록입니다.</summary>
-        public IReadOnlyList<ItemStackData> CarriedItems => carriedItems;
         #endregion // 필드
 
         #region 프로퍼티
@@ -55,6 +53,9 @@ namespace EchoesOfAsh.Dungeon
         public int AshConsumedFloor => ashConsumedFloor;
         /// <summary>현재 노드의 진입 처리가 완료되었는지 여부입니다. 미완료 상태로 복원되면 진입 처리를 다시 실행합니다.</summary>
         public bool IsCurrentNodeResolved => isCurrentNodeResolved;
+
+        /// <summary>던전 중 소지 아이템 목록입니다.</summary>
+        public IReadOnlyList<ItemStackData> CarriedItems => carriedItems;
         #endregion // 프로퍼티
 
         #region 생성자

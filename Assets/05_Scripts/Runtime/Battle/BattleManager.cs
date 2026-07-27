@@ -32,6 +32,7 @@ namespace EchoesOfAsh.Battle
         [SWGroup("배치")]
         [SerializeField] private Transform characterRoot;
         [SerializeField] private Transform enemyRoot;
+        [SerializeField] private PartyFormation partyFormation;
 
         [SWGroup("뷰")]
         [SerializeField] private HandView handView;

@@ -81,6 +81,7 @@ namespace EchoesOfAsh.Dungeon
         private DungeonState dungeonState;
         private EDungeonPhase currentPhase = EDungeonPhase.None;
         private MapNode currentBattleNode;
+        private EnemyEncounterData currentEncounterData;
         private DungeonEventData currentEventData;
         private bool isBattleEventSubscribed;
 
@@ -376,6 +377,7 @@ namespace EchoesOfAsh.Dungeon
                 saveData.ashConsumedFloor);
 
             currentBattleNode = null;
+            currentEncounterData = null;
             currentEventData = null;
             currentPhase = EDungeonPhase.Map;
 
@@ -413,7 +415,7 @@ namespace EchoesOfAsh.Dungeon
         private void EndDungeon(bool isVictory)
         {
             ResolveCarriedItems(isVictory);
-            
+
             if (mapView != null)
             {
                 mapView.Hide();
@@ -426,6 +428,7 @@ namespace EchoesOfAsh.Dungeon
 
             currentPhase = EDungeonPhase.Ended;
             currentBattleNode = null;
+            currentEncounterData = null;
             currentEventData = null;
 
             selectedParty.Clear();
@@ -760,6 +763,7 @@ namespace EchoesOfAsh.Dungeon
 
             int encounterIndex = SWRandom.Range(0, enemyEncounterDatas.Count);
             EnemyEncounterData enemyEncounterData = enemyEncounterDatas[encounterIndex];
+            currentEncounterData = enemyEncounterData;
 
             if (!battleManager.StartBattle(dungeonState, enemyEncounterData))
             {
@@ -785,6 +789,21 @@ namespace EchoesOfAsh.Dungeon
                 return;
             }
 
+            // 드랍 굴림 - 보스 포함 모든 승리 직후 소지 목록으로 이동합니다 (회수 판정은 던전 종료 시)
+            if (currentEncounterData != null && currentEncounterData.DropTable != null)
+            {
+                dropRollBuffer.Clear();
+                currentEncounterData.DropTable.Roll(dropRollBuffer);
+
+                foreach (ItemStackData drop in dropRollBuffer)
+                {
+                    dungeonState.AddCarriedItem(drop.ItemData, drop.Count);
+                    SWLog.Log($"[DungeonManager] 드랍 획득: {drop.ItemData.DisplayName} x{drop.Count}");
+                }
+            }
+
+            currentEncounterData = null;
+
             if (currentBattleNode != null && currentBattleNode.NodeType == EMapNodeType.Boss)
             {
                 EndDungeon(true);
@@ -798,19 +817,6 @@ namespace EchoesOfAsh.Dungeon
             {
                 mapView.Show();
                 RefreshMapViewState();
-            }
-
-            // 드랍 굴림 - 소지 목록으로 이동합니다 (회수 판정은 던전 종료 시)
-            if (currentEncounterData != null && currentEncounterData.DropTable != null)
-            {
-                dropRollBuffer.Clear();
-                currentEncounterData.DropTable.Roll(dropRollBuffer);
-
-                foreach (ItemStack drop in dropRollBuffer)
-                {
-                    dungeonState.AddCarriedItem(drop.ItemData, drop.Count);
-                    SWLog.Log($"[DungeonManager] 드랍 획득: {drop.ItemData.DisplayName} x{drop.Count}");
-                }
             }
 
             LogAvailableNodes("맵 복귀");
@@ -888,10 +894,10 @@ namespace EchoesOfAsh.Dungeon
 
             foreach (ItemStackData stack in dungeonState.CarriedItems)
             {
-                MetaSaveService.AddItem(stack.ItemData.CodeName, stack.Count);
+                HubSaveService.AddItem(stack.ItemData.CodeName, stack.Count);
             }
 
-            MetaSaveService.Save();
+            HubSaveService.Save();
             SWLog.Log($"[DungeonManager] 보관 전송 완료: {dungeonState.CarriedItems.Count}종을 거점으로 보냈습니다.");
             dungeonState.ClearCarriedItems();
         }
@@ -918,13 +924,13 @@ namespace EchoesOfAsh.Dungeon
                     continue;
                 }
 
-                MetaSaveService.AddItem(stack.ItemData.CodeName, stack.Count);
+                HubSaveService.AddItem(stack.ItemData.CodeName, stack.Count);
                 recoveredCount++;
             }
 
             if (recoveredCount > 0)
             {
-                MetaSaveService.Save();
+                HubSaveService.Save();
             }
 
             SWLog.Log($"[DungeonManager] 회수 판정 완료: {recoveredCount}종 회수 ({(isVictory ? "생존 귀환" : "기본 자원만")})");

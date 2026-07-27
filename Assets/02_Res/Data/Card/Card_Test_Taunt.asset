@@ -20,7 +20,7 @@ MonoBehaviour:
   spriteIcon: {fileID: 0}
   cardType: 2
   rarityType: 0
-  apCost: 0
+  apCost: 1
   targetingType: 3
   effects:
   - rid: 3116057249521860693
