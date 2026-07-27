@@ -15,9 +15,9 @@ namespace EchoesOfAsh.Save
     {
         #region 상수
         /// <summary>던전 스냅샷 저장 슬롯 이름입니다. 메타 저장(해금/거점)은 별도 슬롯으로 분리 예정입니다.</summary>
-        public const string SaveSlot = "dungeon";
+        public const string SAVE_SLOT = "dungeon";
         /// <summary>현재 저장 스키마 버전입니다.</summary>
-        public const int CurrentVersion = 2;
+        public const int CURRENT_VERSION = 2;
         #endregion // 상수
 
         #region 함수
@@ -27,7 +27,7 @@ namespace EchoesOfAsh.Save
         /// <returns>저장 파일이 있으면 true입니다.</returns>
         public static bool HasSave()
         {
-            return SWSaveDataManager.HasSave(SaveSlot);
+            return SWSaveDataManager.HasSave(SAVE_SLOT);
         }
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace EchoesOfAsh.Save
         /// </summary>
         public static void DeleteSave()
         {
-            SWSaveDataManager.Delete(SaveSlot);
+            SWSaveDataManager.Delete(SAVE_SLOT);
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace EchoesOfAsh.Save
 
             DungeonSaveData saveData = new()
             {
-                version = CurrentVersion,
+                version = CURRENT_VERSION,
                 seed = dungeonState.Seed,
                 currentNodeIdentifier = dungeonState.CurrentNodeIdentifier,
                 isCurrentNodeResolved = dungeonState.IsCurrentNodeResolved,
@@ -91,7 +91,7 @@ namespace EchoesOfAsh.Save
             }
 
             SWSaveDataManager.SetData(saveData);
-            return SWSaveDataManager.SaveAll(null, SaveSlot, false, true, false);
+            return SWSaveDataManager.SaveAll(null, SAVE_SLOT, false, true, false);
         }
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace EchoesOfAsh.Save
             SWSaveDataManager.SetData(new DungeonSaveData());
 
             bool isLoaded = false;
-            SWSaveDataManager.LoadAll(success => isLoaded = success, SaveSlot, false);
+            SWSaveDataManager.LoadAll(success => isLoaded = success, SAVE_SLOT, false);
 
             if (!isLoaded)
             {
@@ -134,14 +134,14 @@ namespace EchoesOfAsh.Save
         /// <returns>현재 버전으로 변환했으면 true입니다.</returns>
         private static bool Migrate(DungeonSaveData saveData)
         {
-            if (saveData.version == CurrentVersion)
+            if (saveData.version == CURRENT_VERSION)
             {
                 return true;
             }
 
-            if (saveData.version > CurrentVersion)
+            if (saveData.version > CURRENT_VERSION)
             {
-                SWLog.LogError($"[DungeonSaveService] 마이그레이션 실패: 저장 버전 {saveData.version}이 현재 버전 {CurrentVersion}보다 높습니다.");
+                SWLog.LogError($"[DungeonSaveService] 마이그레이션 실패: 저장 버전 {saveData.version}이 현재 버전 {CURRENT_VERSION}보다 높습니다.");
                 return false;
             }
 
@@ -153,9 +153,9 @@ namespace EchoesOfAsh.Save
                 saveData.version = 2;
             }
 
-            if (saveData.version != CurrentVersion)
+            if (saveData.version != CURRENT_VERSION)
             {
-                SWLog.LogError($"[DungeonSaveService] 마이그레이션 실패: 버전 {saveData.version}에서 {CurrentVersion}까지의 변환 단계가 없습니다.");
+                SWLog.LogError($"[DungeonSaveService] 마이그레이션 실패: 버전 {saveData.version}에서 {CURRENT_VERSION}까지의 변환 단계가 없습니다.");
                 return false;
             }
 

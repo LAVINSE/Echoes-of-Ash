@@ -28,7 +28,7 @@ namespace EchoesOfAsh.View.UI
         /// <summary>
         /// 초기화합니다.
         /// </summary>
-        /// <param name="character">표시할 파티원 엔티티입니다.</param>
+        /// <param name="characterEntity">표시할 파티원 엔티티입니다.</param>
         public void Init(CharacterEntity characterEntity)
         {
             if (characterEntity == null)

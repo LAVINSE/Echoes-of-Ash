@@ -10,20 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ca360e868a5482b4ba66271865e2847e, type: 3}
-  m_Name: Card_Test_Character
+  m_Name: Card_Test_Taunt
   m_EditorClassIdentifier: Assembly-CSharp::EchoesOfAsh.Data.CardData
   categories: []
-  id: 3
-  codeName: Card_Test_Character
-  displayName: "\uCE74\uB4DC \uD14C\uC2A4\uD2B8 \uCE90\uB9AD"
+  id: 4
+  codeName: Card_Test_Taunt
+  displayName: 
   description: 
   spriteIcon: {fileID: 0}
-  cardType: 0
+  cardType: 2
   rarityType: 0
-  apCost: 1
-  targetingType: 0
+  apCost: 0
+  targetingType: 3
   effects:
-  - rid: 3116056931190964224
+  - rid: 3116057249521860693
   isSanityEffect: 0
   sanityEffects: []
   isUpgrade: 0
@@ -33,8 +33,8 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 3116056931190964224
-      type: {class: DamageEffect, ns: EchoesOfAsh.Effect, asm: Assembly-CSharp}
+    - rid: 3116057249521860693
+      type: {class: StatusEffect, ns: EchoesOfAsh.Effect, asm: Assembly-CSharp}
       data:
-        damage: 2
-        times: 1
+        statusType: 6
+        stack: 2

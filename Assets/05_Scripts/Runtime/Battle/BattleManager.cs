@@ -50,6 +50,7 @@ namespace EchoesOfAsh.Battle
         private TargetResolver targetResolver;
         private TurnManager turnManager;
         private MadnessEventRunner madnessEventRunner;
+        private AggroSystem aggroSystem;
 
         private DungeonState dungeonState;
         private EnemyEncounterData currentEncounter;
@@ -136,6 +137,11 @@ namespace EchoesOfAsh.Battle
                 madnessOverlayView.Release();
             }
 
+            if(aggroSystem != null)
+            {
+                aggroSystem.Release();
+            }
+
             if (turnManager != null)
             {
                 turnManager.OnTurnStarted -= HandleTurnStarted;
@@ -170,6 +176,7 @@ namespace EchoesOfAsh.Battle
             effectExecutor = null;
             cardPlayService = null;
             targetResolver = null;
+            aggroSystem = null;
 
             partySanityHolder?.Dispose();
             partySanityHolder = null;
@@ -352,6 +359,8 @@ namespace EchoesOfAsh.Battle
         /// </summary>
         private void SetupEnemies()
         {
+            aggroSystem = new AggroSystem(balanceData);
+
             foreach (var entry in currentEncounter.Entries)
             {
                 if (entry == null || entry.EnemyData == null)
@@ -376,7 +385,9 @@ namespace EchoesOfAsh.Battle
 
                 enemyEntities.Add(enemyEntity);
 
-                EnemyAI enemyAI = new EnemyAI(enemyEntity, party);
+                aggroSystem.RegisterEnemy(enemyEntity);
+
+                EnemyAI enemyAI = new EnemyAI(enemyEntity, party, aggroSystem);
                 enemyAIs.Add(enemyAI);
 
                 if (enemyViewPrefab != null)
@@ -393,7 +404,7 @@ namespace EchoesOfAsh.Battle
         private void SetupSystems()
         {
             deckSystem = new DeckSystem(dungeonState.Deck, balanceData);
-
+            
             BuildCardOwnerLookup();
             deckSystem.SetDrawExclusion(card =>
             {
@@ -416,9 +427,9 @@ namespace EchoesOfAsh.Battle
 
             triggerEffectController = new TriggerEffectController(effectExecutor, partySanityHolder);
 
-            foreach (CharacterEntity member in party)
+            foreach (CharacterEntity character in party)
             {
-                triggerEffectController.Register(member, member.CharacterData.Passives);
+                triggerEffectController.Register(character, character.CharacterData.Passives);
             }
 
             turnManager = new TurnManager(apSystem, deckSystem, balanceData);
@@ -534,6 +545,8 @@ namespace EchoesOfAsh.Battle
                     enemy.TickStatusRound();
                 }
             }
+
+            aggroSystem?.TickRound();
         }
 
         /// <summary>
@@ -657,7 +670,30 @@ namespace EchoesOfAsh.Battle
                 return false;
             }
 
-            return cardPlayService.Play(card, caster, cardTargetBuffer);
+            // 카드 실행 중 적이 받는 피해를 시전자 어그로로 귀속합니다
+            bool isPlayed;
+            aggroSystem?.BeginAttribution(caster);
+
+            try
+            {
+                isPlayed = cardPlayService.Play(card, caster, cardTargetBuffer);
+            }
+            finally
+            {
+                aggroSystem?.EndAttribution();
+            }
+
+            // 도발 부여 카드였다면 적 표적 표시를 즉시 갱신합니다 (무작위 재추첨 없음)
+            if (isPlayed)
+            {
+                foreach (var enemyAI in enemyAIs)
+                {
+                    enemyAI.RefreshTauntPreview();
+                }
+            }
+
+
+            return isPlayed;
         }
 
         /// <summary>

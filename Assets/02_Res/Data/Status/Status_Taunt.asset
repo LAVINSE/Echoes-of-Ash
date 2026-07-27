@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 846185194505c0f459bfb704e97cb4d3, type: 3}
-  m_Name: Status_Weak
+  m_Name: Status_Taunt
   m_EditorClassIdentifier: Assembly-CSharp::EchoesOfAsh.Data.StatusEffectData
   categories: []
-  id: 0
-  codeName: Status_Weak
+  id: 1
+  codeName: Status_Taunt
   displayName: 
-  description: "\uBC1B\uB294 \uD53C\uD574\uAC00 50% \uC99D\uAC00\uD569\uB2C8\uB2E4."
+  description: 
   spriteIcon: {fileID: 0}
-  statusEffectType: 5
-  isDebuff: 1
+  statusEffectType: 6
+  isDebuff: 0
   decayType: 1
-  damageTakenMultiplier: 1.5
+  damageTakenMultiplier: 1

@@ -23,6 +23,8 @@ namespace EchoesOfAsh.Battle
 
         private CharacterEntity nextTarget;
         private readonly IReadOnlyList<CharacterEntity> party;
+
+        private readonly AggroSystem aggroSystem;
         #endregion // 필드
 
         #region 프로퍼티
@@ -45,7 +47,7 @@ namespace EchoesOfAsh.Battle
         /// 적 인공지능를 생성합니다.
         /// </summary>
         /// <param name="entity">제어할 적 엔티티입니다.</param>
-        public EnemyAI(EnemyEntity entity, IReadOnlyList<CharacterEntity> party)
+        public EnemyAI(EnemyEntity entity, IReadOnlyList<CharacterEntity> party, AggroSystem aggroSystem)
         {
             if (entity == null || entity.EnemyData == null)
             {
@@ -55,6 +57,7 @@ namespace EchoesOfAsh.Battle
 
             this.entity = entity;
             this.party = party;
+            this.aggroSystem = aggroSystem;
 
             EvaluatePattern();
             DecideNextAction();
@@ -127,7 +130,7 @@ namespace EchoesOfAsh.Battle
 
             results.Clear();
 
-            CharacterEntity target = nextTarget;
+            CharacterEntity target = FindTauntTarget() ?? nextTarget;
 
             // 예고 대상이 없거나(비공격 행동) 전투불능이면 실행 시점에 선정합니다
             if (target == null || !target.IsTargetable)
@@ -171,6 +174,13 @@ namespace EchoesOfAsh.Battle
         /// <returns>선정한 파티원입니다. 없으면 null입니다.</returns>
         private CharacterEntity PickTargetByRule()
         {
+            CharacterEntity tauntTarget = FindTauntTarget();
+
+            if(tauntTarget != null)
+            {
+                return tauntTarget;
+            }
+
             targetableBuffer.Clear();
 
             if (party != null)
@@ -194,14 +204,64 @@ namespace EchoesOfAsh.Battle
                 case EEnemyTargetRuleType.Random:
                     return SWRandom.Pick(targetableBuffer);
                 case EEnemyTargetRuleType.Aggro:
-                    // TODO: 도발/어그로 수치 도입 시 구현 (P2-M5). 그 전까지 무작위와 동일 처리
-                    return SWRandom.Pick(targetableBuffer);
+                    CharacterEntity topAggro = aggroSystem?.PickTopAggro(targetableBuffer);
+                    return topAggro != null ? topAggro : SWRandom.Pick(targetableBuffer);
                 case EEnemyTargetRuleType.Fixed:
                     return targetableBuffer[0];
                 default:
                     SWLog.LogError($"[EnemyAI] 대상 선정 실패: 지원하지 않는 규칙({entity.EnemyData.TargetRuleType})입니다");
                     return null;
             }
+        }
+
+        /// <summary>
+        /// 대상 지정 가능한 파티원 중 도발 상태인 첫 번째를 반환한다.
+        /// </summary>
+        /// <returns>도발 중인 파티원. 없으면 null</returns>
+        private CharacterEntity FindTauntTarget()
+        {
+            if (party == null)
+            {
+                return null;
+            }
+
+            foreach (var character in party)
+            {
+                if (character != null && character.IsTargetable && character.GetStatusStack(EStatusEffectType.Taunt) > 0)
+                {
+                    return character;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// 도발 상태를 예고 표시에 즉시 반영합니다. 카드 사용 직후 조립 지점이 호출합니다.
+        /// 도발자로의 교체만 수행하며 무작위 재추첨은 하지 않습니다.
+        /// </summary>
+        public void RefreshTauntPreview()
+        {
+            if (entity == null || entity.IsDead || nextAction == null)
+            {
+                return;
+            }
+
+            // 파티를 노리는 행동만 예고 대상을 가집니다 (PickNextTarget과 동일 조건)
+            if (nextAction.GetIntentDamageValue() <= 0 && nextAction.GetIntentSanityPressureValue() <= 0)
+            {
+                return;
+            }
+
+            CharacterEntity tauntTarget = FindTauntTarget();
+
+            if (tauntTarget == null || tauntTarget == nextTarget)
+            {
+                return;
+            }
+
+            nextTarget = tauntTarget;
+            OnTargetChanged?.Invoke(entity, tauntTarget);
         }
         #endregion // 대상 선정
 

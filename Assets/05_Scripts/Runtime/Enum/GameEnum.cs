@@ -107,10 +107,12 @@ namespace EchoesOfAsh.Enum
         [InspectorName("기절")] Stun,
         /// <summary>출혈입니다.</summary>
         [InspectorName("출혈")] Bleed,
-        /// <summary>중독입니다.</summary>
+    /// <summary>중독입니다.</summary>
         [InspectorName("중독")] Poison,
         /// <summary>취약입니다. 받는 피해가 증가합니다.</summary>
         [InspectorName("취약")] Vulnerable,
+        /// <summary>도발입니다. 적의 대상 선정을 자신에게 강제합니다.</summary>
+        [InspectorName("도발")] Taunt,
     }
 
     /// <summary>

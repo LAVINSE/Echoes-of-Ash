@@ -1,3 +1,4 @@
+using System;
 using SW.Attributes;
 using SW.Base;
 using UnityEngine;
@@ -29,6 +30,12 @@ namespace EchoesOfAsh.Data
         [SerializeField, Range(0f, 1f)] private float madnessEventBaseChance = 0.3f;
         [Tooltip("SAN 0에서의 최대 발생 확률 0~1")]
         [SerializeField, Range(0f, 1f)] private float madnessEventMaxChance = 0.6f;
+
+        [SWGroup("어그로")]
+        [Tooltip("파티원이 입힌 피해 1당 쌓이는 어그로 수치")]
+        [SerializeField, Min(0f)] private float aggroDamageWeight = 1f;
+        [Tooltip("라운드 종료마다 남기는 어그로 비율 (0.5 = 절반 유지)")]
+        [SerializeField, Range(0f, 1f)] private float aggroRoundDecayRate = 0.5f;
         #endregion // 필드
 
         #region 프로퍼티
@@ -44,6 +51,11 @@ namespace EchoesOfAsh.Data
 
         /// <summary>정신력 이벤트입니다.</summary>
         public SanityEventData SanityEvent => sanityEvent;
+
+        /// <summary>파티원이 입힌 피해 1당 쌓이는 어그로입니다.</summary>
+        public float AggroDamageWeight => aggroDamageWeight;
+        /// <summary>라운드 종료마다 남기는 어그로 비율입니다.</summary>
+        public float AggroRoundDecayRate => aggroRoundDecayRate;
         #endregion // 프로퍼티
 
         /// <summary>
