@@ -625,7 +625,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fbf07f828f85ec64ab59b0ab388f58e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EchoesOfAsh.View.TownBuildingView
-  buildingSprite: {fileID: 397592139}
+  buildingData: {fileID: 0}
+  spriteRenderer: {fileID: 0}
   highlightColor: {r: 1.15, g: 1.15, b: 1.15, a: 1}
 --- !u!61 &1356518825
 BoxCollider2D:
@@ -1172,6 +1173,10 @@ PrefabInstance:
       propertyPath: hudView
       value: 
       objectReference: {fileID: 30657193}
+    - target: {fileID: 8922770207315134485, guid: dab4ba5f994c9af4ab2122343181126b, type: 3}
+      propertyPath: townConfigData
+      value: 
+      objectReference: {fileID: 11400000, guid: f43cbb7da7c24944c8159436ae5cbb4b, type: 2}
     - target: {fileID: 8922770207315134485, guid: dab4ba5f994c9af4ab2122343181126b, type: 3}
       propertyPath: inputController
       value: 

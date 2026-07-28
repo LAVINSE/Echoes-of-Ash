@@ -16,36 +16,16 @@ namespace EchoesOfAsh.Town
 {
     /// <summary>
     /// Town 씬의 조립 지점입니다. 건물 승급, 막사 영입, 던전 출발을 담당합니다 (DungeonManager와 씬 기준 명명 대칭).
-    /// 마을 상태의 진실 원본은 TownSaveData이며, 이 클래스는 데이터 정의와 저장을 잇는 판정만 소유합니다.
+    /// 마을 상태의 진실 원본은 TownSaveData, 마을 구성의 진실 원본은 TownConfigData이며, 이 클래스는 둘을 잇는 판정만 소유합니다.
     /// 표현은 하이브리드입니다 - 건물/배경 = 월드 스프라이트 (씬 배치), 팝업/HUD = Canvas.
     /// 잠정 규칙: 팝업 뷰는 아트 시점 도입 - 건물 클릭은 로그만 남기고, 승급/영입 검증은 임시 테스트 버튼이 담당합니다.
     /// </summary>
     public class TownManager : SWMonoBehaviour
     {
-        #region 데이터
-        /// <summary>
-        /// 건물 정의와 씬에 배치된 월드 뷰의 짝입니다.
-        /// </summary>
-        [System.Serializable]
-        private class BuildingEntry
-        {
-            [Tooltip("건물 정의 데이터입니다.")]
-            public BuildingData buildingData;
-            [Tooltip("씬에 배치된 건물 월드 뷰입니다.")]
-            public TownBuildingView buildingView;
-            [Tooltip("막사 여부입니다. 팝업 도입 시 영입 목록 표시 판정에 사용합니다.")]
-            public bool isBarracks;
-        }
-        #endregion // 데이터
-
         #region 필드
         [SWGroup("데이터")]
-        [Tooltip("마을 건물 항목입니다 (정의 + 씬 배치 뷰 짝).")]
-        [SerializeField] private List<BuildingEntry> buildingEntries = new();
-        [Tooltip("막사에서 영입할 수 있는 캐릭터 항목입니다. 목록 순서 = 팝업 슬롯 순서입니다.")]
-        [SerializeField] private List<CharacterRecruitData> characterRecruitData = new();
-        [Tooltip("보유 캐릭터가 하나도 없을 때(최초 실행) 자동으로 영입되는 기본 캐릭터입니다.")]
-        [SerializeField] private List<CharacterData> starterCharacters = new();
+        [Tooltip("마을 구성 데이터입니다. 건물·막사 영입·기본 캐릭터 목록을 소유합니다.")]
+        [SerializeField] private TownConfigData townConfigData;
         [Tooltip("자원 요약의 아이템 이름 표시에 사용합니다. 미배선이면 코드명으로 표시합니다.")]
         [SerializeField] private SWIODatabase itemDatabase;
 
@@ -54,6 +34,8 @@ namespace EchoesOfAsh.Town
         [SerializeField] private string dungeonSceneName = "Dungeon";
 
         [SWGroup("뷰")]
+        [Tooltip("씬에 배치된 건물 뷰 목록입니다. 각 뷰가 자신의 건물 데이터를 참조합니다.")]
+        [SerializeField] private List<TownBuildingView> buildingViews = new();
         [SerializeField] private TownInputController inputController;
         [SerializeField] private TownHUDView hudView;
 
@@ -62,10 +44,16 @@ namespace EchoesOfAsh.Town
 
         #region 유니티 이벤트 함수
         /// <summary>
-        /// 씬 시작 시 기본 캐릭터를 보장하고 뷰를 배선합니다.
+        /// 씬 시작 시 구성을 검증하고, 기본 캐릭터를 보장한 뒤 뷰를 배선합니다.
         /// </summary>
         private void Start()
         {
+            if (townConfigData == null)
+            {
+                SWLog.LogError("[TownManager] 시작 실패: 마을 구성 데이터가 없습니다.");
+                return;
+            }
+
             EnsureStarterCharacters();
             InitViews();
         }
@@ -75,11 +63,11 @@ namespace EchoesOfAsh.Town
         /// </summary>
         private void OnDestroy()
         {
-            foreach (BuildingEntry entry in buildingEntries)
+            foreach (TownBuildingView buildingView in buildingViews)
             {
-                if (entry?.buildingView != null)
+                if (buildingView != null)
                 {
-                    entry.buildingView.Release();
+                    buildingView.Release();
                 }
             }
         }
@@ -98,7 +86,7 @@ namespace EchoesOfAsh.Town
 
             int addedCount = 0;
 
-            foreach (CharacterData starterCharacter in starterCharacters)
+            foreach (CharacterData starterCharacter in townConfigData.StarterCharacters)
             {
                 if (starterCharacter == null)
                 {
@@ -121,19 +109,26 @@ namespace EchoesOfAsh.Town
 
         /// <summary>
         /// 건물 뷰에 클릭 콜백을 주입하고 HUD를 배선합니다. 미배선분은 통과합니다 (미배선 통과 원칙).
+        /// 구성에 등록되지 않은 건물 데이터를 참조하는 뷰는 경고 후 동작합니다.
         /// </summary>
         private void InitViews()
         {
-            foreach (BuildingEntry entry in buildingEntries)
+            foreach (TownBuildingView buildingView in buildingViews)
             {
-                if (entry?.buildingData == null || entry.buildingView == null)
+                if (buildingView == null || buildingView.BuildingData == null)
                 {
-                    SWLog.LogWarning("[TownManager] 건물 항목에 정의 또는 뷰가 비어 있어 건너뜁니다.");
+                    SWLog.LogWarning("[TownManager] 건물 뷰가 없거나 건물 데이터가 비어 있어 건너뜁니다.");
                     continue;
                 }
 
-                BuildingEntry capturedEntry = entry;
-                entry.buildingView.Init(() => HandleBuildingClicked(capturedEntry));
+                if (!townConfigData.HasBuilding(buildingView.BuildingData))
+                {
+                    SWLog.LogWarning($"[TownManager] '{buildingView.BuildingData.DisplayName}'은(는) "
+                        + "마을 구성 데이터에 등록되지 않은 건물입니다 - 등록을 권장합니다.");
+                }
+
+                TownBuildingView capturedView = buildingView;
+                buildingView.Init(() => HandleBuildingClicked(capturedView));
             }
 
             if (hudView != null)
@@ -152,14 +147,15 @@ namespace EchoesOfAsh.Town
         /// <summary>
         /// 건물 클릭을 처리합니다. 팝업 도입 전이므로 현재 상태 로그만 남깁니다 (임시 조치 - 팝업 도입 시 팝업 열기로 대체).
         /// </summary>
-        /// <param name="entry">클릭된 건물 항목입니다.</param>
-        private void HandleBuildingClicked(BuildingEntry entry)
+        /// <param name="buildingView">클릭된 건물 뷰입니다.</param>
+        private void HandleBuildingClicked(TownBuildingView buildingView)
         {
-            BuildingData building = entry.buildingData;
+            BuildingData building = buildingView.BuildingData;
             int currentLevel = TownSaveService.GetBuildingLevel(building.CodeName);
+            bool isBarracks = townConfigData.IsBarracks(building);
 
             SWLog.Log($"[TownManager] 건물 클릭: {building.DisplayName} (Lv {currentLevel} / {building.MaxLevel}"
-                + $"{(entry.isBarracks ? ", 막사" : string.Empty)}) - 팝업은 아트 시점 도입 예정입니다.");
+                + $"{(isBarracks ? ", 막사" : string.Empty)}) - 팝업은 아트 시점 도입 예정입니다.");
         }
         #endregion // 건물 클릭
 
@@ -208,18 +204,20 @@ namespace EchoesOfAsh.Town
         /// 지정한 슬롯의 캐릭터를 영입합니다. 비용을 검사한 뒤 일괄 차감하고 즉시 저장합니다.
         /// 팝업 도입 시 팝업의 영입 요청이 이 함수를 호출합니다.
         /// </summary>
-        /// <param name="offerIndex">영입 목록 인덱스입니다.</param>
+        /// <param name="offerIndex">영입 목록 인덱스입니다 (마을 구성 데이터의 목록 순서).</param>
         /// <returns>영입에 성공했으면 true입니다.</returns>
         public bool TryRecruit(int offerIndex)
         {
-            if (offerIndex < 0 || offerIndex >= characterRecruitData.Count
-                || characterRecruitData[offerIndex]?.CharacterData == null)
+            IReadOnlyList<CharacterRecruitData> characterRecruits = townConfigData.CharacterRecruits;
+
+            if (offerIndex < 0 || offerIndex >= characterRecruits.Count
+                || characterRecruits[offerIndex]?.CharacterData == null)
             {
                 SWLog.LogWarning($"[TownManager] 영입 무시: 인덱스 {offerIndex}가 유효하지 않습니다.");
                 return false;
             }
 
-            CharacterRecruitData recruitOffer = characterRecruitData[offerIndex];
+            CharacterRecruitData recruitOffer = characterRecruits[offerIndex];
             CharacterData characterData = recruitOffer.CharacterData;
 
             if (TownSaveService.HasCharacter(characterData.CodeName))
@@ -246,26 +244,32 @@ namespace EchoesOfAsh.Town
 
         #region 임시 테스트
         /// <summary>
-        /// 첫 번째 건물 항목의 승급을 시도합니다 (임시 조치 - 팝업 도입 전 저장/차감 경로 검증용, 도입 시 제거).
+        /// 마을 구성의 첫 번째 건물 승급을 시도합니다 (임시 조치 - 팝업 도입 전 저장/차감 경로 검증용, 도입 시 제거).
         /// </summary>
         [SWButton("테스트: 첫 건물 승급")]
         public void TestUpgradeFirstBuilding()
         {
-            if (buildingEntries.Count == 0 || buildingEntries[0]?.buildingData == null)
+            if (townConfigData == null || townConfigData.Buildings.Count == 0)
             {
-                SWLog.LogWarning("[TownManager] 테스트 승급 무시: 건물 항목이 비어 있습니다.");
+                SWLog.LogWarning("[TownManager] 테스트 승급 무시: 마을 구성의 건물 목록이 비어 있습니다.");
                 return;
             }
 
-            TryUpgradeBuilding(buildingEntries[0].buildingData);
+            TryUpgradeBuilding(townConfigData.Buildings[0]);
         }
 
         /// <summary>
-        /// 첫 번째 영입 항목의 영입을 시도합니다 (임시 조치 - 팝업 도입 전 저장/차감 경로 검증용, 도입 시 제거).
+        /// 마을 구성의 첫 번째 영입 항목의 영입을 시도합니다 (임시 조치 - 팝업 도입 전 저장/차감 경로 검증용, 도입 시 제거).
         /// </summary>
         [SWButton("테스트: 첫 항목 영입")]
         public void TestRecruitFirstOffer()
         {
+            if (townConfigData == null)
+            {
+                SWLog.LogWarning("[TownManager] 테스트 영입 무시: 마을 구성 데이터가 없습니다.");
+                return;
+            }
+
             TryRecruit(0);
         }
         #endregion // 임시 테스트

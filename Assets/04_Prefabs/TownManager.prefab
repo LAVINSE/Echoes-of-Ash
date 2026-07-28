@@ -44,16 +44,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc9bd2f4301f3b44baba45b675fc5c1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EchoesOfAsh.Town.TownManager
-  buildingEntries:
-  - buildingData: {fileID: 11400000, guid: f2f3d51863010ad4d97cc06ae9f186c4, type: 2}
-    buildingView: {fileID: 0}
-    isBarracks: 1
-  characterRecruitData:
-  - characterData: {fileID: 11400000, guid: b574b363bc47ae944b04d32418008a88, type: 2}
-    costs: []
-  starterCharacters:
-  - {fileID: 11400000, guid: 25def2d2b6d4b1243b194ef875ac324f, type: 2}
+  townConfigData: {fileID: 11400000, guid: f43cbb7da7c24944c8159436ae5cbb4b, type: 2}
   itemDatabase: {fileID: 11400000, guid: 6afe847e3b34f66498bd6a2ec99fb9ed, type: 2}
   dungeonSceneName: Dungeon
+  buildingViews: []
   inputController: {fileID: 0}
   hudView: {fileID: 0}

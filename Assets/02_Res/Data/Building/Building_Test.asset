@@ -18,4 +18,6 @@ MonoBehaviour:
   displayName: 
   description: 
   spriteIcon: {fileID: 0}
-  levelDatas: []
+  levelDatas:
+  - upgradeCosts: []
+    levelDescription: 
