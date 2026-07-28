@@ -68,6 +68,8 @@ namespace EchoesOfAsh.Battle
         private readonly List<EnemyAI> enemyAIs = new();
         private readonly List<ITargetable> cardTargetBuffer = new();
         private readonly List<ITargetable> enemyTargetBuffer = new();
+        /// <summary>챕터에서 주입된 상태이상 정의입니다. 미주입이면 인스펙터 목록으로 폴백합니다.</summary>
+        private IReadOnlyList<StatusEffectData> chapterStatusDatas;
         #endregion // 필드
 
         #region 프로퍼티
@@ -93,6 +95,9 @@ namespace EchoesOfAsh.Battle
         public CardPlayService CardPlayService => cardPlayService;
         /// <summary>턴 매니저입니다.</summary>
         public TurnManager TurnManager => turnManager;
+
+        /// <summary>미주입(null) 시 인스펙터 목록을 사용하는 폴백입니다.</summary>
+        private IReadOnlyList<StatusEffectData> ActiveStatusDatas => chapterStatusDatas ?? statusDatas;
 
         /// <summary>전투 시작 시 호출됩니다.</summary>
         public event Action OnBattleStarted;
@@ -343,7 +348,7 @@ namespace EchoesOfAsh.Battle
                 : Vector3.zero;
 
                 member.Init(characterData);
-                member.SetStatusDatas(statusDatas);
+                member.SetStatusDatas(ActiveStatusDatas);
                 member.SetDamageCalculator(new StatusDamageCalculator());
                 member.OnDied += HandleCharacterDied;
 
@@ -387,7 +392,7 @@ namespace EchoesOfAsh.Battle
                 enemyEntity.transform.localPosition = entry.SpawnPosition;
 
                 enemyEntity.Init(entry.EnemyData);
-                enemyEntity.SetStatusDatas(statusDatas);
+                enemyEntity.SetStatusDatas(ActiveStatusDatas);
                 enemyEntity.SetDamageCalculator(new StatusDamageCalculator());
                 enemyEntity.OnDied += HandleEnemyDied;
 
@@ -642,6 +647,13 @@ namespace EchoesOfAsh.Battle
 
             return GetDefaultCaster();
         }
+
+        /// <summary>
+        /// 챕터의 상태이상 정의 목록을 주입합니다. 조립 지점(DungeonManager)이 던전 시작 시 호출합니다.
+        /// </summary>
+        /// <param name="statusDatas">상태이상 정의 목록입니다. null이면 인스펙터 목록으로 폴백합니다.</param>
+        public void SetChapterStatusDatas(IReadOnlyList<StatusEffectData> statusDatas)
+            => chapterStatusDatas = statusDatas;
         #endregion // 전투
 
         #region 플레이어 행동

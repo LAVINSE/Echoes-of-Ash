@@ -1174,17 +1174,9 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 30657193}
     - target: {fileID: 8922770207315134485, guid: dab4ba5f994c9af4ab2122343181126b, type: 3}
-      propertyPath: townConfigData
-      value: 
-      objectReference: {fileID: 11400000, guid: f43cbb7da7c24944c8159436ae5cbb4b, type: 2}
-    - target: {fileID: 8922770207315134485, guid: dab4ba5f994c9af4ab2122343181126b, type: 3}
       propertyPath: inputController
       value: 
       objectReference: {fileID: 1780056166}
-    - target: {fileID: 8922770207315134485, guid: dab4ba5f994c9af4ab2122343181126b, type: 3}
-      propertyPath: buildingEntries.Array.data[0].buildingView
-      value: 
-      objectReference: {fileID: 1356518824}
     - target: {fileID: 9165753299729986207, guid: dab4ba5f994c9af4ab2122343181126b, type: 3}
       propertyPath: m_Name
       value: TownManager

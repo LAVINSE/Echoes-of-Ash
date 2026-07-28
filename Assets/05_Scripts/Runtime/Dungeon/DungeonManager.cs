@@ -45,7 +45,6 @@ namespace EchoesOfAsh.Dungeon
         [SerializeField] private BattleManager battleManager;
 
         [SWGroup("데이터")]
-        [SerializeField] private MapConfigData mapConfigData;
         [SerializeField] private PartyData partyData;
         [Tooltip("파티를 구성할 캐릭터 목록입니다 (임시 조치 — P2-M4 4-4 편성 화면으로 대체 예정)")]
         [SerializeField] private List<CharacterData> characterDatas = new();
@@ -61,18 +60,10 @@ namespace EchoesOfAsh.Dungeon
         [SWGroup("던전 구성")]
         [Tooltip("던전 생성에 사용할 시드입니다. 0이면 실행 시 무작위 시드를 생성합니다.")]
         [SerializeField] private int dungeonSeed;
+        [Tooltip("이 던전의 챕터 구성 데이터입니다. 맵 규칙, 조우 풀, 노드 이벤트, 정신력 이벤트, 상태이상 정의를 소유합니다.")]
+        [SerializeField] private DungeonChapterData chapterData;
         [Tooltip("던전 시작 시 사용할 카드 목록입니다.")]
         [SerializeField] private List<CardData> startingCards = new();
-        [Tooltip("던전에서 발생할 수 있는 정신력 이벤트 데이터 목록입니다.")]
-        [SerializeField] private List<SanityEventData> sanityEventDatas = new();
-        [Tooltip("전투 노드에 진입할 때 선택할 수 있는 적 조우 데이터 목록입니다.")]
-        [SerializeField] private List<EnemyEncounterData> enemyEncounterDatas = new();
-        [Tooltip("휴식 노드에 진입할 때 표시할 고정 이벤트입니다.")]
-        [SerializeField] private DungeonEventData restEventData;
-        [Tooltip("보관 노드에 진입할 때 표시할 고정 이벤트입니다. 골격 단계 - 전용 화면은 P2-M6에서 진행합니다.")]
-        [SerializeField] private DungeonEventData storageEventData;
-        [Tooltip("이벤트 노드에 진입할 때 무작위로 선택할 이벤트 목록입니다.")]
-        [SerializeField] private List<DungeonEventData> eventDatas = new();
 
         [SWGroup("뷰")]
         [SerializeField] private MapView mapView;
@@ -97,6 +88,9 @@ namespace EchoesOfAsh.Dungeon
         #endregion // 필드
 
         #region 프로퍼티
+        /// <summary>현재 챕터의 맵 생성 규칙입니다. 챕터가 없으면 null입니다.</summary>
+        private MapConfigData MapConfig => chapterData != null ? chapterData.MapConfigData : null;
+
         /// <summary>현재 던전 상태입니다. 던전을 시작하지 않았으면 null입니다.</summary>
         public DungeonState DungeonState => dungeonState;
         /// <summary>현재 던전 화면의 진행 상태입니다.</summary>
@@ -267,15 +261,15 @@ namespace EchoesOfAsh.Dungeon
                 return;
             }
 
-            if (battleManager == null || mapConfigData == null || partyData == null)
+            if (battleManager == null || partyData == null)
             {
                 SWLog.LogError("[DungeonManager] StartDungeon 실패: 필수 참조가 없습니다.");
                 return;
             }
 
-            if (enemyEncounterDatas.Count == 0)
+            if (chapterData == null || MapConfig == null)
             {
-                SWLog.LogError("[DungeonManager] StartDungeon 실패: 적 조우 데이터 목록이 비어 있습니다.");
+                SWLog.LogError("[DungeonManager] StartDungeon 실패: 챕터 구성 데이터 또는 맵 규칙이 없습니다.");
                 return;
             }
 
@@ -290,9 +284,9 @@ namespace EchoesOfAsh.Dungeon
             int seed = dungeonSeed != 0 ? dungeonSeed : Environment.TickCount;
             SWRandom.SetSeed(seed);
 
-            dungeonState = new DungeonState(seed, partyData, partyMembers, startingCards, sanityEventDatas);
+            dungeonState = new DungeonState(seed, partyData, partyMembers, startingCards, chapterData.SanityEventDatas);
             MapGenerator mapGenerator = new MapGenerator();
-            MapGraph mapGraph = mapGenerator.GenerateMapGraph(mapConfigData);
+            MapGraph mapGraph = mapGenerator.GenerateMapGraph(MapConfig);
 
             if (mapGraph == null)
             {
@@ -306,6 +300,7 @@ namespace EchoesOfAsh.Dungeon
             currentEventData = null;
             currentPhase = EDungeonPhase.Map;
 
+            battleManager.SetChapterStatusDatas(chapterData.StatusDatas);
             SubscribeBattleEvents();
 
             SWLog.Log($"[DungeonManager] 던전을 시작했습니다. 시드: {seed}");
@@ -335,7 +330,8 @@ namespace EchoesOfAsh.Dungeon
                 return;
             }
 
-            if (battleManager == null || mapConfigData == null || partyData == null || cardDatabase == null)
+            if (battleManager == null || chapterData == null || MapConfig == null
+                || partyData == null || cardDatabase == null)
             {
                 SWLog.LogError("[DungeonManager] ResumeDungeon 실패: 필수 참조가 없습니다.");
                 return;
@@ -392,7 +388,7 @@ namespace EchoesOfAsh.Dungeon
             
             // 재개 후 난수는 비연속 (P2-D1 스냅샷 - 같은 시드 재설정 시 소비된 난수열 재등장 방지)
             SWRandom.SetSeed(Environment.TickCount);
-            dungeonState = new DungeonState(saveData.seed, partyData, partyMembers, startingCards, sanityEventDatas);
+            dungeonState = new DungeonState(saveData.seed, partyData, partyMembers, startingCards, chapterData.SanityEventDatas);
 
 
             foreach (DungeonCardSaveData cardSave in saveData.deckCards)
@@ -441,6 +437,7 @@ namespace EchoesOfAsh.Dungeon
             currentEventData = null;
             currentPhase = EDungeonPhase.Map;
 
+            battleManager.SetChapterStatusDatas(chapterData.StatusDatas);
             SubscribeBattleEvents();
 
             SWLog.Log($"[DungeonManager] 던전을 복원했습니다. 시드: {saveData.seed}, "
@@ -653,23 +650,18 @@ namespace EchoesOfAsh.Dungeon
                 case EMapNodeType.Boss:
                     StartBattleForNode(node);
                     break;
-
                 case EMapNodeType.Rest:
-                    ShowNodeScreen(restEventData, "휴식");
+                    ShowNodeScreen(GetNodeEventData(EMapNodeType.Rest), "휴식");
                     break;
 
                 case EMapNodeType.Event:
-                    DungeonEventData randomEventData = eventDatas.Count > 0
-                        ? eventDatas[SWRandom.Range(0, eventDatas.Count)]
-                        : null;
-                    ShowNodeScreen(randomEventData, "이벤트");
+                    ShowNodeScreen(GetNodeEventData(EMapNodeType.Event), "이벤트");
                     break;
 
                 case EMapNodeType.Storage:
                     TransferCarriedToStorage();
-                    ShowNodeScreen(storageEventData, "보관");
+                    ShowNodeScreen(GetNodeEventData(EMapNodeType.Storage), "보관");
                     break;
-
                 default:
                     SWLog.Log($"[DungeonManager] {node.NodeType} 노드에 진입했습니다.");
                     LogAvailableNodes("노드 통과");
@@ -677,6 +669,16 @@ namespace EchoesOfAsh.Dungeon
                     MarkNodeResolvedAndSave();
                     break;
             }
+        }
+
+        /// <summary>
+        /// 챕터에서 노드 타입에 매핑된 이벤트를 조회합니다. 챕터가 없으면 null (통과 처리)입니다.
+        /// </summary>
+        /// <param name="nodeType">진입한 노드의 타입입니다.</param>
+        /// <returns>표시할 이벤트 데이터입니다. 없으면 null입니다.</returns>
+        private DungeonEventData GetNodeEventData(EMapNodeType nodeType)
+        {
+            return chapterData != null ? chapterData.GetRandomEventData(nodeType) : null;
         }
 
         /// <summary>
@@ -836,8 +838,15 @@ namespace EchoesOfAsh.Dungeon
 
             currentPhase = EDungeonPhase.Battle;
 
-            int encounterIndex = SWRandom.Range(0, enemyEncounterDatas.Count);
-            EnemyEncounterData enemyEncounterData = enemyEncounterDatas[encounterIndex];
+            EnemyEncounterData enemyEncounterData = chapterData.GetRandomEncounter(node.NodeType);
+
+            if (enemyEncounterData == null)
+            {
+                SWLog.LogError("[DungeonManager] 전투 시작 실패: 사용할 조우가 없어 던전을 종료합니다.");
+                EndDungeon(false);
+                return;
+            }
+
             currentEncounterData = enemyEncounterData;
 
             if (!battleManager.StartBattle(dungeonState, enemyEncounterData))
@@ -908,7 +917,7 @@ namespace EchoesOfAsh.Dungeon
         /// <returns>던전을 계속 진행할 수 있으면 true입니다.</returns>
         private bool AdvanceAshErosion(MapNode currentNode)
         {
-            int advanceInterval = mapConfigData.AshAdvanceInterval;
+            int advanceInterval = chapterData.MapConfigData.AshAdvanceInterval;
 
             if (advanceInterval <= 0)
             {
