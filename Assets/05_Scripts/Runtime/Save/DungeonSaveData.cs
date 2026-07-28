@@ -38,6 +38,8 @@ namespace EchoesOfAsh.Save
         public int moveCount;
         /// <summary>잿불에 잠식된 마지막 층입니다.</summary>
         public int ashConsumedFloor;
+        /// <summary>이번 던전에서 광기 이벤트가 발생했는지 여부입니다 (던전당 1회 - 기본값 false = 구저장 호환).</summary>
+        public bool hasMadnessEventOccurred;
 
         /// <summary>맵의 모든 노드입니다 (방문/잠식 상태 포함).</summary>
         public List<MapNode> mapNodes = new();

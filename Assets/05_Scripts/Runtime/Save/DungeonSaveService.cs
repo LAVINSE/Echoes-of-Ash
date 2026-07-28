@@ -61,6 +61,7 @@ namespace EchoesOfAsh.Save
                 carriedSanity = dungeonState.CarriedSanity,
                 moveCount = dungeonState.MoveCount,
                 ashConsumedFloor = dungeonState.AshConsumedFloor,
+                hasMadnessEventOccurred = dungeonState.HasMadnessEventOccurred,
             };
 
             saveData.mapNodes.AddRange(dungeonState.MapGraph.Nodes);

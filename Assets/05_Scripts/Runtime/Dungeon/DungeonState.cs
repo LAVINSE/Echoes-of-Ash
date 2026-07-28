@@ -23,6 +23,8 @@ namespace EchoesOfAsh.Dungeon
         private int moveCount;
         private int ashConsumedFloor = -1;
         private bool isCurrentNodeResolved = true;
+        /// <summary>이번 던전에서 광기 이벤트가 발생했는지 여부입니다 (던전당 1회 규칙 - DD 결의 판정 방식).</summary>
+        private bool hasMadnessEventOccurred;
 
         /// <summary>던전 중 획득해 들고 있는 아이템 목록입니다. 회수 판정 전까지의 임시 보유분입니다.</summary>
         private readonly List<ItemStackData> carriedItems = new();
@@ -53,6 +55,8 @@ namespace EchoesOfAsh.Dungeon
         public int AshConsumedFloor => ashConsumedFloor;
         /// <summary>현재 노드의 진입 처리가 완료되었는지 여부입니다. 미완료 상태로 복원되면 진입 처리를 다시 실행합니다.</summary>
         public bool IsCurrentNodeResolved => isCurrentNodeResolved;
+        /// <summary>이번 던전에서 광기 이벤트가 이미 발생했는지 여부입니다.</summary>
+        public bool HasMadnessEventOccurred => hasMadnessEventOccurred;
 
         /// <summary>던전 중 소지 아이템 목록입니다.</summary>
         public IReadOnlyList<ItemStackData> CarriedItems => carriedItems;
@@ -225,18 +229,27 @@ namespace EchoesOfAsh.Dungeon
         /// <param name="moveCount">노드 이동 누적 횟수입니다.</param>
         /// <param name="ashConsumedFloor">잿불에 잠식된 마지막 층입니다.</param>
         public void RestoreProgress(int currentNodeIdentifier, bool isCurrentNodeResolved,
-            int carriedSanity, int moveCount, int ashConsumedFloor)
+            int carriedSanity, int moveCount, int ashConsumedFloor, bool hasMadnessEventOccurred)
         {
             this.currentNodeIdentifier = currentNodeIdentifier;
             this.isCurrentNodeResolved = isCurrentNodeResolved;
             this.carriedSanity = carriedSanity < 0 ? 0 : carriedSanity;
             this.moveCount = moveCount < 0 ? 0 : moveCount;
             this.ashConsumedFloor = ashConsumedFloor;
+            this.hasMadnessEventOccurred = hasMadnessEventOccurred;
+        }
+
+        /// <summary>
+        /// 광기 이벤트 발생을 기록합니다. 이번 던전에서는 다시 발생하지 않습니다.
+        /// </summary>
+        public void MarkMadnessEventOccurred()
+        {
+            hasMadnessEventOccurred = true;
         }
         #endregion // 함수
 
         #region 드랍 소지
-    
+
 
         /// <summary>
         /// 소지 목록에 아이템을 추가합니다. 같은 아이템은 수량을 합산합니다.

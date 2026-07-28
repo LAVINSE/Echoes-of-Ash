@@ -430,7 +430,8 @@ namespace EchoesOfAsh.Dungeon
                 saveData.isCurrentNodeResolved,
                 saveData.carriedSanity,
                 saveData.moveCount,
-                saveData.ashConsumedFloor);
+                saveData.ashConsumedFloor,
+                saveData.hasMadnessEventOccurred);
 
             currentBattleNode = null;
             currentEncounterData = null;

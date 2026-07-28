@@ -50,7 +50,7 @@ namespace EchoesOfAsh.Battle
         private CardPlayService cardPlayService;
         private TargetResolver targetResolver;
         private TurnManager turnManager;
-        private MadnessEventRunner madnessEventRunner;
+        private SanityEventRunner sanityEventRunner;
         private AggroSystem aggroSystem;
 
         private DungeonState dungeonState;
@@ -168,10 +168,10 @@ namespace EchoesOfAsh.Battle
                     triggerEffectController = null;
                 }
 
-                if (madnessEventRunner != null)
+                if (sanityEventRunner != null)
                 {
-                    turnManager.OnTurnStartHook -= madnessEventRunner.HandleTurnStartHook;
-                    madnessEventRunner = null;
+                    turnManager.OnTurnStartHook -= sanityEventRunner.HandleTurnStartHook;
+                    sanityEventRunner = null;
                 }
 
                 turnManager = null;
@@ -454,8 +454,14 @@ namespace EchoesOfAsh.Battle
 
             cardPlayService.OnCardPlayed += triggerEffectController.HandleCardPlayed;
 
-            madnessEventRunner = new MadnessEventRunner(partySanityHolder, effectExecutor, balanceData, dungeonState.SanityEventDatas, party);
-            turnManager.OnTurnStartHook += madnessEventRunner.HandleTurnStartHook;
+            sanityEventRunner = new SanityEventRunner(
+                partySanityHolder,
+                effectExecutor,
+                dungeonState.SanityEventDatas,
+                party,
+                hasOccurred: () => dungeonState.HasMadnessEventOccurred,
+                markOccurred: dungeonState.MarkMadnessEventOccurred);
+            turnManager.OnTurnStartHook += sanityEventRunner.HandleTurnStartHook;
 
             if (handView != null)
             {
