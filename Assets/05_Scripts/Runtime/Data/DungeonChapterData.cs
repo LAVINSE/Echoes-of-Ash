@@ -15,8 +15,9 @@ namespace EchoesOfAsh.Data
     {
         #region 데이터
         /// <summary>
-        /// 이벤트 노드에 연결할 
+        /// 노드 타입 하나에 연결되는 이벤트 풀
         /// </summary>
+        [System.Serializable]
         public class EventNodePoolEntry
         {
             [Tooltip("이벤트 풀을 연결할 노드 타입입니다. 전투 계열(전투/엘리트/보스)은 사용할 수 없습니다.")]
