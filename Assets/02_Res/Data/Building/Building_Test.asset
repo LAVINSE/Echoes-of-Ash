@@ -9,14 +9,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d6cf9867178ce1c42b1d8ef1cde5e348, type: 3}
-  m_Name: Item_
-  m_EditorClassIdentifier: Assembly-CSharp::EchoesOfAsh.Data.ItemData
+  m_Script: {fileID: 11500000, guid: c33f61a32559379418851f8330e01d37, type: 3}
+  m_Name: Building_Test
+  m_EditorClassIdentifier: Assembly-CSharp::EchoesOfAsh.Data.BuildingData
   categories: []
   id: 0
-  codeName: Test_Gold
+  codeName: Test_Building
   displayName: 
   description: 
   spriteIcon: {fileID: 0}
-  itemType: 0
-  itemSprite: {fileID: 0}
+  levelDatas: []

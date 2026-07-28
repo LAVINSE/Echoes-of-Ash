@@ -15,7 +15,7 @@ namespace EchoesOfAsh.Save
         public int version = CurrentVersion;
 
         /// <summary>거점 누적 진행 구획입니다. 영구 보존됩니다.</summary>
-        public HubSaveData hub = new();
+        public TownSaveData Town = new();
 
         /// <summary>
         /// 진행 중인 던전 스냅샷이 있는지 여부입니다.

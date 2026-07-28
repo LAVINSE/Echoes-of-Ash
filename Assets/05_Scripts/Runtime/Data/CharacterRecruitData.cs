@@ -6,6 +6,7 @@ namespace EchoesOfAsh.Data
     /// <summary>
     /// 캐릭터 영입 데이터
     /// </summary>
+    [System.Serializable]
     public class CharacterRecruitData
     {
         #region 필드

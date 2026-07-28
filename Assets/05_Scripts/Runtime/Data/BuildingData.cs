@@ -8,7 +8,7 @@ namespace EchoesOfAsh.Data
     /// <summary>
     /// 건물 데이터
     /// </summary>
-    [CreateAssetMenu(fileName = "BuildingData", menuName = "EchoesOfAsh/Data/BuildingData")]
+    [CreateAssetMenu(fileName = "BuildingData_", menuName = "EchoesOfAsh/Data/BuildingData")]
     public class BuildingData : SWIdentifiedObject
     {
         #region 필드

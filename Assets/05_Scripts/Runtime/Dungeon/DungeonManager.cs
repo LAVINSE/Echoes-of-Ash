@@ -12,6 +12,7 @@ using SW.Attributes;
 using SW.Base;
 using SW.Util;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace EchoesOfAsh.Dungeon
 {
@@ -78,6 +79,10 @@ namespace EchoesOfAsh.Dungeon
         [SerializeField] private NodeScreenView nodeScreenView;
         [SerializeField] private PartySetupView partySetupView;
 
+        [SWGroup("씬")]
+        [Tooltip("마을 복귀 시 로드할 씬 이름입니다.")]
+        [SerializeField] private string townSceneName = "Town";
+
         private DungeonState dungeonState;
         private EDungeonPhase currentPhase = EDungeonPhase.None;
         private MapNode currentBattleNode;
@@ -125,6 +130,24 @@ namespace EchoesOfAsh.Dungeon
 
         #region 초기화
         /// <summary>
+        /// 씬 시작 시 마을에서 전달된 출발 요청을 소비합니다. 요청이 없으면 아무것도 하지 않습니다 (씬 단독 테스트 보존).
+        /// </summary>
+        private void Start()
+        {
+            EDungeonLaunchMode launchMode = DungeonLaunchRequest.Consume();
+
+            switch (launchMode)
+            {
+                case EDungeonLaunchMode.NewDungeon:
+                    OpenPartySetup();
+                    break;
+                case EDungeonLaunchMode.Resume:
+                    ResumeDungeon();
+                    break;
+            }
+        }
+
+        /// <summary>
         /// 전투 종료 이벤트를 구독합니다.
         /// </summary>
         private void SubscribeBattleEvents()
@@ -166,6 +189,8 @@ namespace EchoesOfAsh.Dungeon
                 return;
             }
 
+            RefreshAvailableCharactersFromTown();
+
             if (partySetupView == null || availableCharacters.Count == 0)
             {
                 SWLog.Log("[DungeonManager] 편성 화면 미배선: 기본 파티로 던전을 시작합니다.");
@@ -191,6 +216,41 @@ namespace EchoesOfAsh.Dungeon
             }
 
             StartDungeon();
+        }
+
+        /// <summary>
+        /// 마을 저장의 보유 캐릭터 명단으로 편성 후보를 갱신합니다.
+        /// 명단이 비어 있으면 인스펙터 목록을 유지합니다 (구저장·씬 단독 테스트 폴백). 등록 순서 = 영입 순서입니다.
+        /// </summary>
+        private void RefreshAvailableCharactersFromTown()
+        {
+            List<string> ownedCodeNames = TownSaveService.Current.ownedCharacterCodeNames;
+
+            if (ownedCodeNames == null || ownedCodeNames.Count == 0)
+            {
+                return;
+            }
+
+            if (characterDatabase == null)
+            {
+                SWLog.LogWarning("[DungeonManager] 보유 캐릭터 갱신 실패: 캐릭터 데이터베이스가 없습니다 - 인스펙터 목록을 유지합니다.");
+                return;
+            }
+
+            availableCharacters.Clear();
+
+            foreach (string codeName in ownedCodeNames)
+            {
+                CharacterData characterData = characterDatabase.GetDataByCodeName<CharacterData>(codeName);
+
+                if (characterData == null)
+                {
+                    SWLog.LogWarning($"[DungeonManager] 보유 캐릭터 갱신: 코드명 '{codeName}' 캐릭터를 찾지 못해 건너뜁니다.");
+                    continue;
+                }
+
+                availableCharacters.Add(characterData);
+            }
         }
         #endregion // 파티 편성
 
@@ -438,6 +498,21 @@ namespace EchoesOfAsh.Dungeon
 
             SWLog.Log($"[DungeonManager] 던전을 종료했습니다. 결과: {(isVictory ? "승리" : "패배")}");
             OnDungeonEnded?.Invoke(isVictory);
+        }
+
+        /// <summary>
+        /// 마을 씬으로 복귀합니다. 진행 중인 던전에서는 호출할 수 없습니다 (중간 탈출 없음 - 기획서 7-2).
+        /// </summary>
+        [SWButton("마을로 복귀")]
+        public void ReturnToTown()
+        {
+            if (IsDungeonRunning)
+            {
+                SWLog.LogWarning("[DungeonManager] ReturnToTown 무시: 던전 진행 중에는 복귀할 수 없습니다.");
+                return;
+            }
+
+            SceneManager.LoadScene(townSceneName);
         }
         #endregion // 던전
 
@@ -894,10 +969,10 @@ namespace EchoesOfAsh.Dungeon
 
             foreach (ItemStackData stack in dungeonState.CarriedItems)
             {
-                HubSaveService.AddItem(stack.ItemData.CodeName, stack.Count);
+                TownSaveService.AddItem(stack.ItemData.CodeName, stack.Count);
             }
 
-            HubSaveService.Save();
+            TownSaveService.Save();
             SWLog.Log($"[DungeonManager] 보관 전송 완료: {dungeonState.CarriedItems.Count}종을 거점으로 보냈습니다.");
             dungeonState.ClearCarriedItems();
         }
@@ -924,13 +999,13 @@ namespace EchoesOfAsh.Dungeon
                     continue;
                 }
 
-                HubSaveService.AddItem(stack.ItemData.CodeName, stack.Count);
+                TownSaveService.AddItem(stack.ItemData.CodeName, stack.Count);
                 recoveredCount++;
             }
 
             if (recoveredCount > 0)
             {
-                HubSaveService.Save();
+                TownSaveService.Save();
             }
 
             SWLog.Log($"[DungeonManager] 회수 판정 완료: {recoveredCount}종 회수 ({(isVictory ? "생존 귀환" : "기본 자원만")})");
