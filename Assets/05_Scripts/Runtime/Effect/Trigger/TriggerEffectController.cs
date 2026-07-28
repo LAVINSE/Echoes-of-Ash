@@ -1,7 +1,5 @@
+using System;
 using System.Collections.Generic;
-using EchoesOfAsh.Battle;
-using EchoesOfAsh.Card;
-using EchoesOfAsh.Effect;
 using EchoesOfAsh.Enum;
 using EchoesOfAsh.Interface;
 using SW.Util;
@@ -9,7 +7,9 @@ using SW.Util;
 namespace EchoesOfAsh.Effect.Trigger
 {
     /// <summary>
-    /// 전투 중 트리거 효과를 등록하고 발동합니다.
+    /// 전투 중 트리거 효과를 등록하고 발동합니다. 등록 순서 = 발화 순서입니다.
+    /// 소유자는 ITargetable로만 다루고 카드 정보를 받지 않습니다 (Battle/Card 의존 차단 - 발화 신호는 조립 지점이 중계).
+    /// 잠정 규칙: 발화 중 재발화는 무시합니다 (피해 유발 효과의 무한 연쇄 방지).
     /// </summary>
     public class TriggerEffectController
     {
@@ -19,19 +19,30 @@ namespace EchoesOfAsh.Effect.Trigger
         /// </summary>
         private readonly struct TriggerEntry
         {
-            /// <summary>효과 소유자입니다. 사망 시 발동하지 않습니다.</summary>
-            public readonly CharacterEntity Owner;
+            /// <summary>효과 소유자입니다. 파티 범위 등록(공용 유물)이면 null입니다.</summary>
+            public readonly ITargetable Owner;
+            /// <summary>파티 범위 등록의 발화 시점 시전자 공급자입니다 (첫 생존자 폴백). 소유자 등록이면 null입니다.</summary>
+            public readonly Func<ITargetable> CasterProvider;
+            /// <summary>경고 로그에 사용할 출처 이름입니다.</summary>
+            public readonly string SourceName;
             /// <summary>트리거 효과입니다.</summary>
             public readonly TriggerEffect Effect;
+
+            /// <summary>파티 범위 등록 여부입니다.</summary>
+            public bool IsPartyScoped => Owner == null;
 
             /// <summary>
             /// 트리거 효과 등록 단위를 생성합니다.
             /// </summary>
-            /// <param name="owner">효과 소유자입니다.</param>
+            /// <param name="owner">효과 소유자입니다. 파티 범위면 null입니다.</param>
+            /// <param name="casterProvider">파티 범위의 시전자 공급자입니다. 소유자 등록이면 null입니다.</param>
+            /// <param name="sourceName">경고 로그용 출처 이름입니다.</param>
             /// <param name="effect">트리거 효과입니다.</param>
-            public TriggerEntry(CharacterEntity owner, TriggerEffect effect)
+            public TriggerEntry(ITargetable owner, Func<ITargetable> casterProvider, string sourceName, TriggerEffect effect)
             {
                 Owner = owner;
+                CasterProvider = casterProvider;
+                SourceName = sourceName;
                 Effect = effect;
             }
         }
@@ -42,7 +53,10 @@ namespace EchoesOfAsh.Effect.Trigger
         private readonly ISanityHolder partySanityHolder;
 
         private readonly List<TriggerEntry> entries = new();
-        private readonly List<ITargetable> ownerTargetBuffer = new();
+        private readonly List<ITargetable> casterTargetBuffer = new();
+
+        /// <summary>발화 진행 중 여부입니다. 진행 중 재발화 요청은 무시합니다 (무한 연쇄 방지 - 잠정 규칙).</summary>
+        private bool isRaising;
         #endregion // 필드
 
         #region 생성자
@@ -63,13 +77,14 @@ namespace EchoesOfAsh.Effect.Trigger
         }
         #endregion // 생성자
 
-        #region 함수
+        #region 등록
         /// <summary>
-        /// 소유자의 트리거 효과 목록을 등록합니다. 등록 순서 = 발화 순서입니다.
+        /// 소유자의 트리거 효과 목록을 등록합니다 (캐릭터 패시브, 전용 유물). 등록 순서 = 발화 순서입니다.
+        /// 소유자 사망 시 발동하지 않습니다.
         /// </summary>
         /// <param name="owner">효과 소유자입니다.</param>
         /// <param name="triggerEffects">등록할 트리거 효과 목록입니다.</param>
-        public void Register(CharacterEntity owner, IReadOnlyList<TriggerEffect> triggerEffects)
+        public void Register(ITargetable owner, IReadOnlyList<TriggerEffect> triggerEffects)
         {
             if (owner == null)
             {
@@ -77,6 +92,36 @@ namespace EchoesOfAsh.Effect.Trigger
                 return;
             }
 
+            RegisterInternal(owner, null, owner.DisplayName, triggerEffects);
+        }
+
+        /// <summary>
+        /// 파티 범위 트리거 효과 목록을 등록합니다 (공용 유물). 등록 순서 = 발화 순서입니다.
+        /// 시전자와 효과 대상은 발화 시점에 공급자가 결정합니다 (첫 생존자 폴백 - 잠정 규칙).
+        /// </summary>
+        /// <param name="triggerEffects">등록할 트리거 효과 목록입니다.</param>
+        /// <param name="casterProvider">발화 시점의 시전자 공급자입니다. null 반환 = 발화 건너뜀입니다.</param>
+        /// <param name="sourceName">경고 로그용 출처 이름입니다.</param>
+        public void Register(IReadOnlyList<TriggerEffect> triggerEffects, Func<ITargetable> casterProvider, string sourceName)
+        {
+            if (casterProvider == null)
+            {
+                SWLog.LogError($"[TriggerEffectController] Register 실패: '{sourceName}' 시전자 공급자가 null입니다");
+                return;
+            }
+
+            RegisterInternal(null, casterProvider, sourceName, triggerEffects);
+        }
+
+        /// <summary>
+        /// 등록 공통 처리입니다. 빈 효과 블록은 건너뜁니다.
+        /// </summary>
+        /// <param name="owner">효과 소유자입니다. 파티 범위면 null입니다.</param>
+        /// <param name="casterProvider">파티 범위의 시전자 공급자입니다.</param>
+        /// <param name="sourceName">경고 로그용 출처 이름입니다.</param>
+        /// <param name="triggerEffects">등록할 트리거 효과 목록입니다.</param>
+        private void RegisterInternal(ITargetable owner, Func<ITargetable> casterProvider, string sourceName, IReadOnlyList<TriggerEffect> triggerEffects)
+        {
             if (triggerEffects == null)
             {
                 return;
@@ -91,19 +136,11 @@ namespace EchoesOfAsh.Effect.Trigger
 
                 if (triggerEffect.Effects.Count == 0)
                 {
-                    SWLog.LogWarning($"[TriggerEffectController] '{owner.DisplayName}' 트리거 효과의 블록이 비어 있어 등록을 건너뜁니다");
+                    SWLog.LogWarning($"[TriggerEffectController] '{sourceName}' 트리거 효과의 블록이 비어 있어 등록을 건너뜁니다");
                     continue;
                 }
 
-                if (triggerEffect.TriggerType == ETriggerType.TakeDamage
-                    || triggerEffect.TriggerType == ETriggerType.DealDamage
-                    || triggerEffect.TriggerType == ETriggerType.BattleEnd)
-                {
-                    // 피격, 가해 및 전투 종료 발화 지점은 관련 기능 구현 시 연결합니다.
-                    SWLog.LogWarning($"[TriggerEffectController] '{owner.DisplayName}' {triggerEffect.TriggerType} 트리거는 아직 발화 지점이 없습니다");
-                }
-
-                entries.Add(new TriggerEntry(owner, triggerEffect));
+                entries.Add(new TriggerEntry(owner, casterProvider, sourceName, triggerEffect));
             }
         }
 
@@ -114,35 +151,85 @@ namespace EchoesOfAsh.Effect.Trigger
         {
             entries.Clear();
         }
+        #endregion // 등록
 
+        #region 발화
         /// <summary>
-        /// 지정한 시점의 트리거 효과를 등록 순으로 발화합니다.
-        /// 소유자 사망 또는 정신력 조건 불충족 항목은 건너뜁니다.
+        /// 지정한 시점의 트리거 효과를 등록 순으로 발화합니다 (전투 시작, 턴 시작, 카드 사용, 전투 종료 등 전역 시점용).
         /// </summary>
         /// <param name="triggerType">발화할 시점입니다.</param>
         public void Raise(ETriggerType triggerType)
         {
-            foreach (TriggerEntry entry in entries)
+            RaiseInternal(triggerType, null);
+        }
+
+        /// <summary>
+        /// 특정 당사자에 귀속된 시점의 트리거 효과를 발화합니다 (피격 = 피격자, 가해 = 가해자).
+        /// 당사자 본인의 소유 효과와 파티 범위 효과만 발화합니다.
+        /// </summary>
+        /// <param name="triggerType">발화할 시점입니다.</param>
+        /// <param name="instigator">발화의 당사자입니다.</param>
+        public void RaiseFor(ETriggerType triggerType, ITargetable instigator)
+        {
+            if (instigator == null)
             {
-                if (entry.Effect.TriggerType != triggerType)
+                return;
+            }
+
+            RaiseInternal(triggerType, instigator);
+        }
+
+        /// <summary>
+        /// 발화 공통 처리입니다. 소유자 사망, 정신력 조건 불충족, 당사자 불일치 항목은 건너뜁니다.
+        /// 발화 중 재진입은 무시합니다 (무한 연쇄 방지 - 잠정 규칙).
+        /// </summary>
+        /// <param name="triggerType">발화할 시점입니다.</param>
+        /// <param name="instigator">발화 당사자입니다. null이면 전역 발화입니다.</param>
+        private void RaiseInternal(ETriggerType triggerType, ITargetable instigator)
+        {
+            if (isRaising)
+            {
+                return;
+            }
+
+            isRaising = true;
+
+            try
+            {
+                foreach (TriggerEntry entry in entries)
                 {
-                    continue;
+                    if (entry.Effect.TriggerType != triggerType)
+                    {
+                        continue;
+                    }
+
+                    // 당사자 귀속 발화 - 소유 효과는 당사자 본인 것만, 파티 범위 효과는 항상 발화합니다
+                    if (instigator != null && !entry.IsPartyScoped && !ReferenceEquals(entry.Owner, instigator))
+                    {
+                        continue;
+                    }
+
+                    ITargetable caster = entry.IsPartyScoped ? entry.CasterProvider?.Invoke() : entry.Owner;
+
+                    if (caster == null || !caster.IsTargetable)
+                    {
+                        continue;
+                    }
+
+                    if (!IsSanityConditionMet(entry.Effect.SanityCondition))
+                    {
+                        continue;
+                    }
+
+                    casterTargetBuffer.Clear();
+                    casterTargetBuffer.Add(caster);
+
+                    effectExecutor.Execute(entry.Effect.Effects, caster, casterTargetBuffer);
                 }
-
-                if (entry.Owner == null || entry.Owner.IsDead)
-                {
-                    continue;
-                }
-
-                if (!IsSanityConditionMet(entry.Effect.SanityCondition))
-                {
-                    continue;
-                }
-
-                ownerTargetBuffer.Clear();
-                ownerTargetBuffer.Add(entry.Owner);
-
-                effectExecutor.Execute(entry.Effect.Effects, entry.Owner, ownerTargetBuffer);
+            }
+            finally
+            {
+                isRaising = false;
             }
         }
 
@@ -166,25 +253,17 @@ namespace EchoesOfAsh.Effect.Trigger
             bool isMadness = partySanityHolder.CurrentSanityType == ESanityType.Madness;
             return sanityCondition == ESanityCondition.MadnessOnly ? isMadness : !isMadness;
         }
+        #endregion // 발화
 
+        #region 이벤트
         /// <summary>
-        /// 턴 시작 처리입니다. TurnManager.OnTurnStarted에 구독됩니다 (방어막 리셋 이후 — 구독 순서 계약).
+        /// 턴 시작 처리입니다. TurnManager.OnTurnStarted에 구독됩니다 (방어막 리셋 이후 - 구독 순서 계약).
         /// </summary>
         /// <param name="turnNumber">현재 턴 번호입니다.</param>
         public void HandleTurnStarted(int turnNumber)
         {
             Raise(ETriggerType.TurnStart);
         }
-
-        /// <summary>
-        /// 카드 사용 완료 처리입니다. CardPlayService.OnCardPlayed에 구독됩니다.
-        /// </summary>
-        /// <param name="card">사용한 카드입니다.</param>
-        /// <param name="sanityType">적용된 정신력 구간입니다.</param>
-        public void HandleCardPlayed(CardInstance card, ESanityType sanityType)
-        {
-            Raise(ETriggerType.CardPlayed);
-        }
-        #endregion // 함수
+        #endregion // 이벤트
     }
 }

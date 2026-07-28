@@ -54,5 +54,7 @@ namespace EchoesOfAsh.Save
 
         /// <summary>던전 중 소지한 드랍 아이템 목록입니다. codeName 기준으로 복원합니다 (P2-M6).</summary>
         public List<ItemCountSaveData> carriedItems = new();
+        /// <summary>던전 중 획득한 유물 코드명 목록입니다. 목록 순서 = 획득 순 = 발화 순입니다 (P2-M7).</summary>
+        public List<string> relicCodeNames = new();
     }
 }

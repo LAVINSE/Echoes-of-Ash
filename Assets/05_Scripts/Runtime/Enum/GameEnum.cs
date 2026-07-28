@@ -158,7 +158,7 @@ namespace EchoesOfAsh.Enum
     public enum EEnemyType
     {
         /// <summary>일반입니다.</summary>
-        [InspectorName("일반")] Noraml,
+        [InspectorName("일반")] Normal,
         /// <summary>엘리트입니다.</summary>
         [InspectorName("엘리트")] Elite,
         /// <summary>보스입니다.</summary>

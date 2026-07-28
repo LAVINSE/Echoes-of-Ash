@@ -18,7 +18,7 @@ namespace EchoesOfAsh.Data
         [SWGroup("타입")]
         [Tooltip("등장 구간")]
         [SerializeField] private Vector2Int spawnRange;
-        [SerializeField] private EEnemyType enemyType = EEnemyType.Noraml;
+        [SerializeField] private EEnemyType enemyType = EEnemyType.Normal;
 
         [SWGroup("스탯")]
         [SerializeField] private SWStatOverride maxHpStat;

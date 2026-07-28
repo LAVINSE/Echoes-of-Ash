@@ -56,6 +56,8 @@ namespace EchoesOfAsh.Dungeon
         [SerializeField] private SWIODatabase characterDatabase;
         [Tooltip("아이템 codeName 복원용 데이터베이스입니다 (저장 스키마 v3)")]
         [SerializeField] private SWIODatabase itemDatabase;
+        [Tooltip("유물 복원용 데이터베이스입니다. 저장된 코드명으로 유물을 되찾습니다.")]
+        [SerializeField] private SWIODatabase relicDatabase;
 
         [SWGroup("던전 구성")]
         [Tooltip("던전 생성에 사용할 시드입니다. 0이면 실행 시 무작위 시드를 생성합니다.")]
@@ -73,6 +75,10 @@ namespace EchoesOfAsh.Dungeon
         [SWGroup("씬")]
         [Tooltip("마을 복귀 시 로드할 씬 이름입니다.")]
         [SerializeField] private string townSceneName = "Town";
+
+        [SWGroup("테스트")]
+        [Tooltip("테스트 유물 획득 버튼이 사용할 유물입니다 (임시 조치 - 보상 화면 도입 시 제거).")]
+        [SerializeField] private RelicData testRelicData;
 
         private DungeonState dungeonState;
         private EDungeonPhase currentPhase = EDungeonPhase.None;
@@ -416,6 +422,22 @@ namespace EchoesOfAsh.Dungeon
                 }
 
                 dungeonState.AddCarriedItem(itemData, itemSave.count);
+            }
+
+            // 보유 유물 복원 (P2-M7 - 미등록 코드명은 경고 후 건너뜁니다: 유물 유실은 런 진행을 막지 않습니다)
+            foreach (string relicCodeName in saveData.relicCodeNames)
+            {
+                RelicData relicData = relicDatabase != null
+                    ? relicDatabase.GetDataByCodeName<RelicData>(relicCodeName)
+                    : null;
+
+                if (relicData == null)
+                {
+                    SWLog.LogWarning($"[DungeonManager] 코드명 '{relicCodeName}' 유물을 찾지 못해 건너뜁니다.");
+                    continue;
+                }
+
+                dungeonState.AddRelic(relicData);
             }
 
             if (dungeonState.Deck.Count == 0)
@@ -1048,5 +1070,24 @@ namespace EchoesOfAsh.Dungeon
             SWLog.Log(stringBuilder.ToString());
         }
         #endregion // 로그
+
+        /// <summary>
+        /// 테스트 유물을 획득합니다 (임시 조치 - 보상 화면 도입 시 제거). 획득 반영은 다음 전투 시작부터입니다.
+        /// </summary>
+        [SWButton("테스트 유물 획득")]
+        public void AddTestRelic()
+        {
+            if (dungeonState == null)
+            {
+                SWLog.LogWarning("[DungeonManager] AddTestRelic 무시: 진행 중인 던전이 없습니다.");
+                return;
+            }
+
+            if (dungeonState.AddRelic(testRelicData))
+            {
+                SWLog.Log($"[DungeonManager] 유물 획득: {testRelicData.DisplayName}");
+                DungeonSaveService.Save(dungeonState);
+            }
+        }
     }
 }

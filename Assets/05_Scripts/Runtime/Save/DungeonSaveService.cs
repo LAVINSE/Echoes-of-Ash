@@ -104,6 +104,15 @@ namespace EchoesOfAsh.Save
                     count = stack.Count,
                 });
             }
+            
+            // 보유 유물 기록 (P2-M7 - 목록 순서 유지 = 획득 순 발화 계약 보존)
+            foreach (RelicData relic in dungeonState.Relics)
+            {
+                if (relic != null)
+                {
+                    saveData.relicCodeNames.Add(relic.CodeName);
+                }
+            }
 
             GameSaveData gameData = GameSaveService.Current;
             gameData.dungeon = saveData;

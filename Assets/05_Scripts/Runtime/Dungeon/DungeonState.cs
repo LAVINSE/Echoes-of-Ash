@@ -28,6 +28,8 @@ namespace EchoesOfAsh.Dungeon
 
         /// <summary>던전 중 획득해 들고 있는 아이템 목록입니다. 회수 판정 전까지의 임시 보유분입니다.</summary>
         private readonly List<ItemStackData> carriedItems = new();
+        /// <summary>던전 중 획득한 유물 목록입니다. 획득 순서 = 트리거 발화 순서입니다 (기획서 15-2).</summary>
+        private readonly List<RelicData> relics = new();
         #endregion // 필드
 
         #region 프로퍼티
@@ -60,6 +62,8 @@ namespace EchoesOfAsh.Dungeon
 
         /// <summary>던전 중 소지 아이템 목록입니다.</summary>
         public IReadOnlyList<ItemStackData> CarriedItems => carriedItems;
+        /// <summary>보유 유물 목록입니다 (획득 순).</summary>
+        public IReadOnlyList<RelicData> Relics => relics;
         #endregion // 프로퍼티
 
         #region 생성자
@@ -155,6 +159,39 @@ namespace EchoesOfAsh.Dungeon
         public bool RemoveCard(CardInstance card)
         {
             return deck.Remove(card);
+        }
+
+        /// <summary>
+        /// 유물을 획득합니다. 이미 보유한 유물은 무시합니다 (유물 유일 보유 - 잠정 규칙).
+        /// </summary>
+        /// <param name="relicData">획득할 유물입니다.</param>
+        /// <returns>획득에 성공했으면 true입니다.</returns>
+        public bool AddRelic(RelicData relicData)
+        {
+            if (relicData == null)
+            {
+                SWLog.LogError("[DungeonState] AddRelic 실패: 유물이 없습니다.");
+                return false;
+            }
+
+            if (relics.Contains(relicData))
+            {
+                SWLog.LogWarning($"[DungeonState] AddRelic 무시: '{relicData.DisplayName}'을(를) 이미 보유하고 있습니다.");
+                return false;
+            }
+
+            relics.Add(relicData);
+            return true;
+        }
+
+        /// <summary>
+        /// 유물 보유 여부를 확인합니다.
+        /// </summary>
+        /// <param name="relicData">확인할 유물입니다.</param>
+        /// <returns>보유하고 있으면 true입니다.</returns>
+        public bool HasRelic(RelicData relicData)
+        {
+            return relicData != null && relics.Contains(relicData);
         }
 
         /// <summary>

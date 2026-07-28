@@ -22,9 +22,6 @@ namespace EchoesOfAsh.Data
         [Tooltip("턴 종료 시 다음 턴으로 이월할 수 있는 행동력의 최댓값")]
         [SerializeField, Min(0)] private int apCarryOverMax = 2;
 
-        [SWGroup("정신력 이벤트")]
-        [SerializeField] private SanityEventData sanityEvent;
-
         [SWGroup("광기 이벤트")]
         [Tooltip("광기 진입 직후(임계값 부근) 발생 확률 0~1")]
         [SerializeField, Range(0f, 1f)] private float madnessEventBaseChance = 0.3f;
@@ -48,9 +45,6 @@ namespace EchoesOfAsh.Data
         public int ApPerTurn => apPerTurn;
         /// <summary>다음 턴으로 이월할 수 있는 행동력의 최댓값입니다.</summary>
         public int ApCarryOverMax => apCarryOverMax;
-
-        /// <summary>정신력 이벤트입니다.</summary>
-        public SanityEventData SanityEvent => sanityEvent;
 
         /// <summary>파티원이 입힌 피해 1당 쌓이는 어그로입니다.</summary>
         public float AggroDamageWeight => aggroDamageWeight;

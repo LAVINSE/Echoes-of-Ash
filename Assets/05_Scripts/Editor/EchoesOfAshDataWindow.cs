@@ -22,8 +22,8 @@ namespace EchoesOfAsh.EditorTools
         private const string PrefPrefix = "EchoesOfAsh.DataEditor.";
 
         // 목록형 관리 대상 (탭 순서와 동일)
-        private static readonly Type[] ManagedTypes = { typeof(CardData), typeof(CharacterData), typeof(EnemyData), typeof(SanityEventData), typeof(StatusEffectData) };
-        private static readonly string[] ManagedTabNames = { "카드", "캐릭터", "적", "정신력 이벤트", "상태이상" };
+        private static readonly Type[] ManagedTypes = { typeof(CardData), typeof(CharacterData), typeof(EnemyData), typeof(SanityEventData), typeof(StatusEffectData), typeof(RelicData) };
+        private static readonly string[] ManagedTabNames = { "카드", "캐릭터", "적", "정신력 이벤트", "상태이상", "유물" };
         private static readonly string[] DefaultPaths =
         {
             "Assets/02_Res/Data/Card",
@@ -31,9 +31,9 @@ namespace EchoesOfAsh.EditorTools
             "Assets/02_Res/Data/Enemy",
             "Assets/02_Res/Data/SanityEvent",
             "Assets/02_Res/Data/Status",
+            "Assets/02_Res/Data/Relic",
         };
-        private static readonly string[] DefaultPrefixes = { "Card_", "Character_", "Enemy_", "SanityEvent_", "Status_" };
-
+        private static readonly string[] DefaultPrefixes = { "Card_", "Character_", "Enemy_", "SanityEvent_", "Status_", "Relic_" };
         // 단일 에셋 탭 (목록형 다음 순서)
         private static readonly Type[] SingletonTypes = { typeof(PartyData), typeof(BattleBalanceData) };
         private static readonly string[] SingletonTabNames = { "파티", "밸런스" };

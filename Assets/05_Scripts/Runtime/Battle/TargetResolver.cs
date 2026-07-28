@@ -30,7 +30,7 @@ namespace EchoesOfAsh.Battle
         {
             if (results == null)
             {
-                SWLog.LogError("[TargetingResolver] Resolve 실패: 결과 목록이 null입니다");
+                SWLog.LogError("[TargetResolver] Resolve 실패: 결과 목록이 null입니다");
                 return false;
             }
 
@@ -47,7 +47,7 @@ namespace EchoesOfAsh.Battle
                 case ETargetingType.Self:
                     return ResolveSelf(caster, target, results);
                 default:
-                    SWLog.LogError($"[TargetingResolver] Resolve 실패: 지원하지 않는 대상 지정 방식({targetingType})입니다");
+                    SWLog.LogError($"[TargetResolver] Resolve 실패: 지원하지 않는 대상 지정 방식({targetingType})입니다");
                     return false;
             }
         }
@@ -83,7 +83,7 @@ namespace EchoesOfAsh.Battle
 
             if (targetableBuffer.Count == 0)
             {
-                SWLog.LogError("[TargetingResolver] 적 전체 구성 실패: 대상 지정 가능한 적이 없습니다");
+                SWLog.LogError("[TargetResolver] 적 전체 구성 실패: 대상 지정 가능한 적이 없습니다");
                 return false;
             }
 
@@ -107,7 +107,7 @@ namespace EchoesOfAsh.Battle
 
             if (targetableBuffer.Count == 0)
             {
-                SWLog.LogError("[TargetingResolver] 무작위 적 구성 실패: 대상 지정 가능한 적이 없습니다");
+                SWLog.LogError("[TargetResolver] 무작위 적 구성 실패: 대상 지정 가능한 적이 없습니다");
                 return false;
             }
 

@@ -70,6 +70,10 @@ namespace EchoesOfAsh.Battle
         private readonly List<ITargetable> enemyTargetBuffer = new();
         /// <summary>챕터에서 주입된 상태이상 정의입니다. 미주입이면 인스펙터 목록으로 폴백합니다.</summary>
         private IReadOnlyList<StatusEffectData> chapterStatusDatas;
+        /// <summary>피격/가해 트리거 배선용 구독 목록입니다. 해제 대칭을 위해 보관합니다.</summary>
+        private readonly List<(BattleEntity entity, Action<int, int> handler)> damageTriggerHandlers = new();
+        /// <summary>카드 실행 중 가해 트리거 귀속 시전자입니다. 귀속 구간 밖 피해(상태이상 틱 등)는 가해 트리거를 발화하지 않습니다.</summary>
+        private CharacterEntity dealDamageAttributionCaster;
         #endregion // 필드
 
         #region 프로퍼티
@@ -161,7 +165,7 @@ namespace EchoesOfAsh.Battle
 
                     if (cardPlayService != null)
                     {
-                        cardPlayService.OnCardPlayed -= triggerEffectController.HandleCardPlayed;
+                        cardPlayService.OnCardPlayed -= HandleCardPlayedForTrigger;
                     }
 
                     triggerEffectController.Clear();
@@ -196,6 +200,17 @@ namespace EchoesOfAsh.Battle
             }
 
             characterViews.Clear();
+
+            foreach ((BattleEntity entity, Action<int, int> handler) subscription in damageTriggerHandlers)
+            {
+                if (subscription.entity != null)
+                {
+                    subscription.entity.OnDamaged -= subscription.handler;
+                }
+            }
+
+            damageTriggerHandlers.Clear();
+            dealDamageAttributionCaster = null;
 
             for (int i = 0; i < party.Count; i++)
             {
@@ -445,6 +460,32 @@ namespace EchoesOfAsh.Battle
                 triggerEffectController.Register(character, character.CharacterData.Passives);
             }
 
+            foreach (RelicData relic in dungeonState.Relics)
+            {
+                if (relic == null)
+                {
+                    continue;
+                }
+
+                if (relic.IsShared)
+                {
+                    // 공용 유물 - 시전자/대상 = 발화 시점 첫 생존자 (잠정 규칙)
+                    triggerEffectController.Register(relic.TriggerEffects, () => GetDefaultCaster(), relic.DisplayName);
+                }
+                else
+                {
+                    CharacterEntity ownerEntity = FindPartyMember(relic.OwnerCharacter);
+
+                    if (ownerEntity == null)
+                    {
+                        SWLog.LogWarning($"[BattleManager] 전용 유물 '{relic.DisplayName}'의 소유 캐릭터가 파티에 없어 등록을 건너뜁니다");
+                        continue;
+                    }
+
+                    triggerEffectController.Register(ownerEntity, relic.TriggerEffects);
+                }
+            }
+
             turnManager = new TurnManager(apSystem, deckSystem, balanceData);
             turnManager.OnTurnStarted += HandleTurnStarted;
             turnManager.OnTurnStarted += triggerEffectController.HandleTurnStarted;
@@ -452,7 +493,23 @@ namespace EchoesOfAsh.Battle
             turnManager.OnRoundEnded += HandleStatusRoundTick;
             turnManager.OnRoundEnded += HandleRoundEnded;
 
-            cardPlayService.OnCardPlayed += triggerEffectController.HandleCardPlayed;
+            cardPlayService.OnCardPlayed += HandleCardPlayedForTrigger;
+
+            // 피격/가해 트리거 배선 (P2-M7 - 미배선 3종 해소)
+            foreach (CharacterEntity character in party)
+            {
+                CharacterEntity damagedMember = character;
+                Action<int, int> handler = (hpLose, original) => HandlePartyMemberDamaged(damagedMember, original);
+                damagedMember.OnDamaged += handler;
+                damageTriggerHandlers.Add((damagedMember, handler));
+            }
+
+            foreach (EnemyEntity enemy in enemyEntities)
+            {
+                Action<int, int> handler = (hpLose, original) => HandleEnemyDamagedForTrigger(original);
+                enemy.OnDamaged += handler;
+                damageTriggerHandlers.Add((enemy, handler));
+            }
 
             sanityEventRunner = new SanityEventRunner(
                 partySanityHolder,
@@ -504,6 +561,12 @@ namespace EchoesOfAsh.Battle
             this.battleResult = battleResult;
 
             turnManager.EndBattle();
+
+            // 전투 종료 트리거 - 승리 시 1회 (잠정 규칙: 패배 = 던전 종료라 미발화). 효과의 SAN 변경이 아래 이월 기록에 반영됩니다
+            if (battleResult == EBattleResult.Victory)
+            {
+                triggerEffectController?.Raise(ETriggerType.BattleEnd);
+            }
 
             deckSystem.ResetDeckSystem();
             apSystem.ResetAp();
@@ -577,6 +640,29 @@ namespace EchoesOfAsh.Battle
             foreach (CharacterEntity member in party)
             {
                 if (member != null && !member.IsDead)
+                {
+                    return member;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// 지정한 캐릭터 데이터로 스폰된 파티원을 찾습니다.
+        /// </summary>
+        /// <param name="characterData">찾을 캐릭터 데이터입니다.</param>
+        /// <returns>해당 파티원입니다. 없으면 null입니다.</returns>
+        private CharacterEntity FindPartyMember(CharacterData characterData)
+        {
+            if (characterData == null)
+            {
+                return null;
+            }
+
+            foreach (CharacterEntity member in party)
+            {
+                if (member != null && member.CharacterData == characterData)
                 {
                     return member;
                 }
@@ -696,9 +782,10 @@ namespace EchoesOfAsh.Battle
                 return false;
             }
 
-            // 카드 실행 중 적이 받는 피해를 시전자 어그로로 귀속합니다
+            // 카드 실행 중 적이 받는 피해를 시전자 어그로와 가해 트리거로 귀속합니다
             bool isPlayed;
             aggroSystem?.BeginAttribution(caster);
+            dealDamageAttributionCaster = caster;
 
             try
             {
@@ -706,6 +793,7 @@ namespace EchoesOfAsh.Battle
             }
             finally
             {
+                dealDamageAttributionCaster = null;
                 aggroSystem?.EndAttribution();
             }
 
@@ -837,6 +925,45 @@ namespace EchoesOfAsh.Battle
             }
 
             EndBattle(EBattleResult.Defeat);
+        }
+
+        /// <summary>
+        /// 카드 사용 완료를 트리거 컨트롤러에 중계합니다 (Effect.Trigger의 Card 의존 차단 - 조립 지점 어댑터).
+        /// </summary>
+        /// <param name="card">사용한 카드입니다.</param>
+        /// <param name="sanityType">적용된 정신력 구간입니다.</param>
+        private void HandleCardPlayedForTrigger(CardInstance card, ESanityType sanityType)
+        {
+            triggerEffectController?.Raise(ETriggerType.CardPlayed);
+        }
+
+        /// <summary>
+        /// 파티원 피격을 피격 트리거로 중계합니다. 원본 피해 0 이하는 발화하지 않습니다 (방어막 전량 흡수는 피격으로 인정).
+        /// </summary>
+        /// <param name="damagedMember">피격당한 파티원입니다.</param>
+        /// <param name="originalAmount">계산 전 원본 피해량입니다.</param>
+        private void HandlePartyMemberDamaged(CharacterEntity damagedMember, int originalAmount)
+        {
+            if (!isBattleRunning || originalAmount <= 0)
+            {
+                return;
+            }
+
+            triggerEffectController?.RaiseFor(ETriggerType.TakeDamage, damagedMember);
+        }
+
+        /// <summary>
+        /// 적 피격을 가해 트리거로 중계합니다. 카드 귀속 구간 안의 피해만 인정합니다 (상태이상 틱 등 귀속 밖 = 미발화 - 어그로와 동일 잠정 규칙).
+        /// </summary>
+        /// <param name="originalAmount">계산 전 원본 피해량입니다.</param>
+        private void HandleEnemyDamagedForTrigger(int originalAmount)
+        {
+            if (!isBattleRunning || originalAmount <= 0 || dealDamageAttributionCaster == null)
+            {
+                return;
+            }
+
+            triggerEffectController?.RaiseFor(ETriggerType.DealDamage, dealDamageAttributionCaster);
         }
         #endregion // 이벤트
     }
