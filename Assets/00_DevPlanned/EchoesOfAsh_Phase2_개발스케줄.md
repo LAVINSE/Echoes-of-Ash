@@ -1,6 +1,6 @@
 # Echoes of Ash — Phase 2 개발 스케줄
 
-> 기준 문서: 기획서 v3.2 (16장 Phase 2 체크리스트) + Phase 1 개발스케줄 개정 11 · 작성일: 2026-07-22 (개정 19 — 2026-07-27, P2-M6 6-2·6-3 완료 + P2-D7 통합 저장 확정 + 배치 프리팹 적용)
+> 기준 문서: 기획서 v3.2 (16장 Phase 2 체크리스트) + Phase 1 개발스케줄 개정 11 · 작성일: 2026-07-22 (개정 20 — 2026-07-28, P2-M6 완료 = 6-1 마을 씬 + 용어 재개정 Town/Building + 마을 구성 SO)
 > 목표: **런 1회 완주 + 거점 순환 + 파티가 가능한 상태** — 기간 잠정 12주 (기획 2~4개월 범위)
 
 ---
@@ -11,7 +11,7 @@
 
 - **Phase 1 코드 완료** (M0~M6-1) — 전투 1사이클·정신력·뷰/입력 전부 동작. 6-2~6-5(콘텐츠 데이터·밸런스·검증)는 리소스 작업 시점 이월 (구성안 확정 보관)
 - **정신력 시스템 유지 확정** (코어 디자인 결정 — Phase 1 개정 11). 6-5는 **밸런스 게이트** — 수치·이벤트 효과 변경은 전부 에셋 교체로 대응, 코드 무수정
-- **하이브리드 렌더링 확정** (D5 개정 7): 전장 = 월드 / 화면 부착 UI = Canvas(Screen Space - Camera). Phase 2 신규 화면(맵·거점·상점·편성)은 **전부 Canvas** — 결정 불필요
+- **하이브리드 렌더링 확정** (D5 개정 7): 전장 = 월드 / 화면 부착 UI = Canvas(Screen Space - Camera). Phase 2 신규 화면(맵·거점·상점·편성)은 **전부 Canvas** — 결정 불필요 → **마을만 의도적 이탈 (개정 20): 건물/배경 = 월드 스프라이트 + 팝업/HUD = Canvas (P2-M6 6-1 완료 기록 참조)**
 - **아트 부담 억제 유지**: Phase 2도 플레이스홀더 — 기능적 아트는 리소스 작업 시점
 
 ### Phase 1이 남긴 임시 조치 = P2-M0의 작업 목록
@@ -198,11 +198,7 @@
 - **enum 중복 신설 방지 (사용자 발견):** 초안은 `ETriggerType` 신설이었으나 기존 `ERelicTriggerType`이 이미 존재 — 미사용 확인 후 **재사용 + `ETriggerType` 개명** (패시브 공용화로 "Relic" 이름 범위 불일치 — Run→Dungeon 개명 전례) + **`Passive` 값 제거** (디스패처에 발화 지점이 없는 함정값 — 상시 배율형은 피해 계산기 래핑으로 확정) + **`BattleEnd` 유지** (기획서 8-1 재검토 항목 — 미배선 경고로 자리 보존). `ESanityCondition` 신설 (None/CalmOnly/MadnessOnly)
 - **산출물:** `Effect/Trigger/TriggerEffect.cs` (인라인 직렬화 — 시점 + 정신력 조건 + 효과 블록 + `GetDescription` 조합) + `Effect/Trigger/TriggerEffectController.cs` (순수 클래스 — 등록·발화 단일 소유) + `CharacterData.passives` 목록 + `BattleManager` 배선. **배치 조정 (사용자):** 계획의 Data/Battle 분산 대신 **Effect 모듈 하위 `Effect/Trigger/` 통합** (네임스페이스 `EchoesOfAsh.Effect.Trigger`) — 트리거 구조가 효과 실행 계열임을 반영
 - **결정성 계약:** 등록 순서 = 발화 순서 (단일 목록 순회 — StatusController 부여 순 전례). 파티 패시브 = 스폰 순 등록, P2-M7 유물 = 획득 순 등록으로 기획서 15-2 충족. 발화 시점 검사: 소유자 사망 스킵 + 정신력 조건 + 빈 블록 등록 거부 + 미배선 3종(피격/가해/전투종료) 경고
-- **BattleManager 배선:** **구독 순서 계약 — 방어막 리셋(`HandleTurnStarted`) → 패시브 트리거** (리셋이 패시브 방어막을 지우지 않도록 선행 고정, M3 "감소 → 의도 재평가" 계열). `BattleStart` 발화 = `OnBattleStarted` 후 · `turnManager.StartBattle()` 전 (뷰 초기화 후 발동 → 게이지 즉시 반영). `ResetBattle` 해제 대칭 (구독 2종 해제 + `Clear` + null)
-- **검사 패시브 = 데이터 성립:** TurnStart + CalmOnly + BlockGain 3 — 코드 0줄 (15-3 원칙 관통 확인). 트리거 효과의 신규 메커니즘은 커스텀 EffectBlock 폴백 — 신규 블록은 공용 부품화되어 후반 0줄 비율 상승
-- **의존 방향 노트 ⚠ (P2-M7 이월):** `Effect.Trigger`가 `Battle`(CharacterEntity)·`Card`(CardInstance)를 역참조 — 기존 Battle → Effect 단방향에 상호 참조 발생 (단일 어셈블리라 동작 무해, 원칙 수준 노트). **해소 예정: P2-M7 유물 등록 확장 시** ① Owner를 `ITargetable` 전환 (사망 판정 = `!IsTargetable` — MadnessEventRunner 공변 전달 전례, 소유자 없는 유물 등록에도 필요) ② `HandleCardPlayed`의 CardInstance 파라미터 미사용 — BattleManager 기명 핸들러 경유로 Card 참조 제거
-- **프로젝트 반영 확인 (개정 16):** enum 교체(`ETriggerType`/`ESanityCondition`)·`TriggerEffect`·`TriggerEffectController`·`CharacterData`(passives + 4-2 사소 권장분)·`BattleManager`(생성·등록·구독 순서·BattleStart 발화·해제 대칭) 전부 반영 확인
-- **실검증 이월 ⚠ (씬 검증 이월분과 일괄):** 검사 패시브 에셋 입력(TurnStart·평정·방어막 3) → 매 턴 시작 방어막 3 (리셋 후 부여 순서) → 광기 진입 시 미발동·회복 시 재발동 → 소유자 처치 시 미발동 → CardPlayed 트리거 항목 발동 → 미배선 트리거 등록 경고
+- **BattleManager 배선:** **구독 순서 계약 — 방어막 리셋(`HandleTurnStarted`) → 패시브 트리거** (리셋이 패시브 방어막을 지우지 않도록 선행 고정, M3 "감소 → 의도 재평가" 계열). `BattleStart` 발화 = `OnBattleStarted` 후 · `turnManager.StartBattle()` 전 (뷰 초기화 후 발동 → 게이지 즉시 반영). 검사 패시브 = 데이터 성립(코드 0줄). **의존 방향 노트: Effect.Trigger ↔ Battle·Card 상호 참조 — P2-M7 유물 등록 확장 시 ITargetable 전환 + 카드 파라미터 제거로 해소 예정.** 실검증은 씬 검증 이월분과 일괄
 
 #### 4-4 완료 기록 (2026-07-26)
 
@@ -216,7 +212,7 @@
   - ⚠ **수정 이력 (검토 발견 2건):** ① `PrepareNextTurn`의 `PickNextTarget` 누락 — 2라운드부터 표적 고정 + 예고 대상 우선 사용으로 **무작위 규칙이 사실상 고정 대상화**되는 로직 버그 → 수정 확인 ② 사망 적의 표적 글자 잔존 → 숨김 추가 확인
 - **4-4b 파티 편성 기초:**
   - `View/UI/PartySetupView` 신설 — 후보 슬롯 고정 배치(토글 선택), **선택 순서 = 파티 순서** (스폰 순서 결정성), 1~3인 검증, 캐릭터 정보 = **패시브 설명 `TriggerEffect.GetDescription` 재사용 (코드 0줄)** + 전용 카드 목록 + 시작 덱 미리보기. 콜백 주입 — 뷰는 DungeonManager를 모름
-  - `DungeonManager` 편성 흐름: `OpenPartySetup` → 확정(`selectedParty`) → `StartDungeon` (편성분 우선, 없으면 인스펙터 기본 파티). **미배선 = 기본 파티 즉시 시작 폴백** (미배선 통과 원칙). `EndDungeon`에서 편성분 정리. 임시 조치: `availableCharacters` 인스펙터 목록 — 메타 저장(보유 캐릭터) 도입 시 대체
+  - `DungeonManager` 편성 흐름: `OpenPartySetup` → 확정(`selectedParty`) → `StartDungeon` (편성분 우선, 없으면 인스펙터 기본 파티). **미배선 = 기본 파티 즉시 시작 폴백** (미배선 통과 원칙). `EndDungeon`에서 편성분 정리. 임시 조치: `availableCharacters` 인스펙터 목록 — 메타 저장(보유 캐릭터) 도입 시 대체 → ✅ 해소 (개정 20 — 마을 보유 명단 기반)
   - **저장 스키마 v2 이행 (4-1 예고 결정):** 편성 가변화 → `partyCharacterCodeNames` 저장 + `characterDatabase` 코드명 복원 + **v1→v2 마이그레이션 (구버전 = 빈 명단 → 인스펙터 기본 파티 폴백 + 경고) — 버전 체계 첫 실사용.** ⚠ **수정 이력 (검토 발견 2건):** ① `CurrentVersion` 미인상(1 잔존 — v1/v2 구분 불가·마이그레이션 사문화) → 2로 수정 확인 ② `Migrate` 흐름 — 변환 성공 후에도 무조건 실패 반환 → "변환 후 현재 버전 도달 검사" 구조로 수정 확인
 - **프리팹 현황:** `PartyStatusView` 슬롯 3개 배치 완료 / `CharacterView`·레이어·드래그 마스크 = 에디터 체크리스트 / `PartySetupView` 프리팹 = 빈 골격 (**폴백 동작으로 후순위 가능** — 구조 가이드 전달됨, 규칙: 루트 활성·panelRoot 자식만 비활성)
 - **잔여 ⚠ (다음 코드 작업 시 반영):** `SetupParty` 파티원 간격 배치 (`partySpacing` — 현재 전원 (0,0) 겹침: 뷰 문제가 아니라 **아군 드롭 판정이 최상단 1인에만 가는 로직 문제**) → **간격 방식 기각 (개정 18) — 인원별(1/2/3인) 배치 프리팹 방식으로 대체, `SetupParty` 적용 이월.** → ✅ 적용 완료 (개정 19 — `PartyFormation`) 사소: `PartyCharacterSlotView` 로그 태그·`PartyStatusView.Init` 문서 주석 파라미터명 정리
@@ -235,8 +231,7 @@
 
 - **P2-D5 확정 이행 — 어그로 산정식 (잠정, 전부 Balance 외부화):** 어그로 = 카드로 입힌 **원본 피해량 × `aggroDamageWeight`(기본 1)**, 라운드 종료마다 **`aggroRoundDecayRate`(기본 0.5) 곱 감쇠** — 최근 기여 가중. 방어막 흡수분 포함 기여 인정·취약 배율 미반영 (원본 기준 — 잠정). 동률 = 파티 순서 앞 사람 (결정성), 유효 어그로 없음(첫 라운드·시스템 미주입) = **무작위 폴백** (STS 감각·BattleTest 단독 경로 무손상)
 - **5-1 산출물:** `Battle/AggroSystem.cs` 순수 클래스 (전투 1회 수명 — ApSystem 계열). **귀속 구간 방식**: `BeginAttribution(caster)` → 카드 실행 → `EndAttribution()` (`PlayCard` try/finally 래핑) — 적 `OnDamaged` 구독으로 누적, 귀속 구간 밖 피해(상태이상 틱 등)는 미반영. `MIN_AGGRO` 미만 = 만료 제거. `EnemyAI` 생성자 주입 (null 허용 → 무작위 폴백 유지)
-- **5-2 도발:** `EStatusEffectType.Taunt` 신설 (기존 값 뒤 추가 — 직렬화 안전). 지속 = **상태이상 구조 재사용** (중첩 = 남은 라운드·TurnCountdown — P2-M3 예고 이행). 도발 카드 = 기존 `StatusEffect` 블록 + Self 타겟팅 — **코드 0줄** (15-3 원칙 관통). "지정" = 기존 `Fixed` 규칙 (파티 첫 생존자 — 무수정)
-- **도발 우선 규칙:** 도발은 규칙 3종(랜덤/어그로/지정) **전부에 우선**, 다수 도발자 = 파티 순서 첫 번째 (`FindTauntTarget`). **실행 시점 강제** — `SelectTargets`에서 예고보다 우선 (도발 카드를 낸 그 턴의 적 공격부터 유효) + `RefreshTauntPreview` (카드 사용 직후 조립 지점이 전 `EnemyAI` 호출 — 표적 표시 즉시 갱신, **도발자 교체만 수행 = 무작위 재추첨 없음·난수 소비 0**). 만료 복구 = 기존 순서 계약(감소 → 재평가)이 자연 처리 — 추가 코드 없음
+- **5-2 도발:** `EStatusEffectType.Taunt` 신설 (기존 값 뒤 추가 — 직렬화 안전). 지속 = **상태이상 구조 재사용** (중첩 = 남은 라운드·TurnCountdown — P2-M3 예고 이행). 도발 카드 = 기존 `StatusEffect` 블록 + Self 타겟팅 — **코드 0줄** (15-3 원칙 관통). 도발 = 모든 대상 선정 규칙에 우선, 다수 도발자 = 파티 순서 (결정성), **실행 시점 강제** + `RefreshTauntPreview`(부여/해제 시 예고 표시 즉시 갱신 — 난수 소비 0). 만료 복구 = 기존 순서 계약(감소 → 재평가)이 자연 처리 — 추가 코드 없음
 - **순서 계약 확장:** 상태이상 감소 → **어그로 감쇠(`aggroSystem.TickRound` — `HandleStatusRoundTick` 말미)** → 의도 재평가(`HandleRoundEnded`). 해제 대칭: `ResetBattle`에서 `Release()`(적 구독 전량 해제) + null
 - **Self 드래그 지정 UX 개정 (사용자 발견):** 기존 Self 카드 = 비조준 취급 → 아군 콜라이더를 빗나가면 기준선 폴백으로 **대상 선택 없이 시전자에게 적용**되는 문제. `CardDragController` 개정 — `isSingleTarget` → **`isAimedTargeting`** (Single + Self = 화살표 조준, STS 표준 UX 통일), 드롭 판정 = 타겟팅 방식별 분기 (**Self = 아군 콜라이더 위에서만 성립·빗나감 = 취소** — Single 대칭), 기준선 판정 = 비대상 카드 전용으로 축소. `TryPlayOnAlly`·로직 계층(`ResolveSelf` 시전자 폴백) 무수정. 트레이드오프: "위로 던져 빠른 자기 시전" 편의 제거 — 자기 시전 = 자기 캐릭터 위 드롭
 - **파티 배치 결정 (사용자):** 개정 17 잔여의 `partySpacing` 간격 배치 **기각** → **편성 인원별(1인/2인/3인) 배치 프리팹 방식** 확정 — 배치 프리팹 등록 완료, `SetupParty` 배치 적용 = **이월 ⚠** (적용 전까지 파티 (0,0) 겹침 지속 → **아군 드롭 판정이 최상단 1인에만 감** — Self 드래그 실검증은 배치 적용 후) → ✅ 적용 완료 (개정 19 — `PartyFormation`)
@@ -245,28 +240,69 @@
 - **에디터 작업 체크리스트:** ① `Status_Taunt` 에셋 (도발·isDebuff = false·라운드마다 1 감소·배율 1) ② `BattleManager.statusDatas` 등록 ③ 도발 테스트 카드 (Self + 상태이상 부여(도발, 2)) ④ 테스트 적 1종 규칙 = 어그로 기반 ⑤ `CharacterView` 콜라이더 = `Character` 레이어 + `characterLayerMask` 체크
 - **실검증 이월 ⚠ (씬 검증 이월분과 일괄 — 파티 배치 프리팹 적용 후):** 어그로 적 1라운드 무작위 → 딜 집중 파티원 표적화 → 미공격 시 감쇠로 분산 → 도발 카드 사용 즉시 그 턴 공격 강제 + 표적 글자 교체 → 2라운드 후 만료 복귀 → 지정 고정 = 첫 생존자·사망 시 다음 사람 → Self 카드 화살표 조준·아군별 드롭 적용·빗나감 = 손패 복귀 → 도발자 사망 시 조용한 재선정
 
-### P2-M6 — 거점 + 드랍/회수 (1.5주) — 6-2·6-3 완료 (개정 19), 6-1 진행 예정
+### P2-M6 — 마을(Town) + 드랍/회수 (1.5주) ✅ 완료 (개정 20 — 실검증·팝업은 아트 시점 이월)
 
 | # | 산출물 | 책임 |
 |---|--------|------|
-| 6-1 | 거점 씬 (Canvas) | 기본 시설 골격 + 막사 캐릭터 영입 기초 — **다음 작업** (Hub 씬 생성 시 카메라 직교 확인 — 개정 7 교훈) |
+| 6-1 | 마을 씬 (하이브리드) | 건물 골격 + 막사 캐릭터 영입 기초 → ✅ 완료 (개정 20 — 완료 기록 참조. 팝업 뷰·실검증 = 아트 시점 이월) |
 | 6-2 | 드랍 테이블 | 조우·노드별 드랍 데이터 (설계도·시설 재료 포함) → ✅ 완료 (개정 19 — 완료 기록 참조, 가중치 추첨 방식) |
 | 6-3 | 회수 시스템 | 절충형 + **보관 노드 전송** (P2-M1 골격에 연결) — 게임 오버 시 회수 실패/보존 구분 → ✅ 완료 (개정 19 — 완료 기록 참조, 보관 선택 UI는 잔여) |
 
-**DoD:** 전투 보상 → 드랍 → 보관 전송 or 소지 → 런 종료 시 회수 판정 → 거점 반영. → 거점 반영(표시)만 6-1 잔여, 나머지 코드 완료.
+**DoD:** 전투 보상 → 드랍 → 보관 전송 or 소지 → 런 종료 시 회수 판정 → 마을 반영. → 코드 경로 완주, 실검증은 아트 시점 이월분과 일괄.
 
 #### P2-M6 착수 기록 — 6-2·6-3 + 저장 재편 (2026-07-27)
 
 - **파티 배치 프리팹 적용 (P2-M4 이월 최종 해소):** `Battle/PartyFormation` 컴포넌트 (사용자 설계 — 표식 Transform 3개를 에디터 버튼으로 인원수별 좌표 데이터에 굽는 방식) + 완성분: `GetSpawnPosition(인원수, 순번)` 조회 API (미비 = 원점 폴백 + 경고), 좌표 기준 `localPosition` 통일 (루트 이동 내성), **정렬 no-op 버그 수정** (`OrderByDescending` 결과 폐기 → `Sort`), "포메이션 보기" = 저장 좌표를 표식에 역복원 (왕복 편집). `BattleManager.SetupParty` = 인원수별 좌표 스폰 (프리팹 **에셋 직접 참조** — 표식·스프라이트 런타임 미존재, 미배선 = 원점 폴백). **아군 드롭·Self 드래그 실검증 선행 조건 충족**
-- **P2-D7 확정 — 통합 저장 (프로필 대비, 사용자 결정):** 결정 과정 기록 — 최초 슬롯 분리안("dungeon"/"hub" 파일 분리) → **사용자 지적: SWSave 슬롯의 본래 의미 = 저장 칸(프로필)** → 프로필 기능 도입 의사 확인 → 통합 전환. **프로필 1칸 = 파일 1개 = `GameSaveData` 루트** (hub 구획 + `hasDungeon` 깃발 + dungeon 구획 — JsonUtility 중첩 null 미보존 대응). 파일 입출력 = `GameSaveService` **단일 진입점** (SetData 재등록이 내부로 국소화 = 병용 순서 규약 자체 소멸), 슬롯 = 본래 의미 복원 + `SelectProfile` API 확보. **던전 소멸 = 깃발 하강 + 재저장** (거점 구획 무사). `HubSaveService`/`DungeonSaveService` = 구획 파사드 (기존 호출부 API 유지 — `DungeonManager` 무수정)
-- **용어 매핑 확정: 기획 용어 "메타 진행/메타 저장" = 거점 누적 진행 = 코드 접두어 `Hub`** — 씬 기준 명명 대칭 (개정 2 "런 = Dungeon" 전례). 해금·시설·보유 캐릭터도 거점 소속(기획서 2-1)이라 스키마 확장처로 유효
-- **마이그레이션 계층 잠정 제거 (사용자 결정):** 개발 중 저장 데이터 비보존 방침 → 전 구획의 버전 간 변환 코드 삭제, **버전 필드 + "불일치 = 경고 후 폐기"만 유지** (반쯤 깨진 복원 방지). 필드 추가 = 버전 유지 무해 (JsonUtility 기본값 채움), 버전 인상 = 구버전 강제 폐기 수단. 던전 `CURRENT_VERSION` 1로 리셋 (개정 17의 v1→v2 마이그레이션도 제거에 포함). **기획서 15-5와 의도적 이탈 — 데이터 보존 시작 시점(얼리액세스 전) 계층 복원 필수.** 버전은 3계층 (루트 = 파일 뼈대 / hub / dungeon) — 폐기 단위 분리 (던전 구조 변경이 거점 자원을 날리지 않음)
-- **6-2 드랍 테이블 — 가중치 추첨 (사용자 결정: 독립 확률안 기각):** `Data/ItemData` (`IsBaseResource` = 일반 자원 타입 — 잠정 규칙) + `Data/ItemStackData` (아이템+수량 묶음, 합산 담당) + `Data/DropEntryData` + `Data/DropTableData` — **굴림 횟수 범위 + 항목 가중치 + 꽝 가중치** 전부 데이터 소유, 매 굴림 가중치 비례 1항목 (순회 순서 = 판정 순서·부동소수 경계 = 마지막 유효 항목 보정·난수 = SWRandom). 굴림 로직 = SO 자신 소유 (`GetMadnessEventChance` 전례 — 방식 교체 시 호출부 무수정 입증됨). `EnemyEncounterData.dropTable` 참조 (비우면 드랍 없음)
-- **6-3 회수 시스템:** 소지 = `DungeonState.carriedItems` (런 상태 → 던전 스냅샷 편입: codeName+count 기록, 복원 = `itemDatabase` 조회·미등록 = 경고 후 건너뜀 — 카드와 달리 비치명 결함). **굴림 시점 = 승리 확정 직후·보스 분기 앞** (`currentEncounterData` 필드 승격 — 진입 대입 → 굴림 후 null → 종료/복원 정리). **보관 전송 = 즉시 거점 귀속 + 저장** (전송 순간 파일 기록 → 이후 사망해도 보존 자연 성립 — 별도 "전송분" 상태 불필요. v1 = 진입 시 전량 자동, **선택 전송 UI = 보관 전용 화면 잔여**). 회수 판정 = `EndDungeon` 첫 줄 `ResolveCarriedItems` (**승리 = 전량 / 패배 = 기본 자원만** — 타입 한 줄 판정) → `DeleteSave` 선행 계약 (소지 목록 생존 상태에서 판정). 침식 패배 경로도 같은 길 = 자동 성립
+- **P2-D7 확정 — 통합 저장 (프로필 대비, 사용자 결정):** 결정 과정 기록 — 최초 슬롯 분리안("dungeon"/"hub" 파일 분리) → **사용자 지적: SWSave 슬롯의 본래 의미 = 저장 칸(프로필)** → 프로필 기능 도입 의사 확인 → 통합 전환. **프로필 1칸 = 파일 1개 = `GameSaveData` 루트** (hub 구획 + `hasDungeon` 깃발 + dungeon 구획 — JsonUtility 중첩 null 미보존 대응). 입출력 = `GameSaveService` 단일 진입점 (SetData 재등록 내부 국소화 — 병용 순서 규약 소멸) + `SelectProfile`(프로필 화면 대비), 구획 파사드(`HubSaveService`/`DungeonSaveService`)로 호출부 무수정. 용어 매핑: 메타 = `Hub` → **재개정 (개정 20): 거점 = `Town`**. **마이그레이션 잠정 제거 (사용자 결정)** — 버전 불일치 = 폐기 (15-5 의도적 이탈 — 데이터 보존 시작 시점 계층 복원 필수), 던전 스키마 버전 1 리셋
+- **6-2 드랍 테이블 (가중치 추첨 — 사용자 결정):** `Data/ItemData`(타입 = 일반 자원/시설 재료/설계도 — 회수 리스크 판정 키)·`ItemStackData`·`DropEntryData`(가중치 항목)·`DropTableData`(**굴림 횟수 범위 + 꽝 가중치 전부 데이터 소유**, 굴림 로직 = SO 소유)
+- **6-3 회수:** 소지 = `DungeonState` (스냅샷 편입·`itemDatabase` 복원). **굴림 시점 = 승리 확정 직후·보스 분기 앞** (`currentEncounterData` 필드 승격 — 진입 대입 → 굴림 후 null → 종료/복원 정리). **보관 전송 = 즉시 거점 귀속 + 저장** (전송 순간 파일 기록 → 이후 사망해도 보존 자연 성립 — 별도 "전송분" 상태 불필요. v1 = 진입 시 전량 자동, **선택 전송 UI = 보관 전용 화면 잔여**). 회수 판정 = `EndDungeon` 첫 줄 `ResolveCarriedItems` (**승리 = 전량 / 패배 = 기본 자원만** — 타입 한 줄 판정) → `DeleteSave` 선행 계약 (소지 목록 생존 상태에서 판정). 침식 패배 경로도 같은 길 = 자동 성립
 - **모듈 배치 (매핑 이탈 기록):** `ItemData`·`ItemStackData`·`DropEntryData`·`DropTableData` = **Data 흡수** (데이터 윈도우 관리 타입 — StatusEffectData 전례), 회수 판정 = **DungeonManager 흡수**. `05_Scripts/Drop/` 분리 기준 = 보관 선택 UI·회수 확장 실등장 시 (1-5 실요구 전 구조 확장 금지)
 - **검토 발견 수정 6건 (전부 수정 확인):** ① 전송/회수의 `MetaSaveService` 잔존 호출 (Hub 개명 전 원문 — 컴파일 에러) ② 드랍 루프 `ItemStack` 구 타입 잔존 ③ **드랍 굴림이 보스 분기 뒤 = 보스 드랍 영구 누락** (조기 반환) → 승리 직후로 이동 ④ `currentEncounterData` 필드 미선언 → 필드 승격 + 대입/정리 3곳 ⑤ **`HubSaveData` `[Serializable]` 누락** — 거점 구획이 파일에 직렬화되지 않아 전송·회수 자원이 조용히 증발하는 실버그 ⑥ **`CharacterView` 스프라이트 투명 버그 (사용자 발견)** — `Init` 첫 줄 `Release()`가 미저장 `originColor` 기본값 **(0,0,0,0) 투명**으로 칠한 뒤 그 색을 원래 색으로 오염 → `Awake` 1회 저장으로 이전 (전투불능 회색 재초기화 오염도 동시 차단)
 - **에디터 작업 체크리스트:** ① `PartyFormation` 프리팹을 BattleManager에 연결 (Test_Battle·Dungeon 2씬) ② 데이터 윈도우 **아이템·드랍 탭 증축** (배열 인덱스 정합 — 상태이상 탭 전례) ③ 테스트 에셋: `Item_Ash`(일반 자원)·`Item_Blueprint_Test`(설계도) + `Drop_Test`(가중치 구성) → 테스트 조우 `dropTable` 연결 ④ `DungeonManager.itemDatabase` 연결 (전 아이템 등록) ⑤ 구버전 저장 파일(dungeon/hub/meta.json) 수동 삭제
 - **실검증 이월 ⚠ (씬 검증 이월분과 일괄):** 3인 배치(-1.45/0/1.36) → 아군 드롭·Self 드래그 (P2-M5 이월분 해금) → 전투 승리 드랍 로그·가중치 체감 → 보스 드랍 → 보관 진입 전송 + `save.json` 거점 구획 기록 → 전송 후 사망 = 전송분 보존 → 사망 = 기본 자원만·설계도 소실 → 승리 = 전량 → 이어하기 소지 유지 → 버전 조작 = 폐기 경고
+
+#### 6-1 완료 기록 — 마을 씬 (2026-07-28)
+
+**용어 매핑 재개정 (사용자 결정):**
+- **거점 = `Town`** — 개정 19 "메타 = Hub" 재개정. 씬 3구성 확정: **Loading · Town · Dungeon** (P2-D6 재개정). 연쇄 개명: `TownManager`·`TownSaveData`·`TownSaveService`·`TownHUDView`·`GameSaveData.town` 구획 (⚠ 필드 개명으로 구저장 거점 구획 미판독 — 비보존 방침상 무해, 구저장 삭제). 세계관 표시명(AshTown 등)은 코드와 분리 — 리소스 단계 자유 (기획 용어 ↔ 코드 접두어 분리 매핑 방식)
+- **시설 = `Building`** (사용자 결정) — `Data/BuildingData`(레벨 목록)/`BuildingLevelData`(승급 비용·효과 설명 — **비용 = 레벨 정의 소유**, 수치 = 데이터 소유 원칙). 영입 항목 = `Data/CharacterRecruitData` (사용자 개명 — **Data 흡수**, 캐릭터+비용 묶음·CharacterData 무수정 = 개방-폐쇄)
+
+**마을 표현 = 하이브리드 (사용자 결정 — "신규 화면 전부 Canvas" 계획의 의도적 이탈, 다키스트 던전 햄릿 참조):**
+- 건물/배경 = **월드 스프라이트** (연출·화면 전환 확장 계층, 씬 수동 배치 = 위치 씬 소유) / 팝업·HUD = **Canvas** (기능 계층 — DD도 실기능은 UI 계층이라는 분석 반영)
+- `View/TownBuildingView` — 호버 하이라이트 + 클릭 알림. **원색 = Awake 1회 저장** (개정 19 CharacterView 투명 버그 교훈 선반영). 자신의 `BuildingData` 참조 소유 (배치-데이터 연결 = 씬 소유)
+- `View/TownInputController` — **마을 월드 입력 단일 주체** (포인터 폴링 + OverlapPoint — CardDragController 전례). 팝업 = 모달 → 월드 입력 잠금 API(`SetInputEnabled`)
+- `View/UI/TownHUDView` — 자원 요약 + 던전 출발/이어하기 (BattleHUDView 전례, 이어하기 버튼 = 스냅샷 존재 시만 표시)
+- 신규 물리 레이어 `Building` (Character 레이어 전례)
+
+**마을 구성 = `TownConfigData` SO (사용자 제안 채택):**
+- 최초 반영분(TownManager 인스펙터 목록: buildingEntries·characterRecruitData·starterCharacters)은 데이터가 프리팹/씬에 직렬화 → 관리·조회 곤란 → **구성 전량 SO 이관** (`Data/TownConfigData` — 건물 목록·막사 지정·영입 항목·기본 캐릭터). MapConfigData 전례 + P2-M7 7-4 던전 구성 데이터(챕터 SO)의 마을 대응물
+- **구조 제약에 의한 분리:** SO는 씬 오브젝트 참조 불가 → 데이터 = SO / 배치-데이터 연결 = 씬 (`TownBuildingView.buildingData` 참조). TownManager 인스펙터 = **구성 SO 1칸 + 씬 뷰 목록**으로 축소. 두 참조는 역할 분리(구성 명단 vs 배치 표식)라 중복 아님 — 실위험 = 불일치뿐: 정방향(씬 배치 ↔ 구성 미등록) = `HasBuilding` 경고 반영, **역방향(구성 등록 ↔ 씬 미배치) 검사 = 선택 잔여** (4~5줄 — 필요 시 추가)
+- **막사 판정 개정:** 항목별 `isBarracks` 체크 → `TownConfigData.barracksBuilding` **단일 참조** (막사 = 1개 — 기획서 6-3)
+
+**판정·저장:**
+- 기본/고급 건물 구분 = **레벨 비용의 아이템 구성으로 성립 (코드 0줄)**. 건물 효과 실반영 = 소비처 등장 시 잔여 (레벨 조회 API만 확보)
+- `TownSaveData` = 자원 + 건물 레벨 + 보유 캐릭터 (**필드 추가·버전 유지** — 개정 19 규칙) / `TownSaveService` 증축: `HasItems`/`TryConsumeItems`(**검사 후 일괄 차감 — 부분 차감 방지**, 중복 항목 합산 판정)·건물/캐릭터 API — 변경 API 무저장·호출자 일괄 저장 계약 유지
+- 승급/영입 = `TryUpgradeBuilding`/`TryRecruit` **공개 API** (임시 테스트 버튼과 향후 팝업의 공용 진입로). 최초 실행 = `starterCharacters` 자동 영입 + 저장
+
+**씬 전환:**
+- `Dungeon/DungeonLaunchRequest` — **1회성 정적 출발 요청** (`EDungeonLaunchMode` — GameEnum 병합). 소비 시 초기화 = Dungeon 씬 단독 테스트·BattleTest 경로 무손상. **재명명 기준 명문화: 로딩씬이 씬 전환 중계자로 확정되면 `SceneLaunchRequest`(대상 씬 + 모드)로 확장**
+- `DungeonManager` 증축: `Start` 요청 소비 / `ReturnToTown` (**던전 진행 중 차단 — 중간 탈출 없음**, 기획서 7-2) / `townSceneName`
+- **개정 17 임시 조치 해소:** `availableCharacters` 인스펙터 목록 → **마을 보유 명단 기반** (`RefreshAvailableCharactersFromTown` — 빈 명단 = 인스펙터 폴백, 영입 순 = 후보 순, 미등록 코드명 = 경고 후 건너뜀)
+
+**임시 조치 (해소 시점 명시):**
+
+| 임시 조치 | 대체 시점 |
+|-----------|-----------|
+| 건물 클릭 = 상태 로그만 출력 | **팝업 도입 시** (아트 시점) — `TownPopupView` 코드째 이월 (보관본 존재: 건물 승급 + 막사 영입 구역 토글 — NodeScreenView 통합 전례) |
+| `TestUpgradeFirstBuilding`/`TestRecruitFirstOffer` SWButton 2종 | 팝업 도입 시 제거 (도입 전 저장/차감 경로 검증용) |
+| 던전 종료 → 마을 자동 복귀 미배선 (수동 버튼) | 결과 화면(승리/패배 요약) 등장 시 흐름과 함께 결정 |
+| 로딩씬 → Town 전환 | 로딩씬 소관 (6-1 범위 밖) |
+| 보관 선택 전송 UI | 6-3 이월분 유지 (v1 = 전량 자동 전송) |
+
+- **프로젝트 반영 확인 (개정 20):** Town 씬 + TownManager 프리팹(`townConfigData` 에셋 연결)·`TownConfigData`/`TownBuildingView`(buildingData 참조)/`TownInputController`/`TownHUDView`/`CharacterRecruitData`/`BuildingData`/`BuildingLevelData`, 저장 3파일(`TownSaveData`/`TownSaveService`/`GameSaveData.town`), `DungeonLaunchRequest`·`EDungeonLaunchMode`, DungeonManager 패치 4종(Start 소비·보유 명단 갱신·ReturnToTown·TownSaveService 치환 — HubSaveService 잔존 없음) 전부 반영 확인
+- **잔여 ⚠:** ① **`buildingViews` 씬 배선 확인 필요** — 구성 SO 이관으로 구 필드(buildingEntries) 씬 오버라이드가 잔존하고 신 필드 배선이 미확인 상태 (미배선 시 건물 클릭·호버 무반응, InitViews 경고 0건이면 미배선 의심) ② `TownHUDView` 내부 로그 태그 `[TownHudView]` 정리 (사소 — 다음 코드 작업 시) ③ 역방향 정합 검사 (선택)
+- **에디터 작업 체크리스트:** ① Town 씬 카메라 직교 확인 (개정 7 교훈 — 월드 콜라이더 판정까지 걸려 이중 중요) ② 물리 레이어 `Building` + `TownInputController.buildingLayerMask` ③ 씬의 각 `TownBuildingView`에 `buildingData` 연결 + TownManager `buildingViews` 목록 배선 ④ 데이터 윈도우 건물 탭 증축 (배열 인덱스 정합) ⑤ 빌드 설정 3씬(Loading·Town·Dungeon) 등록 + 씬 이름 필드 일치 ⑥ 구저장 파일 수동 삭제 (hub → town 개명)
+- **실검증 이월 ⚠ (아트 시점 — 사용자 결정: 팝업과 함께 진행이 직관적):** 최초 실행 기본 캐릭터 자동 영입 + 저장 기록 → 건물 호버 하이라이트/원색 복귀 → 클릭 로그(레벨·막사 표기) → 테스트 버튼 승급(비용 차감·레벨 상승·재시작 유지·부족 시 실패 로그) → 영입 → 편성 후보 반영(영입 순) → 던전 출발/이어하기(스냅샷 존재 시만 버튼 표시) → Dungeon 씬 단독 재생 무동작 → 던전 종료 후 마을 복귀 → 회수 자원 HUD 반영 → 팝업 도입 후: 모달 입력 잠금·막사 영입 구역 토글·승급/영입 팝업 경유
 
 ### P2-M7 — 콘텐츠 + 시스템 잔여 (2.5주)
 
@@ -291,15 +327,15 @@
 |------|----------------|------|
 | 런 | `DungeonState`, `DungeonManager` | `05_Scripts/Dungeon/` |
 | 맵 | `MapGenerator`, 노드 데이터, 맵 화면 | `05_Scripts/Map/` |
-| 저장 | **통합 프로필 저장 (개정 19 — P2-D7):** `GameSaveData`(루트) + `GameSaveService`(파일 입출력 단일 진입점·프로필) + 구획 파사드 `HubSaveService`/`DungeonSaveService` + 스키마 `HubSaveData`/`DungeonSaveData` — 마이그레이션 잠정 제거 (버전 불일치 = 폐기) | `05_Scripts/Save/` |
+| 저장 | **통합 프로필 저장 (개정 19 — P2-D7):** `GameSaveData`(루트 — hub 구획 → **town 구획**, 개정 20) + `GameSaveService`(파일 입출력 단일 진입점·프로필) + 구획 파사드 `TownSaveService`/`DungeonSaveService` + 스키마 `TownSaveData`/`DungeonSaveData` — 마이그레이션 잠정 제거 (버전 불일치 = 폐기) | `05_Scripts/Save/` |
 | 상태이상 | `StatusEffectData`(정의 SO) + `StatusController`(생명주기) + `StatusDamageCalculator` — **별도 폴더 기각 (개정 13 — P2-M3 완료 기록 참조)** | `05_Scripts/Data/`, `05_Scripts/Battle/` |
 | 어그로 | `AggroSystem` (전투 1회 수명 순수 클래스 — 산정 수치는 Balance 소유, 개정 18) | `05_Scripts/Battle/` |
 | 유물 | 유물 SO(RelicData)·획득 관리 — **트리거 구조는 패시브 공용이라 `Effect/Trigger/`에 배치 완료 (개정 16 — `TriggerEffect`/`TriggerEffectController`)**, Relic 폴더에는 P2-M7에서 유물 고유분만 | `05_Scripts/Relic/`, `05_Scripts/Effect/Trigger/` |
-| 거점 | 시설·영입 | `05_Scripts/Hub/` |
+| 마을 (구 거점) | `TownManager`(조립 지점 — 씬 기준 명명 대칭) + `TownConfigData`(구성 SO — **Data 흡수**) + `CharacterRecruitData`(**Data 흡수** — 인라인 직렬화) + `BuildingData`/`BuildingLevelData` + 월드/UI 뷰(`TownBuildingView`·`TownInputController`·`TownHUDView`·팝업 이월) — 개정 20 | `05_Scripts/Town/`, `05_Scripts/Data/`, `View/`, `View/UI/` |
 | 드랍·회수 | 드랍 데이터(`ItemData`·`ItemStackData`·`DropEntryData`·`DropTableData`) = **Data 흡수**, 회수 판정·보관 전송 = **DungeonManager 흡수** (개정 19) — `Drop/` 분리 기준 = 보관 선택 UI 등장 시 | `05_Scripts/Data/`, `05_Scripts/Dungeon/` |
 | (기존) 전투/뷰 | 파티 3인·타겟팅 확장 — 기존 폴더 증축 | `Battle/`, `View/`, `View/UI/` |
 
-통신 원칙 유지: C# event 우선·구독/발화 순서 결정성 (유물 다중 발동 = **획득 순 고정** — 기획서 15-2 명시 / 상태이상 = 부여 순 순회 + 라운드 종료 구독 순서 "감소 → 어그로 감쇠 → 의도 재평가" — 개정 13·18 / 파티 = 스폰 순서 = 목록 순서 — 개정 14), 뷰 배선 예외는 조립 지점만 (`BattleManager` + 신규 `DungeonManager`).
+통신 원칙 유지: C# event 우선·구독/발화 순서 결정성 (유물 다중 발동 = **획득 순 고정** — 기획서 15-2 명시 / 상태이상 = 부여 순 순회 + 라운드 종료 구독 순서 "감소 → 어그로 감쇠 → 의도 재평가" — 개정 13·18 / 파티 = 스폰 순서 = 목록 순서 — 개정 14), 뷰 배선 예외는 조립 지점만 (`BattleManager` + 신규 `DungeonManager` + 신규 `TownManager` — 개정 20).
 
 ---
 
@@ -312,15 +348,15 @@
 | P2-D3 | **전용 카드 소속 표현**: CardData가 소유 캐릭터 참조 vs CharacterData가 전용 카드 목록 보유 | P2-M4 전 | ✅ 확정 (개정 14) — **CharacterData가 전용 카드 목록 보유.** 근거: ① 전투불능 드로우 제외 필터 = 파티 구성원(최대 3)의 목록 합산만 순회 — 카드 전수 역추적 불필요 ② 공용 카드 무수정 (빈 소유자 필드·오배정 사고 여지 차단, 캐릭터 추가 시 기존 카드 에셋 무수정 = 개방-폐쇄) ③ 캐릭터 에셋 1개 = 전용 카드 구성 한눈에. 카드→주인 역조회(툴팁 "전용" 표시 등)는 전투 시작 시 1회 표 구성으로 해소 → **✅ 이행 완료 (개정 15 — 4-2)** |
 | P2-D4 | **유물 트리거 구조**: 전투 이벤트 구독형 리스너 vs 훅 열거 매핑 (캐릭터 패시브와 공용) | P2-M7 전 (P2-M4 패시브와 통합 설계) | ✅ 확정 (개정 16) — **훅 열거 매핑.** 기각: 리스너형 — 유물 56개 × 클래스 = 15-3 "코드 0줄" 위반 + "획득 순 고정"(15-2)이 개별 구독 관리에 분산. 근거: ① 15-4 enum 기준표에 유물 트리거 명시 (닫힌 집합) ② 단일 디스패처 목록 순회 = **등록 순 = 발화 순** (StatusController 부여 순 전례 — 결정성 구조적 보장) ③ 특수 유물 = 커스텀 EffectBlock 폴백 (신규 블록은 공용 부품화 — 후반 0줄 비율 상승). 부수 확정: **패시브 = `TriggerEffect` 인라인 직렬화** (CharacterData 보유 — 독립 콘텐츠 아님, RelicData가 동일 타입 목록 보유로 구조 공유) / **상시 배율형 효과 = 피해 계산기 래핑 영역** (트리거 구조 밖 — StatusDamageCalculator 전례) → ✅ 이행 완료 (개정 16 — 4-3) |
 | P2-D5 | 어그로 산정식 (피해 기여 가중 등) | P2-M5 | ✅ 확정 (개정 18) — **원본 피해량 × 가중치 + 라운드 감쇠 (전부 Balance 외부화 — `aggroDamageWeight`/`aggroRoundDecayRate`).** 방어막 흡수분 포함 기여·취약 배율 미반영 (잠정 — 수치 조정은 에셋만). 동률 = 파티 순서, 유효 어그로 없음 = 무작위 폴백. 도발 = 산정식 밖의 강제 규칙 (모든 규칙에 우선) |
-| P2-D7 | **저장 파일 구성** (거점/던전 병용 방식) | P2-M6 | ✅ 확정 (개정 19) — **통합 프로필 저장.** 슬롯 분리안 폐기 (사용자 지적: SWSave 슬롯 = 저장 칸 본래 의미 + 프로필 도입 의사) → 프로필 1칸 = 파일 1개 = `GameSaveData` 루트 (hub + hasDungeon 깃발 + dungeon). 입출력 = `GameSaveService` 단일 진입점 (SetData 재등록 국소화 = 병용 순서 규약 소멸), 던전 소멸 = 깃발 하강 (거점 무사), `SelectProfile` = 프로필 화면 대비. 부수: 마이그레이션 잠정 제거 (버전 불일치 = 폐기 — 15-5 의도적 이탈, 데이터 보존 시작 시점 복원) |
-| P2-D6 | **씬 구성** | P2-M0 착수 시 | ✅ 확정 — **2씬: Hub(거점) + Dungeon(던전 = 런 1회)**. 맵은 씬이 아니라 Dungeon 씬 내 Canvas 화면 — 맵 ⇄ 전투 ⇄ 노드 화면(이벤트/상점/보관)을 씬 로드 없이 전환 (전투 인프라 1회 구성·런 템포 보존·DungeonState 수명 = Dungeon 씬 수명). `DungeonManager` = Dungeon 씬 내 화면 상태 머신 + 거점⇄던전 씬 전환 소유 |
+| P2-D7 | **저장 파일 구성** (거점/던전 병용 방식) | P2-M6 | ✅ 확정 (개정 19) — **통합 프로필 저장.** 슬롯 분리안 폐기 (사용자 지적: SWSave 슬롯 = 저장 칸 본래 의미 + 프로필 도입 의사) → 프로필 1칸 = 파일 1개 = `GameSaveData` 루트 (hub + hasDungeon 깃발 + dungeon). 입출력 = `GameSaveService` 단일 진입점 (SetData 재등록 국소화 = 병용 순서 규약 소멸), 던전 소멸 = 깃발 하강 (거점 무사), `SelectProfile` = 프로필 화면 대비. 부수: 마이그레이션 잠정 제거 (버전 불일치 = 폐기 — 15-5 의도적 이탈, 데이터 보존 시작 시점 복원) → **(개정 20) hub 구획 → `town` 개명 — 구저장 거점 구획 미판독 (비보존 방침상 무해)** |
+| P2-D6 | **씬 구성** | P2-M0 착수 시 | ✅ 확정 — **2씬: Hub(거점) + Dungeon(던전 = 런 1회)**. 맵은 씬이 아니라 Dungeon 씬 내 Canvas 화면 — 맵 ⇄ 전투 ⇄ 노드 화면(이벤트/상점/보관)을 씬 로드 없이 전환 (전투 인프라 1회 구성·런 템포 보존·DungeonState 수명 = Dungeon 씬 수명). `DungeonManager` = Dungeon 씬 내 화면 상태 머신 + 거점⇄던전 씬 전환 소유 → **재개정 (개정 20): 씬 3구성 = Loading · Town · Dungeon** — 거점 = `Town` 개명, 씬 전환 = `DungeonLaunchRequest` 1회성 정적 요청 (Town → Dungeon), 복귀 = `ReturnToTown` (DungeonManager 소유 유지). 로딩씬 → Town 전환 = 로딩씬 소관, 로딩씬이 전환 중계자로 확정 시 `SceneLaunchRequest` 확장 |
 
 ---
 
 ## 5. 리스크와 완충
 
 - **콘텐츠 물량이 병목** (P2-M7) — 카드 50·유물 20·적 12·이벤트 10은 코드가 아니라 제작 시간. → 도구 선행(P2-M3 — `EchoesOfAshDataWindow` 증축 완료)으로 완충 + "코드 0줄 추가" 원칙이 깨지는 카드는 즉시 구조 재점검
-- **저장 결정성 미결 재작업** — ~~P2-D1을 P2-M2 전에 반드시 확정~~ → **확정 완료 (스냅샷 — 개정 11).** 잔여 리스크: 강화 외 카드 가변 상태(P2-M7 이후) 추가 시 저장 스키마 버전 증가 + 마이그레이션 필수. **상태이상은 전투 한정(전투마다 리셋)이라 현재 저장 스키마 무관 — 던전 지속화 시 재분리 기준 발동 (개정 13). ~~파티 구성은 저장 제외(정적 구성) — 4-4 편성 화면 가변화 시 스키마 v2 편입 (개정 14)~~ → ✅ v2 편입 완료 (개정 17 — 파티 명단 저장 + v1 폴백 마이그레이션, 버전 체계 첫 실사용). 드로우 제외 더미도 전투 한정 — 저장 무관 (개정 15). 어그로도 전투 한정 (귀속·감쇠 전부 전투 수명) — 저장 무관 (개정 18). 드랍 소지 = 던전 스냅샷 편입 (개정 19). ⚠ 마이그레이션 계층 잠정 제거 (개정 19 — 버전 불일치 = 폐기): "버전 증가 + 마이그레이션 필수" 규칙은 데이터 보존 시작 시점(얼리액세스 전) 계층 복원과 함께 재가동**
+- **저장 결정성 미결 재작업** — ~~P2-D1을 P2-M2 전에 반드시 확정~~ → **확정 완료 (스냅샷 — 개정 11).** 잔여 리스크: 강화 외 카드 가변 상태(P2-M7 이후) 추가 시 저장 스키마 버전 증가 + 마이그레이션 필수. **상태이상은 전투 한정(전투마다 리셋)이라 현재 저장 스키마 무관 — 던전 지속화 시 재분리 기준 발동 (개정 13). ~~파티 구성은 저장 제외(정적 구성) — 4-4 편성 화면 가변화 시 스키마 v2 편입 (개정 14)~~ → ✅ v2 편입 완료 (개정 17 — 파티 명단 저장 + v1 폴백 마이그레이션, 버전 체계 첫 실사용). 드로우 제외 더미도 전투 한정 — 저장 무관 (개정 15). 어그로도 전투 한정 (귀속·감쇠 전부 전투 수명) — 저장 무관 (개정 18). 드랍 소지 = 던전 스냅샷 편입 (개정 19). 마을 진행(자원·건물 레벨·보유 캐릭터) = town 구획 필드 추가·버전 유지 (개정 20). ⚠ 마이그레이션 계층 잠정 제거 (개정 19 — 버전 불일치 = 폐기): "버전 증가 + 마이그레이션 필수" 규칙은 데이터 보존 시작 시점(얼리액세스 전) 계층 복원과 함께 재가동**
 - **파티 확장 파급** — 공유 SAN·피격 SAN 판정(피격자 개인 HP 기준)·전투불능 드로우 제외가 맞물림. P2-M4에서 `Test_Battle` 3인 버전으로 단독 검증 후 통합. ~~PartyData 이중 참조(DungeonManager/BattleManager — 동일 에셋 필수)도 이 시점에 주입 경로로 일원화~~ → **✅ 일원화 완료 (개정 14 — 4-1에서 DungeonState 경유 주입, BattleManager 데이터 필드 제거).** ~~전투불능 드로우 제외~~ → **✅ 완료 (개정 15 — 제외 더미 격리로 재셔플 간섭 없음).** ~~Aggro 무작위 폴백~~ → **✅ 해소 (개정 18 — P2-M5 어그로 실구현·도발). Phase 1 임시 조치 전량 해소 완료.** ~~신규 잔여: 파티 배치 프리팹 `SetupParty` 적용 이월~~ → **✅ 적용 완료 (개정 19 — `PartyFormation` 인원수별 좌표 스폰). 아군 드롭·Self 드래그 실검증 선행 조건 충족**
 - ~~**메타 저장 병용** — SWSaveDataManager는 정적 단일 currentData 구조. 메타 저장(해금/거점) 도입 시(P2-M6/M7) 던전 슬롯과의 SetData 순서 규약 필요~~ → **✅ 해소 (개정 19 — P2-D7 통합 저장):** 파일 입출력 = `GameSaveService` 단일 진입점으로 병용 자체가 사라짐 (SetData 재등록 내부 국소화). 잔여 주의: 향후 SWPlayerPrefs 사용 시작 시 슬롯 = 프로필 전제 재확인
 - **범위 방어** — Phase 3 항목 침범 금지: 적 SAN 보스 프로토타이핑(**SWUtils Behavior는 이 시점의 보스 AI 후보로 보류** — 현행 데이터 주도 패턴 순환에는 과함), 캐릭터 2·3번, 유물 21개 이상, 이벤트 11개 이상, Ascension, 튜토리얼, 아트 완성. **밸런스 게이트 전에 P2-M7 수치 확정 금지** (제작은 가능, 확정은 게이트 후)
@@ -338,6 +374,7 @@
 | 개정 | 일자 | 내용 |
 |------|------|------|
 | 초판 | 2026-07-22 | Phase 2 스케줄 수립 — 메타 계층 우선 순서(P2-M0~M3), 밸런스 게이트 병행 배치, Phase 1 임시 조치 5종 = P2-M0 작업 목록화, 조기 결정 P2-D1~D5 정의 |
+| 개정 20 | 2026-07-28 | **P2-M6 6-1 마을 씬 완료 = P2-M6 마일스톤 완료 (프로젝트 반영 확인) + 용어 재개정 + 마을 구성 SO** — **용어 (사용자 결정): 거점 = `Town` (개정 19 "메타 = Hub" 재개정, 씬 3구성 Loading·Town·Dungeon — P2-D6 재개정) / 시설 = `Building` / 영입 = `CharacterRecruitData` (Data 흡수).** `GameSaveData.hub → town` (구저장 거점 구획 미판독 — 비보존 방침·구저장 삭제). **표현 = 하이브리드 (사용자 결정 — "신규 화면 전부 Canvas" 의도적 이탈, 다키스트 던전 햄릿 참조):** 건물/배경 = 월드 스프라이트(입구·연출 계층) / 팝업·HUD = Canvas(기능 계층 — DD도 실기능은 UI라는 분석) — `TownBuildingView`(원색 Awake 1회 저장 — 개정 19 교훈 선반영·buildingData 참조 = 배치-데이터 연결 씬 소유)·`TownInputController`(단일 입력 주체 — 폴링+OverlapPoint·팝업 모달 잠금)·`TownHUDView`, 물리 레이어 `Building` 신설. **구성 = `TownConfigData` SO (사용자 제안 채택)** — 인스펙터 목록 직렬화 기각(프리팹/씬 박제 = 관리·조회 곤란), MapConfigData 전례·7-4 챕터 SO 대응물. SO ↔ 씬 참조 불가 → 데이터 = SO / 연결 = 씬, 막사 = `barracksBuilding` 단일 참조(체크박스 폐기), 정방향 정합 검사(`HasBuilding` 경고 — 역방향 = 선택 잔여). 판정: 기본/고급 = 비용 구성 성립(코드 0줄)·`TryConsumeItems` 검사 후 일괄 차감·승급/영입 = 공개 API(팝업·테스트 공용 진입로)·`TownSaveData` 필드 추가 버전 유지. 씬 전환 = `DungeonLaunchRequest` 1회성 요청(소비 시 초기화 = 단독 테스트 무손상, **로딩씬 중계 확정 시 `SceneLaunchRequest` 확장 기준 명문화**) + `ReturnToTown`(진행 중 차단 — 중간 탈출 없음). **개정 17 임시 조치 해소: 편성 후보 = 마을 보유 명단** (빈 명단 = 인스펙터 폴백·영입 순 = 후보 순). **팝업 = 코드째 아트 시점 이월 (사용자 결정 — 실검증도 팝업과 일괄):** 클릭 = 로그·SWButton 테스트 2종(도입 시 제거)·TownPopupView 보관본 존재. 잔여 ⚠: `buildingViews` 씬 배선 확인·TownHUDView 로그 태그·역방향 검사(선택)·던전 종료 자동 복귀(결과 화면 시점)·건물 효과 소비처·보관 선택 UI(6-3 이월)·로딩씬 → Town 전환(로딩씬 소관). **다음: 밸런스 게이트(6-2~6-5 리소스 + 마을 아트/팝업) 또는 P2-M7 (콘텐츠 + 시스템 잔여)** |
 | 개정 19 | 2026-07-27 | **P2-M6 6-2·6-3 완료 + P2-D7 확정 + 배치 프리팹 적용 (프로젝트 반영 확인)** — 배치: `PartyFormation` (사용자 설계 표식 굽기 + 완성분 `GetSpawnPosition`·localPosition 통일·정렬 no-op 수정·포메이션 보기 역복원), `SetupParty` 인원수별 스폰 (에셋 직접 참조·원점 폴백) = P2-M4 이월 최종 해소. **P2-D7: 통합 프로필 저장 (사용자 결정)** — 슬롯 분리안 폐기 (슬롯 = 저장 칸 본래 의미) → `GameSaveData` 루트(hub + hasDungeon + dungeon) + `GameSaveService` 단일 진입점 (병용 순서 규약 소멸) + `SelectProfile`, 구획 파사드로 호출부 무수정. 용어 매핑: 메타 = `Hub`. **마이그레이션 잠정 제거 (사용자 결정)** — 버전 불일치 = 폐기, 15-5 의도적 이탈 (데이터 보존 시점 복원 필수), 던전 버전 1 리셋. 6-2: `ItemData`·`ItemStackData`·`DropEntryData`·`DropTableData` **가중치 추첨 (사용자 결정)** — 굴림 횟수 범위 + 꽝 가중치 전부 데이터 소유, 굴림 = SO 소유. 6-3: 소지 = DungeonState (스냅샷 편입·itemDatabase 복원), 굴림 = 승리 직후·보스 분기 앞, **보관 전송 = 즉시 거점 귀속** (사망 보존 자연 성립·선택 UI 잔여), 회수 = `EndDungeon` 첫 줄 (승리 전량 / 패배 기본 자원만). **검토 발견 수정 6건**: Meta 잔존·구 타입·보스 드랍 누락·`currentEncounterData` 미선언·`HubSaveData` `[Serializable]` 누락(거점 저장 증발)·**`CharacterView` 투명 버그 (사용자 발견 — Init→Release 순서로 originColor 미저장 기본값 (0,0,0,0) 오염 → Awake 1회 저장)**. **다음: 6-1 거점 씬 (Hub 씬 카메라 직교 — 개정 7 교훈)** |
 | 개정 18 | 2026-07-27 | **P2-M5 완료 (프로젝트 반영 확인) = Phase 1 임시 조치 전량 해소** — P2-D5 확정(원본 피해 × 가중치 + 라운드 감쇠 — Balance 외부화 `aggroDamageWeight`/`aggroRoundDecayRate`, 동률 = 파티 순서, 전원 0 = 무작위 폴백). 5-1: `AggroSystem` 신설(순수 클래스 — 귀속 구간 `Begin/EndAttribution`·적 OnDamaged 구독·MIN_AGGRO 만료, EnemyAI 생성자 주입·null 허용). 5-2: `EStatusEffectType.Taunt`(지속 = 상태이상 구조 재사용) — 도발 카드 = `StatusEffect` 블록 재사용 **코드 0줄**, 모든 규칙 우선·다수 = 파티 순서·**실행 시점 강제** + `RefreshTauntPreview`(표시 즉시 갱신 — 난수 소비 0)·만료 복구 = 기존 순서 계약 자연 처리. 순서 계약 확장: 상태이상 감소 → **어그로 감쇠** → 의도 재평가. **Self 드래그 지정 UX 개정 (사용자 발견):** 기준선 폴백에 의한 무선택 시전 문제 → `isAimedTargeting`(Single + Self 화살표 조준)·드롭 = 타겟팅별 분기(Self = 아군 위에서만·빗나감 = 취소 — Single 대칭)·기준선 = 비대상 전용. **파티 배치 결정 (사용자):** `partySpacing` 기각 → 인원별(1/2/3인) 배치 프리팹 방식 — 프리팹 등록 완료, `SetupParty` 적용 이월 ⚠ (겹침 지속 = Self 드래그 실검증 배치 후 일괄). 사소 잔여: 미사용 `isSingleTarget` 필드 제거 등 3건. **다음: P2-M6 (거점 + 드랍/회수)** |
 | 개정 17 | 2026-07-26 | **P2-M4 4-4 완료 = P2-M4 마일스톤 완료 (프로젝트 반영 확인)** — 4-4a: `CharacterView` 신설(EnemyView 대칭 콜라이더·`Character` 레이어) + 아군 드롭(`TryPlayOnAlly` — Self 한정·기준선 폴백 보존) + `PartyCharacterSlotView`/`PartyStatusView` 3인 슬롯 개편 + **적 대상 예고 = 의도 시점 확정** (`PickNextTarget`·`OnTargetChanged`·예고 = 실행 일치·전투불능 시 조용한 재선정·난수 소비 시점 이동 노트 — 스냅샷 저장이라 재현 계약 무관). 4-4b: `PartySetupView`(선택 순서 = 파티 순서·패시브 설명 = GetDescription 재사용 코드 0줄·미배선 = 기본 파티 폴백) + **저장 스키마 v2** (파티 명단 + v1→v2 마이그레이션 — 버전 체계 첫 실사용). **검토 발견 버그 4건 수정 확인:** PrepareNextTurn 표적 갱신 누락(무작위 규칙 고정 대상화)·사망 적 표적 글자 잔존·CurrentVersion 미인상·Migrate 무조건 실패 흐름. **뷰 = 테스트용 플레이스홀더 전제 명시** (교체 시 유지 계약 = Init/Release·구독+표시만). 잔여 ⚠: `SetupParty` 파티 간격 배치(겹침 = 아군 드롭 판정 문제 — 다음 코드 작업 시). 실검증은 씬 검증 이월분과 일괄. **다음: P2-M5 (타겟팅 완성 — 어그로 실구현 + 도발, P2-D5 산정식·Phase 1 임시 조치 최종 해소)** |
