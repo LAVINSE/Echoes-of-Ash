@@ -16,5 +16,6 @@ MonoBehaviour:
   battleEncounters: []
   eliteEncounters: []
   bossEncounters: []
+  nodeEventPools: []
   sanityEventDatas: []
   statusDatas: []

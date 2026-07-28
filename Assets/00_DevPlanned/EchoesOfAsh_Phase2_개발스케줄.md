@@ -1,6 +1,6 @@
 # Echoes of Ash — Phase 2 개발 스케줄
 
-> 기준 문서: 기획서 v3.2 (16장 Phase 2 체크리스트) + Phase 1 개발스케줄 개정 11 · 작성일: 2026-07-22 (개정 20 — 2026-07-28, P2-M6 완료 = 6-1 마을 씬 + 용어 재개정 Town/Building + 마을 구성 SO)
+> 기준 문서: 기획서 v3.2 (16장 Phase 2 체크리스트) + Phase 1 개발스케줄 개정 11 · 작성일: 2026-07-22 (개정 21 — 2026-07-29, P2-M7 7-4 챕터 SO 신설 + 정신력 이벤트 DD 방식 개정 + SanityEventRunner 개명)
 > 목표: **런 1회 완주 + 거점 순환 + 파티가 가능한 상태** — 기간 잠정 12주 (기획 2~4개월 범위)
 
 ---
@@ -311,9 +311,41 @@
 | 7-1 | 공용 카드 50장 (반응형 포함) | `EchoesOfAshDataWindow` 카드 탭으로 제작 (구 계획명 CardSystemWindow — 개정 13) — 코드 0줄 원칙 검증 |
 | 7-2 | 유물 20개 | 트리거 구조(P2-D4) + 정신력 연동 포함 |
 | 7-3 | 적 12종 + 조우 테이블 | SAN 압박 행동 포함 — `SpawnRange` 조우 풀 실가동 |
-| 7-4 | 이벤트 10개 / 상점 / 보상 화면 | 데이터 기반 선택지·구매·카드 보상 — **던전 구성 데이터(챕터 SO) 신설: 노드 이벤트 `타입 → 풀` 매핑 흡수 (개정 11 결정) + `statusDatas` 상태이상 정의 목록 흡수 (개정 13 결정)** |
+| 7-4 | 이벤트 10개 / 상점 / 보상 화면 | 데이터 기반 선택지·구매·카드 보상 — **던전 구성 데이터(챕터 SO) 신설 ✅ 완료 (개정 21 — 착수 기록 참조. 노드 이벤트 매핑 흡수(개정 11 결정) + `statusDatas` 흡수(개정 13 결정) + `sanityEventDatas` 흡수(P2-M0 결정))**. 상점·보상 화면·이벤트 10개는 잔여 |
 | 7-5 | 카드 해금 2종 | 발견형 자동 해금 + 제작형 설계도 해금 (메타 저장 연동) |
 | 7-6 | 보스 1개 | HP 페이즈 패턴 활용 (구조는 M4에서 기완성) |
+
+#### P2-M7 착수 기록 — 7-4 챕터 SO + 정신력 이벤트 DD 개정 (2026-07-29)
+
+**7-4a — 던전 구성 데이터(챕터 SO) 신설:**
+- **산출물:** `Data/DungeonChapterData.cs` — 맵 생성 규칙 참조(`MapConfigData`) + 노드 타입별 조우 풀 3종(일반/엘리트/보스 — **빈 전용 풀 = 일반 풀 폴백 경고**) + 노드 이벤트 `타입 → 풀` 매핑(`EventNodePoolEntry` — 풀 1개 = 고정, 복수 = 무작위) + 정신력 이벤트 풀 + 상태이상 정의 목록. 무작위 굴림 = SO 소유 (DropTableData 전례 — SWRandom D3 일원화)
+- **예약 임시 조치 3건 해소:** ① DungeonManager 노드 이벤트 3필드(rest/storage/eventDatas — 개정 11 결정) ② `BattleManager.statusDatas`(개정 13 결정 — 인스펙터 필드는 **BattleTest 단독 경로 폴백으로 잔존**, `SetChapterStatusDatas` 주입 시 챕터가 우선) ③ `sanityEventDatas`(P2-M0 결정)
+- **부수 개선:** 엘리트/보스 조우가 일반 풀과 분리 — 기존에는 노드 타입 무관 단일 풀 무작위였음. `StartBattleForNode`가 `GetRandomEncounter(node.NodeType)` 경유
+- **DungeonManager 필드 6종 → `chapterData` 1종:** mapConfigData/sanityEventDatas/enemyEncounterDatas/restEventData/storageEventData/eventDatas 제거, `MapConfig` 프로퍼티 경유. 미배선 방어 유지 (`GetNodeEventData` — 챕터 없음/매핑 없음 = 통과 처리)
+- **OnValidate:** 매핑 중복 타입·전투 계열(전투/엘리트/보스) 타입 금지 경고 (개정 11 결정 이행) + 맵 규칙·일반 조우 풀 공백 경고
+- **검토 발견 버그 1건 (수정 확인):** `EventNodePoolEntry` **`[System.Serializable]` 누락** — nodeEventPools가 직렬화되지 않아 인스펙터 미표시·노드 이벤트 전부 통과 처리되는 실버그 (개정 19 `HubSaveData` 누락과 동일 계열 — 중첩 직렬화 클래스 신설 시 체크 항목으로 각인)
+- **명명 검토 (사용자 발의):** `DungeonData` 개명안 기각 — Dungeon 접두어 과밀(State/SaveData/EventData와 구분 불가) + 챕터 = 실제 에셋 단위(EA "챕터 2개" = 에셋 2개). `DungeonChapterData` 유지
+
+**7-4b — 정신력 이벤트 발동 규칙 개정 (사용자 결정 — DD 결의 판정 방식):**
+- **규칙:** 매 턴 확률 판정 → **광기 구간에서 맞는 첫 턴 시작에 확정 발동, 던전당 1회.** 붕괴/부정·기인/긍정 분기 = 기존 `SanityEventData`의 `isPositiveEffect`+`weight` 재사용 (**데이터 무수정** — DD 붕괴/기인과 1:1 대응). 발동 시 풀 균등 무작위 1건 → 이벤트 내 분기 (기존 선택 구조 유지)
+- **진실 원본 = `DungeonState.HasMadnessEventOccurred`** + `MarkMadnessEventOccurred`. 저장 편입: `DungeonSaveData.hasMadnessEventOccurred` (**필드 추가·버전 유지** — 기본 false = 구저장 호환, Town 전례) + `RestoreProgress` 파라미터 확장
+- **의존 차단:** 러너는 `Func<bool>`/`Action` 델리게이트 주입으로 던전 상태를 조회·기록 (Sanity → Dungeon 의존 금지 — EffectExecutor drawRequest 전례). BattleManager가 람다 배선, BattleTest = 자체 DungeonState라 "테스트 1회 = 던전 1회"로 무수정 정상
+- **마킹 시점 = 효과 실행 직전** (유효성 검증 통과 후) — 이벤트 효과가 SAN을 다시 바꿔도 재발동 없음. 데이터 오류(빈 효과)·전원 사망 시는 미마킹 (침묵 소진 방지)
+- **확률 곡선 폐기:** `BattleBalanceData.GetMadnessEventChance` + `madnessEventBaseChance`/`madnessEventMaxChance` 제거 (에셋 잔여 직렬화 값 무해). **밸런스 축 이동:** 발동 확률 튜닝 → 개별 이벤트 `weight`(기인 확률 — 출발점 0.25) + 풀 구성. Phase 1 6-2 구성안의 "부정 합 > 긍정 합 = 풀 비율 제어" 문구는 weight 중심으로 재해석
+- **잠정 규칙 3종:** ① 순간 스침(턴 중 광기 진입 → 같은 턴 회복) 미발동 — 판정 = 턴 시작 시점 (M4 발화 순서 계약 보존, D2 턴 경계 지연 전례. 교차 순간 즉시 실행은 효과 파이프라인 중첩 위험으로 기각) ② 전투 밖 광기 진입(휴식 선택지 등) = 다음 전투 첫 턴 발동 (플래그 = 던전 수명이라 자연 성립) ③ **다챕터 런 도입 시(Phase 3 — 챕터 전환) 발생 플래그 = 챕터 전환 시점 리셋 = 챕터당 1회** (사용자 질의로 확정 — 런 전체 1회는 후반 광기 리스크 소멸로 기각, 전환 기능 신설 시 리셋 API 1줄로 이행·저장 무수정)
+
+**명명 개정 (사용자 제안):**
+- `MadnessEventRunner` → **`SanityEventRunner`** (+ `OnMadnessEventTriggered` → `OnSanityEventTriggered`, 파일명 동반 개명) — `SanityEventData`와 데이터-러너 접두어 대칭 (Phase 1 MadnessEventData → SanityEventData 개명의 완결)
+- **경계 확정: Madness = 구간(상태) 명칭 유지** (`ESanityType.Madness`·`MadnessOverlayView`·`IsPartyMadness`·`HasMadnessEventOccurred`) / **SanityEvent = 이벤트 콘텐츠 명칭** — 기획 용어 "결의 판정" ↔ 코드 접두어 분리 매핑 방식 유지
+
+**전수 검사 결과 (사소 정리 권고 — 다음 코드 작업 시):**
+- `GameEnum.EEnemyType.Noraml` 오타 → `Normal` (enum = int 직렬화라 개명 무해, 값 순서 유지 조건) / `TargetResolver` 구 명칭 로그 태그 `[TargetingResolver]` 2곳 / `BattleManager.statusDatas` Tooltip "(임시 조치)" → "(BattleTest 폴백)" 갱신 / `BattleBalanceData.sanityEvent` 필드 — 사용처 없는 초기 잔재로 확인 시 제거
+
+**에디터 작업 체크리스트:** ① `DungeonChapterData` 에셋 이관 — MapConfig 연결 + 기존 조우 → 일반 풀 + 노드 이벤트 매핑 3줄(휴식·보관 = 고정 1개, 이벤트 = 풀) + 정신력 이벤트 + 상태이상 목록 복사 ② DungeonManager 프리팹 `chapterData` 연결 + 제거 필드 오버라이드 잔여값 정리 ③ 데이터 윈도우 챕터 탭 증축 (7-1 착수 시 일괄 — 배열 인덱스 정합) ④ 구 던전 저장 파일 확인 (필드 추가라 폐기 불필요 — 버전 유지)
+
+**실검증 이월 ⚠ (씬 검증 이월분과 일괄):** 챕터 미배선 = 노드 통과 → 매핑 등록 후 휴식/이벤트/보관 표시 → 엘리트/보스 노드 = 전용 풀 (빈 풀 = 폴백 경고) → 광기 진입 후 첫 턴 결의 판정 1회 발동 → 같은 던전 재광기 = 미발동 → 이어하기 후에도 미재발동 (저장 반영) → weight 분기 체감
+
+**다음: P2-M7 7-2 (유물 시스템 — RelicData + 획득 관리 + 획득 순 발화 계약, 개정 16 예고 의존 정리 및 미배선 트리거 3종 발화 지점 연결 동반)**
 
 ### P2-M8 — 통합 검증 (1주)
 
@@ -333,6 +365,7 @@
 | 유물 | 유물 SO(RelicData)·획득 관리 — **트리거 구조는 패시브 공용이라 `Effect/Trigger/`에 배치 완료 (개정 16 — `TriggerEffect`/`TriggerEffectController`)**, Relic 폴더에는 P2-M7에서 유물 고유분만 | `05_Scripts/Relic/`, `05_Scripts/Effect/Trigger/` |
 | 마을 (구 거점) | `TownManager`(조립 지점 — 씬 기준 명명 대칭) + `TownConfigData`(구성 SO — **Data 흡수**) + `CharacterRecruitData`(**Data 흡수** — 인라인 직렬화) + `BuildingData`/`BuildingLevelData` + 월드/UI 뷰(`TownBuildingView`·`TownInputController`·`TownHUDView`·팝업 이월) — 개정 20 | `05_Scripts/Town/`, `05_Scripts/Data/`, `View/`, `View/UI/` |
 | 드랍·회수 | 드랍 데이터(`ItemData`·`ItemStackData`·`DropEntryData`·`DropTableData`) = **Data 흡수**, 회수 판정·보관 전송 = **DungeonManager 흡수** (개정 19) — `Drop/` 분리 기준 = 보관 선택 UI 등장 시 | `05_Scripts/Data/`, `05_Scripts/Dungeon/` |
+| 던전 구성 (챕터) | `DungeonChapterData` (챕터 SO — 맵 규칙 참조 + 노드 타입별 조우 풀 3종 + 노드 이벤트 `타입 → 풀` 매핑 + 정신력 이벤트 풀 + 상태이상 정의. **굴림 = SO 소유** — DropTableData 전례) — 챕터 1개 = 에셋 1개 (EA 스코프 "챕터 2개" = 에셋 2개, 개정 21) | `05_Scripts/Data/` |
 | (기존) 전투/뷰 | 파티 3인·타겟팅 확장 — 기존 폴더 증축 | `Battle/`, `View/`, `View/UI/` |
 
 통신 원칙 유지: C# event 우선·구독/발화 순서 결정성 (유물 다중 발동 = **획득 순 고정** — 기획서 15-2 명시 / 상태이상 = 부여 순 순회 + 라운드 종료 구독 순서 "감소 → 어그로 감쇠 → 의도 재평가" — 개정 13·18 / 파티 = 스폰 순서 = 목록 순서 — 개정 14), 뷰 배선 예외는 조립 지점만 (`BattleManager` + 신규 `DungeonManager` + 신규 `TownManager` — 개정 20).
@@ -374,6 +407,7 @@
 | 개정 | 일자 | 내용 |
 |------|------|------|
 | 초판 | 2026-07-22 | Phase 2 스케줄 수립 — 메타 계층 우선 순서(P2-M0~M3), 밸런스 게이트 병행 배치, Phase 1 임시 조치 5종 = P2-M0 작업 목록화, 조기 결정 P2-D1~D5 정의 |
+| 개정 21 | 2026-07-29 | **P2-M7 7-4 챕터 SO 신설 + 정신력 이벤트 DD 방식 개정 (사용자 결정) + 명명 개정** — `Data/DungeonChapterData` (맵 규칙 + 조우 풀 3종(엘리트/보스 분리·빈 풀 폴백) + 노드 이벤트 매핑 + 정신력 이벤트 + 상태이상 — 예약 임시 조치 3건 해소: 개정 11·13·P2-M0). DungeonManager 필드 6종 → 1종, `SetChapterStatusDatas` (인스펙터 = BattleTest 폴백). 검토 버그: `EventNodePoolEntry` [Serializable] 누락 (HubSaveData 전례 계열 — 수정 확인). **정신력 이벤트 = DD 결의 판정** — 던전당 1회 확정 발동 (광기 구간 첫 턴 시작), 붕괴/기인 = 기존 weight 재사용 (데이터 무수정), 플래그 = DungeonState + 저장 편입 (필드 추가·버전 유지), 델리게이트 주입 (Sanity → Dungeon 차단), 확률 곡선 폐기 (밸런스 축 = weight·풀 구성). 잠정 규칙 3종: 순간 스침 미발동·전투 밖 진입 = 다음 전투 첫 턴·**다챕터 도입 시 챕터당 1회 리셋**. **명명: `MadnessEventRunner` → `SanityEventRunner`** (데이터-러너 접두어 대칭 — Madness = 구간 / SanityEvent = 이벤트 경계 확정). `DungeonData` 개명안 기각 (접두어 과밀·챕터 = 에셋 단위). **다음: 7-2 유물** |
 | 개정 20 | 2026-07-28 | **P2-M6 6-1 마을 씬 완료 = P2-M6 마일스톤 완료 (프로젝트 반영 확인) + 용어 재개정 + 마을 구성 SO** — **용어 (사용자 결정): 거점 = `Town` (개정 19 "메타 = Hub" 재개정, 씬 3구성 Loading·Town·Dungeon — P2-D6 재개정) / 시설 = `Building` / 영입 = `CharacterRecruitData` (Data 흡수).** `GameSaveData.hub → town` (구저장 거점 구획 미판독 — 비보존 방침·구저장 삭제). **표현 = 하이브리드 (사용자 결정 — "신규 화면 전부 Canvas" 의도적 이탈, 다키스트 던전 햄릿 참조):** 건물/배경 = 월드 스프라이트(입구·연출 계층) / 팝업·HUD = Canvas(기능 계층 — DD도 실기능은 UI라는 분석) — `TownBuildingView`(원색 Awake 1회 저장 — 개정 19 교훈 선반영·buildingData 참조 = 배치-데이터 연결 씬 소유)·`TownInputController`(단일 입력 주체 — 폴링+OverlapPoint·팝업 모달 잠금)·`TownHUDView`, 물리 레이어 `Building` 신설. **구성 = `TownConfigData` SO (사용자 제안 채택)** — 인스펙터 목록 직렬화 기각(프리팹/씬 박제 = 관리·조회 곤란), MapConfigData 전례·7-4 챕터 SO 대응물. SO ↔ 씬 참조 불가 → 데이터 = SO / 연결 = 씬, 막사 = `barracksBuilding` 단일 참조(체크박스 폐기), 정방향 정합 검사(`HasBuilding` 경고 — 역방향 = 선택 잔여). 판정: 기본/고급 = 비용 구성 성립(코드 0줄)·`TryConsumeItems` 검사 후 일괄 차감·승급/영입 = 공개 API(팝업·테스트 공용 진입로)·`TownSaveData` 필드 추가 버전 유지. 씬 전환 = `DungeonLaunchRequest` 1회성 요청(소비 시 초기화 = 단독 테스트 무손상, **로딩씬 중계 확정 시 `SceneLaunchRequest` 확장 기준 명문화**) + `ReturnToTown`(진행 중 차단 — 중간 탈출 없음). **개정 17 임시 조치 해소: 편성 후보 = 마을 보유 명단** (빈 명단 = 인스펙터 폴백·영입 순 = 후보 순). **팝업 = 코드째 아트 시점 이월 (사용자 결정 — 실검증도 팝업과 일괄):** 클릭 = 로그·SWButton 테스트 2종(도입 시 제거)·TownPopupView 보관본 존재. 잔여 ⚠: `buildingViews` 씬 배선 확인·TownHUDView 로그 태그·역방향 검사(선택)·던전 종료 자동 복귀(결과 화면 시점)·건물 효과 소비처·보관 선택 UI(6-3 이월)·로딩씬 → Town 전환(로딩씬 소관). **다음: 밸런스 게이트(6-2~6-5 리소스 + 마을 아트/팝업) 또는 P2-M7 (콘텐츠 + 시스템 잔여)** |
 | 개정 19 | 2026-07-27 | **P2-M6 6-2·6-3 완료 + P2-D7 확정 + 배치 프리팹 적용 (프로젝트 반영 확인)** — 배치: `PartyFormation` (사용자 설계 표식 굽기 + 완성분 `GetSpawnPosition`·localPosition 통일·정렬 no-op 수정·포메이션 보기 역복원), `SetupParty` 인원수별 스폰 (에셋 직접 참조·원점 폴백) = P2-M4 이월 최종 해소. **P2-D7: 통합 프로필 저장 (사용자 결정)** — 슬롯 분리안 폐기 (슬롯 = 저장 칸 본래 의미) → `GameSaveData` 루트(hub + hasDungeon + dungeon) + `GameSaveService` 단일 진입점 (병용 순서 규약 소멸) + `SelectProfile`, 구획 파사드로 호출부 무수정. 용어 매핑: 메타 = `Hub`. **마이그레이션 잠정 제거 (사용자 결정)** — 버전 불일치 = 폐기, 15-5 의도적 이탈 (데이터 보존 시점 복원 필수), 던전 버전 1 리셋. 6-2: `ItemData`·`ItemStackData`·`DropEntryData`·`DropTableData` **가중치 추첨 (사용자 결정)** — 굴림 횟수 범위 + 꽝 가중치 전부 데이터 소유, 굴림 = SO 소유. 6-3: 소지 = DungeonState (스냅샷 편입·itemDatabase 복원), 굴림 = 승리 직후·보스 분기 앞, **보관 전송 = 즉시 거점 귀속** (사망 보존 자연 성립·선택 UI 잔여), 회수 = `EndDungeon` 첫 줄 (승리 전량 / 패배 기본 자원만). **검토 발견 수정 6건**: Meta 잔존·구 타입·보스 드랍 누락·`currentEncounterData` 미선언·`HubSaveData` `[Serializable]` 누락(거점 저장 증발)·**`CharacterView` 투명 버그 (사용자 발견 — Init→Release 순서로 originColor 미저장 기본값 (0,0,0,0) 오염 → Awake 1회 저장)**. **다음: 6-1 거점 씬 (Hub 씬 카메라 직교 — 개정 7 교훈)** |
 | 개정 18 | 2026-07-27 | **P2-M5 완료 (프로젝트 반영 확인) = Phase 1 임시 조치 전량 해소** — P2-D5 확정(원본 피해 × 가중치 + 라운드 감쇠 — Balance 외부화 `aggroDamageWeight`/`aggroRoundDecayRate`, 동률 = 파티 순서, 전원 0 = 무작위 폴백). 5-1: `AggroSystem` 신설(순수 클래스 — 귀속 구간 `Begin/EndAttribution`·적 OnDamaged 구독·MIN_AGGRO 만료, EnemyAI 생성자 주입·null 허용). 5-2: `EStatusEffectType.Taunt`(지속 = 상태이상 구조 재사용) — 도발 카드 = `StatusEffect` 블록 재사용 **코드 0줄**, 모든 규칙 우선·다수 = 파티 순서·**실행 시점 강제** + `RefreshTauntPreview`(표시 즉시 갱신 — 난수 소비 0)·만료 복구 = 기존 순서 계약 자연 처리. 순서 계약 확장: 상태이상 감소 → **어그로 감쇠** → 의도 재평가. **Self 드래그 지정 UX 개정 (사용자 발견):** 기준선 폴백에 의한 무선택 시전 문제 → `isAimedTargeting`(Single + Self 화살표 조준)·드롭 = 타겟팅별 분기(Self = 아군 위에서만·빗나감 = 취소 — Single 대칭)·기준선 = 비대상 전용. **파티 배치 결정 (사용자):** `partySpacing` 기각 → 인원별(1/2/3인) 배치 프리팹 방식 — 프리팹 등록 완료, `SetupParty` 적용 이월 ⚠ (겹침 지속 = Self 드래그 실검증 배치 후 일괄). 사소 잔여: 미사용 `isSingleTarget` 필드 제거 등 3건. **다음: P2-M6 (거점 + 드랍/회수)** |

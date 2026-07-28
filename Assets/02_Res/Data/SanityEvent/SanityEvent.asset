@@ -17,6 +17,7 @@ MonoBehaviour:
   codeName: 
   displayName: 
   description: 
+  spriteIcon: {fileID: 0}
   effects: []
   isPositiveEffect: 0
   weight: 0
