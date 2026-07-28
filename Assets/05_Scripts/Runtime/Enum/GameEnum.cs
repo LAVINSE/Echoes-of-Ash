@@ -247,4 +247,18 @@ namespace EchoesOfAsh.Enum
         /// <summary>보스 전투 노드입니다.</summary>
         [InspectorName("보스")] Boss,
     }
+
+    /// <summary>
+    /// 거점에서 던전 씬으로 전환할 때 타입
+    /// </summary>
+    public enum EDungeonLaunchMode
+    {
+
+        /// <summary>요청 없음 - 던전 씬은 아무것도 하지 않습니다 (씬 단독 테스트).</summary>
+        [InspectorName("요청 없음")] None,
+        /// <summary>새 던전 출발 - 편성 화면을 거쳐 시작합니다.</summary>
+        [InspectorName("새 던전 출발")] NewDungeon,
+        /// <summary>저장된 스냅샷 이어하기입니다.</summary>
+        [InspectorName("이어하기")] Resume,
+    }
 }
