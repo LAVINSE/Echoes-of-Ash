@@ -1,6 +1,7 @@
 using EchoesOfAsh.Enum;
 using SW.Attributes;
 using SW.Base;
+using SW.Util;
 using UnityEngine;
 
 namespace EchoesOfAsh.Data
@@ -15,6 +16,10 @@ namespace EchoesOfAsh.Data
         [SWGroup("타입")]
         [SerializeField] private EItemType itemType;
 
+        [SWGroup("설계도")]
+        [Tooltip("설계도 타입일 때 해금할 제작형 카드입니다. 그 외 타입에서는 사용하지 않습니다.")]
+        [SerializeField] private CardData unlockCard;
+
         [SWGroup("표시")]
         [SerializeField] private Sprite itemSprite;
         #endregion // 필드
@@ -22,6 +27,10 @@ namespace EchoesOfAsh.Data
         #region 프로퍼티
         /// <summary>아이템 유형입니다.</summary>
         public EItemType ItemType => itemType;
+
+        /// <summary>설계도가 해금하는 카드입니다. 설계도 타입이 아니면 null이어야 합니다.</summary>
+        public CardData UnlockCard => unlockCard;
+
         /// <summary>아이콘 스프라이트입니다.</summary>
         public Sprite ItemSprite => itemSprite;
 
@@ -30,6 +39,22 @@ namespace EchoesOfAsh.Data
         /// </summary>
         public bool IsBaseResource => itemType == EItemType.Resource;
         #endregion // 프로퍼티
-    }
 
+        #region 에디터
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            if (itemType == EItemType.BluePrint && unlockCard == null)
+            {
+                SWLog.LogWarning($"[ItemData] '{name}': 설계도 타입인데 해금 카드가 연결되지 않았습니다.");
+            }
+
+            if (itemType != EItemType.BluePrint && unlockCard != null)
+            {
+                SWLog.LogWarning($"[ItemData] '{name}': 설계도 타입이 아닌데 해금 카드가 연결되어 있습니다.");
+            }
+        }
+#endif // UNITY_EDITOR
+        #endregion // 에디터
+    }
 }

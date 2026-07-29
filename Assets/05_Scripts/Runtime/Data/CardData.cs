@@ -36,6 +36,8 @@ namespace EchoesOfAsh.Data
 
         [SWGroup("해금 방식")]
         [SerializeField] private ECardUnlockType unlockType;
+        [Tooltip("처음부터 해금된 카드인지 여부입니다. 해금 풀 조회 시 저장 기록 없이도 포함됩니다.")]
+        [SerializeField] private bool isDefaultUnlocked;
 
         [SWGroup("표시")]
         [SerializeField] private Sprite cardIconSprite;
@@ -67,6 +69,8 @@ namespace EchoesOfAsh.Data
 
         /// <summary>카드 해금 방식입니다.</summary>
         public ECardUnlockType UnlockType => unlockType;
+        /// <summary>기본 해금 여부입니다. true면 저장 기록 없이도 해금 풀에 포함됩니다.</summary>
+        public bool IsDefaultUnlocked => isDefaultUnlocked;
 
         /// <summary>카드 아이콘 스프라이트입니다.</summary>
         public Sprite CardIconSprite => cardIconSprite;

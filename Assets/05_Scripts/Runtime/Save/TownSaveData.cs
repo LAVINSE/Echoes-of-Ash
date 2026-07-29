@@ -50,5 +50,8 @@ namespace EchoesOfAsh.Save
 
         /// <summary>보유 캐릭터 코드명 목록입니다. 등록 순서 = 영입 순서입니다 (P2-M6 6-1 - 막사 영입).</summary>
         public List<string> ownedCharacterCodeNames = new();
+
+        /// <summary>해금된 카드 코드명 목록입니다. 발견형/제작형 공용 원장이며, 기본 해금 카드는 기록하지 않습니다 (P2-M7 7-5).</summary>
+        public List<string> unlockedCardCodeNames = new();
     }
 }

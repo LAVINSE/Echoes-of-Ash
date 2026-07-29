@@ -18,9 +18,17 @@ MonoBehaviour:
   displayName: 
   description: 
   spriteIcon: {fileID: 0}
-  rarityType: 0
+  rarityType: 4
   ownerCharacter: {fileID: 0}
-  triggerEffects: []
+  triggerEffects:
+  - triggerType: 0
+    sanityCondition: 0
+    effects:
+    - rid: 3116057291133288535
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 3116057291133288535
+      type: {class: BlockGainEffect, ns: EchoesOfAsh.Effect, asm: Assembly-CSharp}
+      data:
+        amount: 1
