@@ -46,6 +46,9 @@ namespace EchoesOfAsh.View
         #endregion // 프로퍼티
 
         #region 초기화
+        /// <summary>
+        /// 객체가 제거될 때 적 엔티티 이벤트 구독과 표시 상태를 정리합니다.
+        /// </summary>
         private void OnDestroy()
         {
             Release();

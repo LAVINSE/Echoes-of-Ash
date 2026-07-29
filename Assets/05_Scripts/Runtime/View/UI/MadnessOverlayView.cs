@@ -31,6 +31,9 @@ namespace EchoesOfAsh.View.UI
         #endregion // 필드
 
         #region 초기화
+        /// <summary>
+        /// 광기 오버레이의 입력 차단과 초기 투명도를 설정합니다.
+        /// </summary>
         private void Awake()
         {
             if (overlayImage != null)
@@ -40,11 +43,17 @@ namespace EchoesOfAsh.View.UI
             }
         }
 
+        /// <summary>
+        /// 객체가 제거될 때 정신력 이벤트 구독을 정리합니다.
+        /// </summary>
         private void OnDestroy()
         {
             Release();
         }
 
+        /// <summary>
+        /// 매 프레임 오버레이 투명도를 목표값으로 보간합니다.
+        /// </summary>
         private void Update()
         {
             if (Mathf.Approximately(currentAlpha, targetAlpha))

@@ -54,6 +54,9 @@ namespace EchoesOfAsh.View.UI
         #endregion // 프로퍼티
 
         #region 초기화
+        /// <summary>
+        /// 비활성화될 때 카드의 호버와 표시 상태를 초기화합니다.
+        /// </summary>
         private void OnDisable()
         {
             SetHovered(false);

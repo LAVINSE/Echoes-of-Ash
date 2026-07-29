@@ -101,6 +101,9 @@ namespace EchoesOfAsh.Sanity
         #endregion // 정신력 값
 
         #region 정신력 구간
+        /// <summary>
+        /// 현재 정신력에 맞는 정신력 유형으로 갱신하고 변경 이벤트를 호출합니다.
+        /// </summary>
         private void RefreshSanityType()
         {
             ESanityType sanityType = GetSanityType(currentSanity);

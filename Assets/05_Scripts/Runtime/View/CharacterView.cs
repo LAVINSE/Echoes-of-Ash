@@ -20,10 +20,10 @@ namespace EchoesOfAsh.View
         private Color originColor;
         #endregion // 필드
 
-        #region 프로퍼티
-        #endregion // 프로퍼티
-
         #region 초기화
+        /// <summary>
+        /// 캐릭터 렌더러의 원래 색상을 저장합니다.
+        /// </summary>
         private void Awake()
         {
             if (bodyRenderer != null)

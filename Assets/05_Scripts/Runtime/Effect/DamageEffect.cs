@@ -36,7 +36,7 @@ namespace EchoesOfAsh.Effect
                     continue;
                 }
 
-                for (int i = 0; i < times; i++)
+                for (int iteration = 0; iteration < times; iteration++)
                 {
                     damageable.TakeDamage(damage);
                 }

@@ -149,6 +149,9 @@ namespace EchoesOfAsh.Data
 
         #region 에디터
 #if UNITY_EDITOR
+        /// <summary>
+        /// 던전 챕터를 구성하는 지도와 조우, 이벤트 데이터의 필수값을 검증합니다.
+        /// </summary>
         private void OnValidate()
         {
             if (mapConfigData == null)

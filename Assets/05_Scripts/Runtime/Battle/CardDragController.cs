@@ -49,6 +49,9 @@ namespace EchoesOfAsh.Battle
         #endregion // 프로퍼티
 
         #region 초기화
+        /// <summary>
+        /// 카드 드래그에 필요한 참조를 확인하고 초기 상태를 설정합니다.
+        /// </summary>
         private void Awake()
         {
             if (battleManager == null || targetingArrow == null)
@@ -66,12 +69,18 @@ namespace EchoesOfAsh.Battle
             cardContactFilter.useTriggers = true;
         }
 
+        /// <summary>
+        /// 비활성화될 때 호버와 드래그 상태를 정리합니다.
+        /// </summary>
         private void OnDisable()
         {
             SetHoveredCard(null);
             CancelDrag();
         }
 
+        /// <summary>
+        /// 매 프레임 포인터 입력을 읽어 카드 호버와 드래그를 처리합니다.
+        /// </summary>
         private void Update()
         {
             Pointer pointer = Pointer.current;
@@ -143,7 +152,7 @@ namespace EchoesOfAsh.Battle
 
             if (isAimedTargeting)
             {
-                // 카드는 손패에 고정하고 화살표로 대상을 지정합니다 (STS 표준 UX)
+                // 카드는 손패에 고정하고 화살표로 대상을 지정합니다 (Slay the Spire의 표준 사용자 경험)
                 targetingArrow.BeginAiming(cardTransform.position);
             }
             else

@@ -42,6 +42,9 @@ namespace EchoesOfAsh.Data
 
         #region 에디터
 #if UNITY_EDITOR
+        /// <summary>
+        /// 정신력 이벤트의 효과와 긍정 효과 확률 설정을 검증합니다.
+        /// </summary>
         private void OnValidate()
         {
             if (effects.Count == 0)

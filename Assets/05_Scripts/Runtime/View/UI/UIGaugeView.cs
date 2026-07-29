@@ -49,6 +49,9 @@ namespace EchoesOfAsh.View.UI
         public int MaxValue => maxValue;
         #endregion // 프로퍼티
 
+        /// <summary>
+        /// 매 프레임 표시 비율을 목표 비율로 보간합니다.
+        /// </summary>
         private void Update()
         {
             if (Mathf.Approximately(displayedRatio, targetRatio))
@@ -139,6 +142,9 @@ namespace EchoesOfAsh.View.UI
 
         #region 에디터
 #if UNITY_EDITOR
+        /// <summary>
+        /// 인스펙터 시험 값이 바뀌면 다음 에디터 갱신 시점에 게이지를 반영합니다.
+        /// </summary>
         private void OnValidate()
         {
             if (!testLiveUpdate)

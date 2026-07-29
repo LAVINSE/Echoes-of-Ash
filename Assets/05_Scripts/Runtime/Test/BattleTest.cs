@@ -42,6 +42,9 @@ namespace EchoesOfAsh.Test
 
 
         #region 테스트
+        /// <summary>
+        /// 설정된 데이터로 전투를 시작하고 시험 화면을 활성화합니다.
+        /// </summary>
         [SWButton("전투 시작")]
         private void RunTest()
         {
@@ -76,6 +79,9 @@ namespace EchoesOfAsh.Test
             isRun = true;
         }
 
+        /// <summary>
+        /// 진행 중인 시험 전투와 이벤트 구독을 초기화합니다.
+        /// </summary>
         [SWButton("테스트 초기화")]
         private void ResetTest()
         {
@@ -109,6 +115,9 @@ namespace EchoesOfAsh.Test
         #endregion // 테스트
 
         #region 테스트 UI
+        /// <summary>
+        /// 전투 상태와 조작 버튼으로 구성된 시험 화면을 그립니다.
+        /// </summary>
         private void OnGUI()
         {
             if (!isRun || !isShowTestGui)
@@ -152,7 +161,7 @@ namespace EchoesOfAsh.Test
         }
 
         /// <summary>
-        /// 파티원별 HP / 방어막 / 공유 SAN / AP를 표시하고 아군 지정을 처리합니다.
+        /// 파티원별 HP, 방어막, 공유 정신력, AP를 표시하고 아군 지정을 처리합니다.
         /// </summary>
         private void DrawPartyStatus()
         {
@@ -167,32 +176,32 @@ namespace EchoesOfAsh.Test
 
             GUILayout.Label("=== 파티 (아군 선택 = Self 카드 대상) ===");
 
-            for (int i = 0; i < partyMembers.Count; i++)
+            for (int index = 0; index < partyMembers.Count; index++)
             {
-                var member = partyMembers[i];
-                string mark = i == selectedAllyIndex ? "▶ " : "   ";
+                var member = partyMembers[index];
+                string selectionPrefix = index == selectedAllyIndex ? "▶ " : "   ";
 
-                if (GUILayout.Button($"{mark}{member.DisplayName}  HP {member.CurrentHp}/{member.MaxHp}  " +
+                if (GUILayout.Button($"{selectionPrefix}{member.DisplayName}  HP {member.CurrentHp}/{member.MaxHp}  " +
                                      $"방어막 {member.CurrentBlock}  {(member.IsDead ? "[사망]" : "[생존]")}"))
                 {
-                    selectedAllyIndex = i;
+                    selectedAllyIndex = index;
                 }
             }
 
-            GUILayout.Label($"공유 SAN {partySanity.CurrentSanity}/{partySanity.MaxSanity}  " +
+            GUILayout.Label($"공유 정신력 {partySanity.CurrentSanity}/{partySanity.MaxSanity}  " +
                             $"[{(partySanity.CurrentSanityType == ESanityType.Madness ? "광기" : "평정")}]");
             GUILayout.Label($"AP {apSystem.CurrentAp}");
         }
 
         /// <summary>
-        /// 적별 HP / SAN / 의도를 표시하고 단일 대상 지정을 처리합니다.
+        /// 적별 HP, 정신력, 의도를 표시하고 단일 대상 지정을 처리합니다.
         /// </summary>
         private void DrawEnemyStatus()
         {
             GUILayout.Label("=== 적 ===");
 
             IReadOnlyList<EnemyEntity> enemies = battleManager.EnemyEntities;
-            IReadOnlyList<EnemyAI> enemyAis = battleManager.EnemyAIs;
+            IReadOnlyList<EnemyAI> enemyAIs = battleManager.EnemyAIs;
 
             for (int index = 0; index < enemies.Count; index++)
             {
@@ -204,7 +213,7 @@ namespace EchoesOfAsh.Test
                 string status = $"{selectedMark} {enemy.DisplayName}  " +
                                 $"HP {enemy.CurrentHp}/{enemy.MaxHp}  " +
                                 $"방어막 {enemy.CurrentBlock}  " +
-                                $"SAN {enemy.CurrentSanity}/{enemy.MaxSanity} " +
+                                $"정신력 {enemy.CurrentSanity}/{enemy.MaxSanity} " +
                                 $"[{(enemy.CurrentSanityType == ESanityType.Madness ? "광기" : "평정")}]  " +
                                 $"{(enemy.IsDead ? "[사망]" : "")}";
 
@@ -222,15 +231,15 @@ namespace EchoesOfAsh.Test
                 GUILayout.EndHorizontal();
 
                 // 의도 표시 — M5에서 아이콘 UI로 대체 예정
-                EnemyAI enemyAi = enemyAis[index];
+                EnemyAI enemyAI = enemyAIs[index];
 
-                if (!enemy.IsDead && enemyAi.NextAction != null)
+                if (!enemy.IsDead && enemyAI.NextAction != null)
                 {
-                    var action = enemyAi.NextAction;
+                    var action = enemyAI.NextAction;
                     string intents = string.Join(", ", action.GetIntentTypes());
                     GUILayout.Label($"    의도: '{action.ActionName}' [{intents}]  " +
                                     $"피해 {action.GetIntentDamageValue()}  " +
-                                    $"SAN 압박 {action.GetIntentSanityPressureValue()}");
+                                    $"정신력 압박 {action.GetIntentSanityPressureValue()}");
                 }
             }
         }

@@ -52,6 +52,9 @@ namespace EchoesOfAsh.View.UI
 
 
         #region 초기화
+        /// <summary>
+        /// 툴팁의 사각 변환 참조를 저장하고 초기 표시 상태를 설정합니다.
+        /// </summary>
         private void Awake()
         {
             this.rectTransform = this.transform as RectTransform;
@@ -62,6 +65,9 @@ namespace EchoesOfAsh.View.UI
             }
         }
 
+        /// <summary>
+        /// 객체가 제거될 때 툴팁 상태를 정리합니다.
+        /// </summary>
         private void OnDestroy()
         {
             Release();
@@ -155,7 +161,7 @@ namespace EchoesOfAsh.View.UI
             // 오른쪽 배치 시 툴팁 오른쪽 끝의 월드 좌표
             Vector3 rightEdge = new(rightCenterX + tooltipHalfWidth, anchorWorldPosition.y, anchorWorldPosition.z);
 
-            // 오른쪽 배치가 화면 오른쪽을 넘으면 왼쪽으로 뒤집는다 (STS 동작)
+            // 오른쪽 배치가 화면 오른쪽을 넘으면 왼쪽으로 뒤집습니다 (Slay the Spire 방식)
             bool fitsRight = !ExceedsRightEdge(rightEdge);
             float centerX = fitsRight ? rightCenterX : leftCenterX;
 

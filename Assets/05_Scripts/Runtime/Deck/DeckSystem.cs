@@ -116,13 +116,13 @@ namespace EchoesOfAsh.Deck
         {
             int drawToHand = 0;
 
-            for (int i = 0; i < count; i++)
+            for (int iteration = 0; iteration < count; iteration++)
             {
                 if (drawPile.Count == 0)
                 {
                     ReshuffleDiscardIntoDrawPile();
 
-                    //셔플 후에도 비어 있으면 뽑을 카드가 없음
+                    // 셔플 후에도 비어 있으면 뽑을 카드가 없습니다.
                     if (drawPile.Count == 0)
                     {
                         break;
@@ -137,7 +137,7 @@ namespace EchoesOfAsh.Deck
                 if (IsExcluded(card))
                 {
                     exclusionPile.Add(card);
-                    i--;
+                    iteration--;
                     continue;
                 }
 
@@ -202,7 +202,7 @@ namespace EchoesOfAsh.Deck
         {
             int discard = 0;
 
-            for (int i = 0; i < count && hand.Count > 0; i++)
+            for (int iteration = 0; iteration < count && hand.Count > 0; iteration++)
             {
                 int index = SWRandom.Range(0, hand.Count);
                 CardInstance card = hand[index];

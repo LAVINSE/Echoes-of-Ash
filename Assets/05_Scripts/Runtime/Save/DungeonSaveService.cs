@@ -14,7 +14,7 @@ namespace EchoesOfAsh.Save
     {
         #region 상수
         /// <summary>현재 저장 스키마 버전입니다. 구버전 스냅샷을 강제 폐기하고 싶을 때만 증가시킵니다.</summary>
-        public const int CURRENT_VERSION = 1;
+        public const int CurrentVersion = 1;
         #endregion // 상수
 
         #region 함수
@@ -54,7 +54,7 @@ namespace EchoesOfAsh.Save
 
             DungeonSaveData saveData = new()
             {
-                version = CURRENT_VERSION,
+                version = CurrentVersion,
                 seed = dungeonState.Seed,
                 currentNodeIdentifier = dungeonState.CurrentNodeIdentifier,
                 isCurrentNodeResolved = dungeonState.IsCurrentNodeResolved,
@@ -135,9 +135,9 @@ namespace EchoesOfAsh.Save
                 return null;
             }
 
-            if (gameData.dungeon.version != CURRENT_VERSION)
+            if (gameData.dungeon.version != CurrentVersion)
             {
-                SWLog.LogWarning($"[DungeonSaveService] 던전 저장 버전({gameData.dungeon.version})이 현재 버전({CURRENT_VERSION})과 다릅니다 - 스냅샷을 폐기합니다.");
+                SWLog.LogWarning($"[DungeonSaveService] 던전 저장 버전({gameData.dungeon.version})이 현재 버전({CurrentVersion})과 다릅니다 - 스냅샷을 폐기합니다.");
                 DeleteSave();
                 return null;
             }

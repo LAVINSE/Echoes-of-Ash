@@ -25,7 +25,7 @@ namespace EchoesOfAsh.Data
         [SWGroup("광기 이벤트")]
         [Tooltip("광기 진입 직후(임계값 부근) 발생 확률 0~1")]
         [SerializeField, Range(0f, 1f)] private float madnessEventBaseChance = 0.3f;
-        [Tooltip("SAN 0에서의 최대 발생 확률 0~1")]
+        [Tooltip("정신력 0에서의 최대 발생 확률 0~1")]
         [SerializeField, Range(0f, 1f)] private float madnessEventMaxChance = 0.6f;
 
         [SWGroup("어그로")]

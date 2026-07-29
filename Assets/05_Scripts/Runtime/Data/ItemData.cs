@@ -42,6 +42,9 @@ namespace EchoesOfAsh.Data
 
         #region 에디터
 #if UNITY_EDITOR
+        /// <summary>
+        /// 아이템 유형에 필요한 연결 데이터가 설정되었는지 검증합니다.
+        /// </summary>
         private void OnValidate()
         {
             if (itemType == EItemType.BluePrint && unlockCard == null)

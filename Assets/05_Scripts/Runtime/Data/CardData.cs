@@ -78,6 +78,9 @@ namespace EchoesOfAsh.Data
 
         #region 에디터
 #if UNITY_EDITOR
+        /// <summary>
+        /// 카드 효과와 정신력 분기 설정이 서로 일치하는지 검증합니다.
+        /// </summary>
         private void OnValidate()
         {
             if (isSanityEffect && sanityEffects.Count == 0)

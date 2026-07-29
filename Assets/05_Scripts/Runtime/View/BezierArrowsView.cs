@@ -51,12 +51,18 @@ namespace EchoesOfAsh.View
         #endregion // 프로퍼티
 
         #region 생명주기
+        /// <summary>
+        /// 화살표 노드를 생성하고 초기 조준 상태를 정리합니다.
+        /// </summary>
         private void Awake()
         {
             CreateArrowNodes();
             SetArrowVisible(false);
         }
 
+        /// <summary>
+        /// 비활성화될 때 진행 중인 조준을 종료합니다.
+        /// </summary>
         private void OnDisable()
         {
             EndAiming();
@@ -276,6 +282,9 @@ namespace EchoesOfAsh.View
 
         #region 에디터 디버그
 #if UNITY_EDITOR
+        /// <summary>
+        /// 에디터의 자체 조준 시험 상태를 매 프레임 갱신합니다.
+        /// </summary>
         private void Update()
         {
             if (!isSelfAimingTest)

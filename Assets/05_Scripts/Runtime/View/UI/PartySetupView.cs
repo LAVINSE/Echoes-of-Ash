@@ -20,9 +20,12 @@ namespace EchoesOfAsh.View.UI
         [System.Serializable]
         private class CharacterSlot
         {
-            public Button button;
-            public TextMeshProUGUI label;
-            public GameObject selectedMark;
+            /// <summary>후보 캐릭터를 선택하는 버튼입니다.</summary>
+            public Button button = null;
+            /// <summary>후보 캐릭터 이름을 표시하는 텍스트입니다.</summary>
+            public TextMeshProUGUI label = null;
+            /// <summary>선택 상태를 나타내는 표시 객체입니다.</summary>
+            public GameObject selectedMark = null;
         }
         #endregion // 데이터
 
@@ -57,10 +60,10 @@ namespace EchoesOfAsh.View.UI
         private readonly StringBuilder stringBuilder = new();
         #endregion // 필드
 
-        #region 프로퍼티
-        #endregion // 프로퍼티
-
         #region 초기화
+        /// <summary>
+        /// 캐릭터 슬롯과 확정 버튼의 클릭 처리를 연결하고 패널을 숨깁니다.
+        /// </summary>
         private void Awake()
         {
             for (int index = 0; index < characterSlots.Count; index++)

@@ -45,6 +45,9 @@ namespace EchoesOfAsh.Data
 
         #region 에디터
 #if UNITY_EDITOR
+        /// <summary>
+        /// 던전 이벤트의 선택지 개수와 선택지별 효과 설정을 검증합니다.
+        /// </summary>
         private void OnValidate()
         {
             if (choices.Count == 0 || choices.Count > 3)

@@ -22,9 +22,6 @@ namespace EchoesOfAsh.View.UI
         private CharacterEntity characterEntity;
         #endregion // 필드
 
-        #region 프로퍼티
-        #endregion // 프로퍼티
-
         /// <summary>
         /// 초기화합니다.
         /// </summary>

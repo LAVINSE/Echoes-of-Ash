@@ -49,6 +49,9 @@ namespace EchoesOfAsh.Test
 
 
         #region 테스트
+        /// <summary>
+        /// 카드 사용 시험에 필요한 전투원과 덱, 효과 실행기를 생성합니다.
+        /// </summary>
         [SWButton("테스트 시작")]
         private void RunTest()
         {
@@ -118,6 +121,9 @@ namespace EchoesOfAsh.Test
             SWLog.Log("[CardPlayTest] --- 테스트 준비 완료. '턴 시작'으로 AP 지급 + 드로우 ---");
         }
 
+        /// <summary>
+        /// 카드 사용 시험 상태와 생성한 런타임 객체를 초기화합니다.
+        /// </summary>
         [SWButton("테스트 초기화")]
         private void ResetTest()
         {
@@ -129,11 +135,17 @@ namespace EchoesOfAsh.Test
             Cleanup();
         }
 
+        /// <summary>
+        /// 객체가 제거될 때 시험용 런타임 객체를 정리합니다.
+        /// </summary>
         private void OnDestroy()
         {
             Cleanup();
         }
 
+        /// <summary>
+        /// 시험 중 생성한 정신력과 전투 엔티티 자원을 해제합니다.
+        /// </summary>
         private void Cleanup()
         {
             partySanityHolder?.Dispose();
@@ -149,6 +161,9 @@ namespace EchoesOfAsh.Test
         #endregion // 테스트
 
         #region 테스트 UI
+        /// <summary>
+        /// 카드 사용 시험 상태와 조작 버튼을 그립니다.
+        /// </summary>
         private void OnGUI()
         {
             if (!isRun)
@@ -169,13 +184,16 @@ namespace EchoesOfAsh.Test
             GUILayout.EndArea();
         }
 
+        /// <summary>
+        /// 파티 전투원의 현재 상태를 그립니다.
+        /// </summary>
         private void DrawPartyStatus()
         {
             GUILayout.Label("=== 파티 ===");
             GUILayout.Label($"{characterEntity.DisplayName}  " +
                             $"HP {characterEntity.CurrentHp}/{characterEntity.MaxHp}  " +
                             $"방어막 {characterEntity.CurrentBlock}");
-            GUILayout.Label($"공유 SAN {partySanityHolder.CurrentSanity}/{partySanityHolder.MaxSanity}  " +
+            GUILayout.Label($"공유 정신력 {partySanityHolder.CurrentSanity}/{partySanityHolder.MaxSanity}  " +
                             $"[{(partySanityHolder.CurrentSanityType == ESanityType.Madness ? "광기" : "평정")}]  " +
                             $"임계값 {partySanityHolder.SanityThreshold}");
 
@@ -188,6 +206,9 @@ namespace EchoesOfAsh.Test
             GUILayout.EndHorizontal();
         }
 
+        /// <summary>
+        /// 적 전투원의 현재 상태를 그립니다.
+        /// </summary>
         private void DrawEnemyStatus()
         {
             GUILayout.Label("=== 적 ===");
@@ -197,12 +218,15 @@ namespace EchoesOfAsh.Test
                             $"방어막 {enemyEntity.CurrentBlock}  " +
                             $"{(enemyEntity.IsDead ? "[사망]" : "[생존]")}";
 
-            status += $"  SAN {enemyEntity.CurrentSanity}/{enemyEntity.MaxSanity} " +
+            status += $"  정신력 {enemyEntity.CurrentSanity}/{enemyEntity.MaxSanity} " +
                       $"[{(enemyEntity.CurrentSanityType == ESanityType.Madness ? "광기" : "평정")}]";
 
             GUILayout.Label(status);
         }
 
+        /// <summary>
+        /// 행동력과 턴 진행 상태, 턴 종료 버튼을 그립니다.
+        /// </summary>
         private void DrawTurnControls()
         {
             GUILayout.Label($"=== AP: {apSystem.CurrentAp}  |  " +
@@ -223,6 +247,9 @@ namespace EchoesOfAsh.Test
             GUILayout.EndHorizontal();
         }
 
+        /// <summary>
+        /// 현재 손패와 카드 사용 버튼을 그립니다.
+        /// </summary>
         private void DrawHand()
         {
             GUILayout.Label($"=== 손패 ({deckSystem.Hand.Count}/{deckSystem.MaxHandSize}) — 버튼 클릭 = 적 대상 사용 ===");

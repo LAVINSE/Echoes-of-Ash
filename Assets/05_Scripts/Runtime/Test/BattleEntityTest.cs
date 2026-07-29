@@ -26,6 +26,9 @@ namespace EchoesOfAsh.Test
         #endregion // 필드
 
 
+        /// <summary>
+        /// 시험용 전투 엔티티와 정신력 객체를 생성하고 이벤트 기록을 시작합니다.
+        /// </summary>
         [SWButton("테스트 시작")]
         private void RunTest()
         {
@@ -60,6 +63,9 @@ namespace EchoesOfAsh.Test
             }
         }
 
+        /// <summary>
+        /// 생성한 시험 객체와 기록을 초기 상태로 되돌립니다.
+        /// </summary>
         [SWButton("테스트 초기화")]
         private void ResetTest()
         {
@@ -72,6 +78,9 @@ namespace EchoesOfAsh.Test
             isRun = false;
         }
 
+        /// <summary>
+        /// 객체가 제거될 때 시험용 엔티티와 정신력 객체를 정리합니다.
+        /// </summary>
         private void OnDestroy()
         {
             ResetCreatedEntities();
@@ -110,6 +119,9 @@ namespace EchoesOfAsh.Test
             }
         }
 
+        /// <summary>
+        /// 전투 엔티티 시험 조작 화면을 그립니다.
+        /// </summary>
         private void OnGUI()
         {
             if (!isRun)
@@ -127,6 +139,11 @@ namespace EchoesOfAsh.Test
         }
 
         #region 테스트 UI
+        /// <summary>
+        /// 지정한 전투 엔티티의 상태와 조작 버튼을 그립니다.
+        /// </summary>
+        /// <param name="label">화면에 표시할 이름입니다.</param>
+        /// <param name="battleEntity">조작할 전투 엔티티입니다.</param>
         private void DrawCombatantControls(string label, BattleEntity battleEntity)
         {
             GUILayout.Label($"=== {label} ===");
@@ -172,6 +189,10 @@ namespace EchoesOfAsh.Test
         }
         #endregion // 테스트 UI
 
+        /// <summary>
+        /// 전투 엔티티의 피해와 체력 변경 이벤트를 시험 기록에 연결합니다.
+        /// </summary>
+        /// <param name="battleEntity">구독할 전투 엔티티입니다.</param>
         private void SubscribeEntity(BattleEntity battleEntity)
         {
             string label = battleEntity.DisplayName;
@@ -189,6 +210,10 @@ namespace EchoesOfAsh.Test
                 => SWLog.Log($"[CombatantTest] {label} OnDied ★");
         }
 
+        /// <summary>
+        /// 정신력 객체의 값과 유형 변경 이벤트를 시험 기록에 연결합니다.
+        /// </summary>
+        /// <param name="holder">구독할 정신력 객체입니다.</param>
         private void SubscribeSanity(ISanityHolder holder)
         {
             holder.OnSanityChanged += (current, max)

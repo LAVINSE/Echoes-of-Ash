@@ -32,6 +32,9 @@ namespace EchoesOfAsh.Data
 
         #region 에디터
 #if UNITY_EDITOR
+        /// <summary>
+        /// 파티 정신력 능력치와 시작값, 전환 임계값을 검증합니다.
+        /// </summary>
         private void OnValidate()
         {
             if (maxSanityStat == null || maxSanityStat.Stat == null)

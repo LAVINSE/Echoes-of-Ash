@@ -102,6 +102,9 @@ namespace EchoesOfAsh.EditorTools
         #endregion // 윈도우 열기
 
         #region 초기화
+        /// <summary>
+        /// 창이 활성화될 때 스타일과 설정, 관리 대상 에셋을 초기화합니다.
+        /// </summary>
         private void OnEnable()
         {
             SetupStyle();
@@ -133,6 +136,9 @@ namespace EchoesOfAsh.EditorTools
             RefreshSingletons();
         }
 
+        /// <summary>
+        /// 창이 비활성화될 때 설정을 저장하고 생성한 에디터 자원을 정리합니다.
+        /// </summary>
         private void OnDisable()
         {
             SaveSettings();
@@ -258,6 +264,9 @@ namespace EchoesOfAsh.EditorTools
         #endregion // 설정 저장/불러오기
 
         #region 화면
+        /// <summary>
+        /// 데이터 관리 창의 탭과 현재 탭 내용을 그립니다.
+        /// </summary>
         private void OnGUI()
         {
             tabIndex = SWEditorUtils.DrawTabBar(tabIndex, tabNames);
@@ -613,6 +622,12 @@ namespace EchoesOfAsh.EditorTools
                 || ContainsIgnoreCase(asset.DisplayName, searchText);
         }
 
+        /// <summary>
+        /// 원본 문자열이 대소문자 구분 없이 검색 문자열을 포함하는지 확인합니다.
+        /// </summary>
+        /// <param name="source">검색할 원본 문자열입니다.</param>
+        /// <param name="value">찾을 문자열입니다.</param>
+        /// <returns>검색 문자열을 포함하면 <see langword="true"/>입니다.</returns>
         private static bool ContainsIgnoreCase(string source, string value)
             => !string.IsNullOrEmpty(source) && source.IndexOf(value, StringComparison.OrdinalIgnoreCase) >= 0;
 
@@ -892,13 +907,13 @@ namespace EchoesOfAsh.EditorTools
             switch (sortMode)
             {
                 case 0: // 코드명순
-                    assets.Sort((a, b) => string.CompareOrdinal(a.CodeName ?? string.Empty, b.CodeName ?? string.Empty));
+                    assets.Sort((left, right) => string.CompareOrdinal(left.CodeName ?? string.Empty, right.CodeName ?? string.Empty));
                     break;
                 case 1: // 표시명순
-                    assets.Sort((a, b) => string.CompareOrdinal(a.DisplayName ?? string.Empty, b.DisplayName ?? string.Empty));
+                    assets.Sort((left, right) => string.CompareOrdinal(left.DisplayName ?? string.Empty, right.DisplayName ?? string.Empty));
                     break;
                 default: // ID순
-                    assets.Sort((a, b) => a.ID.CompareTo(b.ID));
+                    assets.Sort((left, right) => left.ID.CompareTo(right.ID));
                     break;
             }
         }

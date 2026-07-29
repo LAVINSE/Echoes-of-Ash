@@ -135,10 +135,10 @@ namespace EchoesOfAsh.Battle
                 return 0;
             }
 
-            int fianlAmount = damageCalculator.Calculate(amount, this);
+            int finalAmount = damageCalculator.Calculate(amount, this);
 
             // 방어막 선 차감
-            int blockAbsorbed = Mathf.Min(currentBlock, fianlAmount);
+            int blockAbsorbed = Mathf.Min(currentBlock, finalAmount);
 
             if (blockAbsorbed > 0)
             {
@@ -147,22 +147,22 @@ namespace EchoesOfAsh.Battle
             }
 
             // 남은 피해를 HP에 적용
-            int hpLose = Mathf.Min(currentHp, fianlAmount - blockAbsorbed);
+            int healthPointLoss = Mathf.Min(currentHp, finalAmount - blockAbsorbed);
 
-            if (hpLose > 0)
+            if (healthPointLoss > 0)
             {
-                currentHp -= hpLose;
+                currentHp -= healthPointLoss;
                 OnHpChanged?.Invoke(currentHp, MaxHp);
             }
 
-            OnDamaged?.Invoke(hpLose, amount);
+            OnDamaged?.Invoke(healthPointLoss, amount);
 
             if (currentHp <= 0)
             {
                 Die();
             }
 
-            return hpLose;
+            return healthPointLoss;
         }
 
         /// <summary>

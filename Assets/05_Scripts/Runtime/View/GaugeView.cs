@@ -49,6 +49,9 @@ namespace EchoesOfAsh.View
         public int MaxValue => maxValue;
         #endregion // 프로퍼티
 
+        /// <summary>
+        /// 매 프레임 표시 비율을 목표 비율로 보간합니다.
+        /// </summary>
         private void Update()
         {
             if (Mathf.Approximately(displayedRatio, targetRatio))

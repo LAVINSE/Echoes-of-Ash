@@ -110,6 +110,9 @@ namespace EchoesOfAsh.Battle
         #endregion // 프로퍼티
 
         #region 초기화
+        /// <summary>
+        /// 객체가 제거될 때 전투에서 생성하거나 구독한 런타임 자원을 정리합니다.
+        /// </summary>
         private void OnDestroy()
         {
             ResetBattle();
@@ -212,18 +215,18 @@ namespace EchoesOfAsh.Battle
             damageTriggerHandlers.Clear();
             dealDamageAttributionCaster = null;
 
-            for (int i = 0; i < party.Count; i++)
+            for (int index = 0; index < party.Count; index++)
             {
-                CharacterEntity member = party[i];
+                CharacterEntity member = party[index];
                 DestroyEntity(ref member);
             }
 
             cardOwnerLookup.Clear();
             party.Clear();
 
-            for (int i = 0; i < enemyEntities.Count; i++)
+            for (int index = 0; index < enemyEntities.Count; index++)
             {
-                EnemyEntity enemyEntity = enemyEntities[i];
+                EnemyEntity enemyEntity = enemyEntities[index];
                 DestroyEntity(ref enemyEntity);
             }
 
@@ -499,14 +502,14 @@ namespace EchoesOfAsh.Battle
             foreach (CharacterEntity character in party)
             {
                 CharacterEntity damagedMember = character;
-                Action<int, int> handler = (hpLose, original) => HandlePartyMemberDamaged(damagedMember, original);
+                Action<int, int> handler = (healthPointLoss, originalDamage) => HandlePartyMemberDamaged(damagedMember, originalDamage);
                 damagedMember.OnDamaged += handler;
                 damageTriggerHandlers.Add((damagedMember, handler));
             }
 
             foreach (EnemyEntity enemy in enemyEntities)
             {
-                Action<int, int> handler = (hpLose, original) => HandleEnemyDamagedForTrigger(original);
+                Action<int, int> handler = (healthPointLoss, originalDamage) => HandleEnemyDamagedForTrigger(originalDamage);
                 enemy.OnDamaged += handler;
                 damageTriggerHandlers.Add((enemy, handler));
             }
@@ -562,7 +565,7 @@ namespace EchoesOfAsh.Battle
 
             turnManager.EndBattle();
 
-            // 전투 종료 트리거 - 승리 시 1회 (잠정 규칙: 패배 = 던전 종료라 미발화). 효과의 SAN 변경이 아래 이월 기록에 반영됩니다
+            // 전투 종료 트리거 - 승리 시 1회 (잠정 규칙: 패배 = 던전 종료라 미발화). 효과의 정신력 변경이 아래 이월 기록에 반영됩니다
             if (battleResult == EBattleResult.Victory)
             {
                 triggerEffectController?.Raise(ETriggerType.BattleEnd);
@@ -846,14 +849,14 @@ namespace EchoesOfAsh.Battle
         /// <param name="turnNumber">턴 번호입니다.</param>
         private void HandleEnemyActionsStarted(int turnNumber)
         {
-            for (int i = 0; i < enemyEntities.Count; i++)
+            for (int index = 0; index < enemyEntities.Count; index++)
             {
                 if (!isBattleRunning)
                 {
                     return;
                 }
 
-                EnemyEntity enemyEntity = enemyEntities[i];
+                EnemyEntity enemyEntity = enemyEntities[index];
 
                 if (enemyEntity.IsDead)
                 {
@@ -862,7 +865,7 @@ namespace EchoesOfAsh.Battle
 
                 enemyEntity.ResetBlock();
 
-                EnemyAI enemyAI = enemyAIs[i];
+                EnemyAI enemyAI = enemyAIs[index];
 
                 if (!enemyAI.SelectTargets(enemyTargetBuffer))
                 {

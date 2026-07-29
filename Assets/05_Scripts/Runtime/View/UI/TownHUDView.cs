@@ -27,9 +27,6 @@ namespace EchoesOfAsh.View.UI
         private Action onResumeDungeon;
         #endregion // 필드
 
-        #region 프로퍼티
-        #endregion // 프로퍼티
-
         #region 초기화
         /// <summary>
         /// 버튼의 클릭 처리를 연결합니다.

@@ -12,7 +12,7 @@ namespace EchoesOfAsh.Battle
     {
         #region 필드
         /// <summary>이 값 미만의 어그로는 만료로 간주하고 제거합니다.</summary>
-        private const float MIN_AGGRO = 0.01f;
+        private const float MinimumAggro = 0.01f;
 
         private readonly BattleBalanceData balanceData;
         private CharacterEntity caster;
@@ -21,9 +21,6 @@ namespace EchoesOfAsh.Battle
         private readonly List<EnemyEntity> registeredEnemies = new();
         private readonly List<CharacterEntity> tickBuffer = new();
         #endregion // 필드
-
-        #region 프로퍼티
-        #endregion // 프로퍼티
 
         #region 생성자
         /// <summary>
@@ -137,9 +134,9 @@ namespace EchoesOfAsh.Battle
         /// 적 피격 시 원본 피해량을 시전자의 어그로로 누적하는 콜백입니다.
         /// 방어막 흡수분 포함 기여로 인정합니다 (잠정 — 가중치는 Balance 소유).
         /// </summary>
-        /// <param name="hpLose">실제 HP 손실량입니다.</param>
+        /// <param name="healthPointLoss">실제 HP 손실량입니다.</param>
         /// <param name="amount">원본 피해량입니다.</param>
-        private void HandleEnemyDamaged(int hpLose, int amount)
+        private void HandleEnemyDamaged(int healthPointLoss, int amount)
         {
             if (caster == null || amount <= 0)
             {
@@ -173,7 +170,7 @@ namespace EchoesOfAsh.Battle
             {
                 float decayed = aggroValues[member] * decayRate;
 
-                if (decayed < MIN_AGGRO)
+                if (decayed < MinimumAggro)
                 {
                     aggroValues.Remove(member);
                 }

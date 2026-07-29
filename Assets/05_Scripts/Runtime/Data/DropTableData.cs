@@ -126,11 +126,14 @@ namespace EchoesOfAsh.Data
         }
 
 #if UNITY_EDITOR
+        /// <summary>
+        /// 드랍 횟수와 항목별 아이템, 수량 범위 설정을 검증합니다.
+        /// </summary>
         private void OnValidate()
         {
             if (rollCountMax < rollCountMin)
             {
-                Debug.LogWarning($"[DropTableData] {name}: 굴림 횟수 최대값이 최소값보다 작습니다", this);
+                SWLog.LogWarning($"[DropTableData] {name}: 굴림 횟수 최대값이 최소값보다 작습니다");
             }
 
             foreach (DropEntryData entry in entries)
@@ -142,12 +145,12 @@ namespace EchoesOfAsh.Data
 
                 if (entry.ItemData == null)
                 {
-                    Debug.LogWarning($"[DropTableData] {name}: 아이템이 비어 있는 드랍 항목이 있습니다", this);
+                    SWLog.LogWarning($"[DropTableData] {name}: 아이템이 비어 있는 드랍 항목이 있습니다");
                 }
 
                 if (entry.MaxCount < entry.MinCount)
                 {
-                    Debug.LogWarning($"[DropTableData] {name}: 수량 최대값이 최소값보다 작은 항목이 있습니다", this);
+                    SWLog.LogWarning($"[DropTableData] {name}: 수량 최대값이 최소값보다 작은 항목이 있습니다");
                 }
             }
         }

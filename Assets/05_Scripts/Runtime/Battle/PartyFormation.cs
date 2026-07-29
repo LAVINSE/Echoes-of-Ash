@@ -3,6 +3,7 @@ using SW.Attributes;
 using SW.Base;
 using SW.Util;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace EchoesOfAsh.Battle
 {
@@ -19,13 +20,21 @@ namespace EchoesOfAsh.Battle
         [System.Serializable]
         public class FormationData
         {
+            /// <summary>이 배치 데이터를 사용하는 파티 인원수입니다.</summary>
             public int partyCount = 1;
-            public List<Vector3> posList = new();
+            /// <summary>파티 순서에 대응하는 배치 좌표 목록입니다.</summary>
+            [FormerlySerializedAs("posList")]
+            public List<Vector3> positions = new();
 
-            public FormationData(int partyCount, List<Vector3> posList)
+            /// <summary>
+            /// 파티 배치 데이터를 생성합니다.
+            /// </summary>
+            /// <param name="partyCount">파티 인원수입니다.</param>
+            /// <param name="positions">파티 순서에 대응하는 배치 좌표 목록입니다.</param>
+            public FormationData(int partyCount, List<Vector3> positions)
             {
                 this.partyCount = partyCount;
-                this.posList = posList;
+                this.positions = positions;
             }
         }
         #endregion // 데이터
@@ -65,13 +74,13 @@ namespace EchoesOfAsh.Battle
                 return Vector3.zero;
             }
 
-            if (memberIndex < 0 || memberIndex >= formationData.posList.Count)
+            if (memberIndex < 0 || memberIndex >= formationData.positions.Count)
             {
                 SWLog.LogWarning($"[PartyFormation] {partyCount}인 배치에 {memberIndex + 1}번째 좌표가 없습니다 - 원점 배치로 폴백합니다");
                 return Vector3.zero;
             }
 
-            return formationData.posList[memberIndex];
+            return formationData.positions[memberIndex];
         }
 
         /// <summary>
@@ -100,21 +109,21 @@ namespace EchoesOfAsh.Battle
         [SWButton("포메이션 설정")]
         private void SetFormation()
         {
-            List<Vector3> posList = new();
+            List<Vector3> positions = new();
 
             switch (partyCount)
             {
                 case 1:
-                    if (!TryAddMarkerPosition(posList, firstFormation)) return;
+                    if (!TryAddMarkerPosition(positions, firstFormation)) return;
                     break;
                 case 2:
-                    if (!TryAddMarkerPosition(posList, firstFormation)) return;
-                    if (!TryAddMarkerPosition(posList, secondFormation)) return;
+                    if (!TryAddMarkerPosition(positions, firstFormation)) return;
+                    if (!TryAddMarkerPosition(positions, secondFormation)) return;
                     break;
                 case 3:
-                    if (!TryAddMarkerPosition(posList, firstFormation)) return;
-                    if (!TryAddMarkerPosition(posList, secondFormation)) return;
-                    if (!TryAddMarkerPosition(posList, thirdFormation)) return;
+                    if (!TryAddMarkerPosition(positions, firstFormation)) return;
+                    if (!TryAddMarkerPosition(positions, secondFormation)) return;
+                    if (!TryAddMarkerPosition(positions, thirdFormation)) return;
                     break;
                 default:
                     return;
@@ -124,11 +133,11 @@ namespace EchoesOfAsh.Battle
 
             if (formationData == null)
             {
-                partyFormationDatas.Add(new FormationData(partyCount, posList));
+                partyFormationDatas.Add(new FormationData(partyCount, positions));
             }
             else
             {
-                formationData.posList = posList;
+                formationData.positions = positions;
             }
 
             partyFormationDatas.Sort((left, right) => left.partyCount.CompareTo(right.partyCount));
@@ -153,11 +162,11 @@ namespace EchoesOfAsh.Battle
 
             Transform[] markers = { firstFormation, secondFormation, thirdFormation };
 
-            for (int index = 0; index < formationData.posList.Count && index < markers.Length; index++)
+            for (int index = 0; index < formationData.positions.Count && index < markers.Length; index++)
             {
                 if (markers[index] != null)
                 {
-                    markers[index].localPosition = formationData.posList[index];
+                    markers[index].localPosition = formationData.positions[index];
                 }
             }
 
@@ -167,10 +176,10 @@ namespace EchoesOfAsh.Battle
         /// <summary>
         /// 표식 Transform의 로컬 좌표를 목록에 추가합니다. 표식이 비어 있으면 실패합니다.
         /// </summary>
-        /// <param name="posList">좌표를 담을 목록입니다.</param>
+        /// <param name="positions">좌표를 담을 목록입니다.</param>
         /// <param name="marker">읽을 표식 Transform입니다.</param>
         /// <returns>추가에 성공했으면 true입니다.</returns>
-        private bool TryAddMarkerPosition(List<Vector3> posList, Transform marker)
+        private bool TryAddMarkerPosition(List<Vector3> positions, Transform marker)
         {
             if (marker == null)
             {
@@ -178,7 +187,7 @@ namespace EchoesOfAsh.Battle
                 return false;
             }
 
-            posList.Add(marker.localPosition);
+            positions.Add(marker.localPosition);
             return true;
         }
         #endregion // 유틸리티

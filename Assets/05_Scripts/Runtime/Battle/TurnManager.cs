@@ -133,6 +133,9 @@ namespace EchoesOfAsh.Battle
             SetPhase(ETurnPhase.BattleEnd);
         }
 
+        /// <summary>
+        /// 턴 번호를 증가시키고 자원 지급과 카드 뽑기를 처리한 뒤 플레이어 행동 단계로 전환합니다.
+        /// </summary>
         private void StartNextTurn()
         {
             currentTurn++;

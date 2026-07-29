@@ -1,6 +1,7 @@
 using EchoesOfAsh.Enum;
 using SW.Attributes;
 using SW.Base;
+using SW.Util;
 using UnityEngine;
 
 namespace EchoesOfAsh.Data
@@ -38,11 +39,14 @@ namespace EchoesOfAsh.Data
         #endregion // 프로퍼티
 
 #if UNITY_EDITOR
+        /// <summary>
+        /// 상태 이상 유형이 실제 처리 규칙과 연결될 수 있는지 검증합니다.
+        /// </summary>
         private void OnValidate()
         {
             if (statusEffectType == EStatusEffectType.None)
             {
-                Debug.LogWarning($"[StatusEffectData] {name}: statusType이 None입니다 — 로직 매핑 키를 지정하세요", this);
+                SWLog.LogWarning($"[StatusEffectData] {name}: 상태 이상 유형이 None입니다. 로직 매핑 키를 지정하세요");
             }
         }
 #endif

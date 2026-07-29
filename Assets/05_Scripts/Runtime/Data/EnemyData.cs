@@ -91,6 +91,9 @@ namespace EchoesOfAsh.Data
 
         #region 에디터
 #if UNITY_EDITOR
+        /// <summary>
+        /// 적 능력치와 행동 패턴의 필수값을 검증합니다.
+        /// </summary>
         private void OnValidate()
         {
             if (maxHpStat == null || maxHpStat.Stat == null)

@@ -46,6 +46,9 @@ namespace EchoesOfAsh.View.UI
         #endregion // 프로퍼티
 
         #region 초기화
+        /// <summary>
+        /// 손패 카드가 배치될 부모 참조를 확인합니다.
+        /// </summary>
         private void Awake()
         {
             if (cardRoot == null)
@@ -54,6 +57,9 @@ namespace EchoesOfAsh.View.UI
             }
         }
 
+        /// <summary>
+        /// 객체가 제거될 때 카드 뷰와 이벤트 구독을 정리합니다.
+        /// </summary>
         private void OnDestroy()
         {
             Release();
@@ -165,6 +171,9 @@ namespace EchoesOfAsh.View.UI
             Destroy(cardView.gameObject);
         }
 
+        /// <summary>
+        /// 현재 표시 중인 모든 카드 뷰를 반환하고 목록을 비웁니다.
+        /// </summary>
         private void ReturnAllCardViews()
         {
             foreach (CardView cardView in cardViews)
@@ -223,12 +232,12 @@ namespace EchoesOfAsh.View.UI
                 cardViews.RemoveAt(lastIndex);
             }
 
-            for (int i = 0; i < hand.Count; i++)
+            for (int index = 0; index < hand.Count; index++)
             {
-                cardViews[i].Init(hand[i]);
-                LayoutCard(cardViews[i].transform, i, hand.Count);
+                cardViews[index].Init(hand[index]);
+                LayoutCard(cardViews[index].transform, index, hand.Count);
 
-                cardViews[i].transform.SetSiblingIndex(i);
+                cardViews[index].transform.SetSiblingIndex(index);
             }
 
             RefreshPlayable();
@@ -247,20 +256,20 @@ namespace EchoesOfAsh.View.UI
         /// 카드를 부채꼴 형태로 배치합니다.
         /// </summary>
         /// <param name="cardTransform">배치할 카드 위치입니다.</param>
-        /// <param name="i">손패 내 인덱스입니다.</param>
+        /// <param name="index">손패 내 인덱스입니다.</param>
         /// <param name="count">손패 수입니다.</param>
-        private void LayoutCard(Transform cardTransform, int i, int count)
+        private void LayoutCard(Transform cardTransform, int index, int count)
         {
-            float offset = i - (count - 1) * 0.5f;
+            float offset = index - (count - 1) * 0.5f;
 
-            float normalized = count > 1 ? offset / ((count - 1) * 0.5f) : 0f;
+            float normalizedPosition = count > 1 ? offset / ((count - 1) * 0.5f) : 0f;
 
-            float x = offset * cardSpacing;
-            float y = arcHeight * (1f - normalized * normalized);
-            float z = -depthStep * i;
+            float horizontalPosition = offset * cardSpacing;
+            float verticalPosition = arcHeight * (1f - normalizedPosition * normalizedPosition);
+            float depthPosition = -depthStep * index;
 
-            cardTransform.localPosition = new Vector3(x, y, z);
-            cardTransform.localRotation = Quaternion.Euler(0f, 0f, -normalized * maxTiltAngle);
+            cardTransform.localPosition = new Vector3(horizontalPosition, verticalPosition, depthPosition);
+            cardTransform.localRotation = Quaternion.Euler(0f, 0f, -normalizedPosition * maxTiltAngle);
         }
     }
 }

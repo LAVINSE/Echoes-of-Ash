@@ -29,6 +29,9 @@ namespace EchoesOfAsh.Test
         #endregion // 필드
 
 
+        /// <summary>
+        /// 파티와 적 정신력 객체를 생성하고 변경 이벤트 기록을 시작합니다.
+        /// </summary>
         [SWButton("테스트 시작")]
         private void RunTest()
         {
@@ -60,6 +63,9 @@ namespace EchoesOfAsh.Test
             }
         }
 
+        /// <summary>
+        /// 정신력 시험 객체와 누적 기록을 초기화합니다.
+        /// </summary>
         [SWButton("테스트 초기화")]
         private void ResetTest()
         {
@@ -74,12 +80,18 @@ namespace EchoesOfAsh.Test
             isRun = false;
         }
 
+        /// <summary>
+        /// 객체가 제거될 때 정신력 시험 객체를 정리합니다.
+        /// </summary>
         private void OnDestroy()
         {
             partySanityHolder?.Dispose();
             enemySanityHolder?.Dispose();
         }
 
+        /// <summary>
+        /// 정신력 값과 전환 경계 시험 조작 화면을 그립니다.
+        /// </summary>
         private void OnGUI()
         {
             if (!isRun)
@@ -97,6 +109,12 @@ namespace EchoesOfAsh.Test
         }
 
         #region 테스트 UI
+        /// <summary>
+        /// 지정한 정신력 객체의 상태와 조작 버튼을 그립니다.
+        /// </summary>
+        /// <param name="label">화면에 표시할 이름입니다.</param>
+        /// <param name="holder">조작할 정신력 객체입니다.</param>
+        /// <param name="typeChangedCount">정신력 유형 변경 횟수입니다.</param>
         private void DrawGaugeControls(string label, SanityHolder holder, int typeChangedCount)
         {
             GUILayout.Label($"=== {label} ===");
@@ -107,7 +125,7 @@ namespace EchoesOfAsh.Test
                 return;
             }
 
-            GUILayout.Label($"SAN {holder.CurrentSanity}/{holder.MaxSanity}  " +
+            GUILayout.Label($"정신력 {holder.CurrentSanity}/{holder.MaxSanity}  " +
                             $"[{holder.CurrentSanityType}]  임계값: {holder.SanityThreshold}  " +
                             $"구간 전환 누적: {typeChangedCount}회");
 
@@ -140,7 +158,7 @@ namespace EchoesOfAsh.Test
             // 1) 평정 구간 내 진동 (임계값 ↔ 임계값+1) — 전환 0회 기대
             holder.ChangeSanity(holder.SanityThreshold + 1 - holder.CurrentSanity);
 
-            for (int i = 0; i < 10; ++i)
+            for (int iteration = 0; iteration < 10; ++iteration)
             {
                 holder.ChangeSanity(-1); // 임계값 (평정 유지)
                 holder.ChangeSanity(1);  // 임계값+1 (평정 유지)
@@ -149,7 +167,7 @@ namespace EchoesOfAsh.Test
             SWLog.Log("[SanityTester] 기본 구간 내 진동 완료 — 전환 로그가 없어야 정상");
 
             // 2) 경계 교차 진동 (임계값-1 ↔ 임계값) — 왕복마다 광기/평정 각 1회 기대
-            for (int i = 0; i < 3; ++i)
+            for (int iteration = 0; iteration < 3; ++iteration)
             {
                 holder.ChangeSanity(-1); // 임계값-1 → 광기
                 holder.ChangeSanity(1);  // 임계값 → 평정
@@ -160,6 +178,12 @@ namespace EchoesOfAsh.Test
         #endregion // 테스트 UI
 
 
+        /// <summary>
+        /// 정신력 변경 이벤트를 시험 기록과 유형 변경 횟수 처리에 연결합니다.
+        /// </summary>
+        /// <param name="sanityHolder">구독할 정신력 객체입니다.</param>
+        /// <param name="label">기록에 표시할 이름입니다.</param>
+        /// <param name="onTypeChanged">유형 변경 시 호출할 처리입니다.</param>
         private void Subscribe(SanityHolder sanityHolder, string label, System.Action onTypeChanged)
         {
             sanityHolder.OnSanityChanged += (current, max)

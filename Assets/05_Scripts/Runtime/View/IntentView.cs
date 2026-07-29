@@ -76,11 +76,7 @@ namespace EchoesOfAsh.View
         [SerializeField] private List<IntentSlot> slots = new();
         [Tooltip("의도 유형별 아이콘")]
         [SerializeField] private List<IntentStyle> styles = new();
-
-        //[SWGroup("스타일")]
-
         #endregion // 필드
-
 
         /// <summary>
         /// 행동의 의도를 표시합니다.
@@ -96,18 +92,18 @@ namespace EchoesOfAsh.View
 
             List<EIntentType> intentTypes = actionData.GetIntentTypes();
 
-            for (int i = 0; i < slots.Count; i++)
+            for (int index = 0; index < slots.Count; index++)
             {
-                if (i >= intentTypes.Count)
+                if (index >= intentTypes.Count)
                 {
-                    slots[i].Hide();
+                    slots[index].Hide();
                     continue;
                 }
 
-                EIntentType intentType = intentTypes[i];
+                EIntentType intentType = intentTypes[index];
                 IntentStyle style = FindStyle(intentType);
 
-                slots[i].Show(style != null ? style.IconSprite : null, GetValueText(actionData, intentType));
+                slots[index].Show(style != null ? style.IconSprite : null, GetValueText(actionData, intentType));
             }
 
             if (intentTypes.Count > slots.Count)
@@ -121,8 +117,7 @@ namespace EchoesOfAsh.View
         /// </summary>
         public void Clear()
         {
-            foreach
-            (var slot in slots)
+            foreach (IntentSlot slot in slots)
             {
                 slot.Hide();
             }

@@ -50,6 +50,9 @@ namespace EchoesOfAsh.Data
 
         #region 에디터
 #if UNITY_EDITOR
+        /// <summary>
+        /// 캐릭터 능력치와 전용 카드 설정의 필수값을 검증합니다.
+        /// </summary>
         private void OnValidate()
         {
             if (maxHpStat == null || maxHpStat.Stat == null)
