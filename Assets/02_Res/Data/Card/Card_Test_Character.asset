@@ -29,6 +29,7 @@ MonoBehaviour:
   isUpgrade: 0
   upgradeCard: {fileID: 0}
   unlockType: 0
+  isDefaultUnlocked: 1
   cardIconSprite: {fileID: 0}
   references:
     version: 2

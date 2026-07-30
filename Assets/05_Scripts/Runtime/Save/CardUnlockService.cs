@@ -7,15 +7,16 @@ using SW.Util;
 namespace EchoesOfAsh.Save
 {
     /// <summary>
-    /// 카드 해금 원장의 접근 창구입니다 (기획서 5-3 - 발견형/제작형 이원화).
+    /// 카드 해금 원장의 접근 창구입니다 (기획서 5-3 - 발견형/제작형 이원화 + 몬스터 드랍형).
     /// 해금 기록은 마을 구획(TownSaveData)에 영구 누적되며, 해금 확정 즉시 파일에 저장합니다 (발견형 즉시 영구 계약 - 기획서 13-1).
     /// 해금 풀 추첨(등장 확률·굴림)은 보상/상점 로직 소관입니다 - 이 클래스는 해금 상태와 후보 조회만 담당합니다.
+    /// 몬스터 드랍형은 해금(도감 발견) 후에도 보상/상점 풀에 등장하지 않습니다 - 획득 경로는 해당 적 처치 드랍뿐입니다.
     /// </summary>
     public static class CardUnlockService
     {
         #region 조회
         /// <summary>
-        /// 카드가 해금되어 있는지 확인합니다. 기본 해금 카드는 저장 기록 없이도 해금 상태입니다.
+        /// 카드가 해금(도감 발견)되어 있는지 확인합니다. 기본 해금 카드는 저장 기록 없이도 해금 상태입니다.
         /// </summary>
         /// <param name="cardData">확인할 카드 데이터입니다.</param>
         /// <returns>해금되어 있으면 true입니다.</returns>
@@ -36,7 +37,8 @@ namespace EchoesOfAsh.Save
 
         /// <summary>
         /// 해금된 카드를 결과 목록에 수집합니다. 보상/상점 추첨의 원천 풀입니다.
-        /// 잠정 규칙: 강화 카드와 저주 카드는 풀에서 제외합니다 (강화 = 휴식/수련 경로, 저주 = 적이 심는 카드).
+        /// 잠정 규칙: 강화 카드, 저주 카드, 몬스터 드랍형 카드는 풀에서 제외합니다
+        /// (강화 = 휴식/수련 경로, 저주 = 적이 심는 카드, 몬스터 드랍형 = 특정 적 처치 드랍 한정).
         /// </summary>
         /// <param name="cardDatabase">전체 카드 데이터베이스입니다.</param>
         /// <param name="resultCards">결과를 저장할 목록입니다. 기존 요소는 제거됩니다.</param>
@@ -67,7 +69,7 @@ namespace EchoesOfAsh.Save
 
         /// <summary>
         /// 미해금 발견형 카드를 결과 목록에 수집합니다. 보상 풀에 낮은 확률로 섞이는 등장 후보입니다 (기획서 5-3).
-        /// 제작형 카드는 해금 전까지 어디에도 등장하지 않으므로 후보에서 제외됩니다.
+        /// 제작형 카드는 해금 전까지 어디에도 등장하지 않고, 몬스터 드랍형 카드는 드랍 경로만 가지므로 후보에서 제외됩니다.
         /// </summary>
         /// <param name="cardDatabase">전체 카드 데이터베이스입니다.</param>
         /// <param name="resultCards">결과를 저장할 목록입니다. 기존 요소는 제거됩니다.</param>
@@ -113,7 +115,7 @@ namespace EchoesOfAsh.Save
 
             if (cardData.UnlockType != ECardUnlockType.Discovery)
             {
-                SWLog.LogWarning($"[CardUnlockService] TryUnlockByDiscovery 무시: 발견형 카드가 아닙니다 - {cardData.CodeName} (제작형은 설계도 경로로만 해금됩니다)");
+                SWLog.LogWarning($"[CardUnlockService] TryUnlockByDiscovery 무시: 발견형 카드가 아닙니다 - {cardData.CodeName} (제작형은 설계도, 몬스터 드랍형은 처치 드랍 경로로만 해금됩니다)");
                 return false;
             }
 
@@ -183,6 +185,38 @@ namespace EchoesOfAsh.Save
             SWLog.Log($"[CardUnlockService] 설계도로 카드를 해금했습니다: {blueprintItem.CodeName} -> {unlockCard.CodeName}");
             return true;
         }
+
+        /// <summary>
+        /// 몬스터 드랍형 카드를 도감 발견 처리하고 즉시 저장합니다. 해당 카드가 적 처치 드랍으로 등장하는 순간 호출합니다 (P2-M7 7-4 보강).
+        /// 발견 처리 후에도 보상/상점 풀에는 등장하지 않습니다 - 획득 경로는 해당 적 처치 드랍뿐입니다.
+        /// </summary>
+        /// <param name="cardData">발견 처리할 카드 데이터입니다.</param>
+        /// <returns>신규 발견에 성공했으면 true입니다. 이미 발견된 카드는 무시하고 false를 반환합니다.</returns>
+        public static bool TryUnlockByEnemyDrop(CardData cardData)
+        {
+            if (cardData == null)
+            {
+                SWLog.LogError("[CardUnlockService] TryUnlockByEnemyDrop 실패: 카드 데이터가 없습니다.");
+                return false;
+            }
+
+            if (cardData.UnlockType != ECardUnlockType.EnemyDrop)
+            {
+                SWLog.LogWarning($"[CardUnlockService] TryUnlockByEnemyDrop 무시: 몬스터 드랍형 카드가 아닙니다 - {cardData.CodeName}");
+                return false;
+            }
+
+            if (IsUnlocked(cardData))
+            {
+                return false;
+            }
+
+            RegisterUnlock(cardData.CodeName);
+            TownSaveService.Save();
+
+            SWLog.Log($"[CardUnlockService] 몬스터 드랍형 카드를 도감에 발견 처리했습니다: {cardData.CodeName}");
+            return true;
+        }
         #endregion // 해금
 
         #region 내부
@@ -201,7 +235,8 @@ namespace EchoesOfAsh.Save
         }
 
         /// <summary>
-        /// 카드가 해금 풀 대상인지 확인합니다. 강화 카드와 저주 카드는 풀 대상이 아닙니다 (잠정 규칙).
+        /// 카드가 해금 풀 대상인지 확인합니다.
+        /// 강화 카드, 저주 카드, 몬스터 드랍형 카드는 풀 대상이 아닙니다 (잠정 규칙 - 몬스터 드랍형 = 특정 적 처치 드랍 한정).
         /// </summary>
         /// <param name="cardData">확인할 카드 데이터입니다.</param>
         /// <returns>풀 대상이면 true입니다.</returns>
@@ -212,7 +247,9 @@ namespace EchoesOfAsh.Save
                 return false;
             }
 
-            return !cardData.IsUpgrade && cardData.CardType != ECardType.Curse;
+            return !cardData.IsUpgrade
+                && cardData.CardType != ECardType.Curse
+                && cardData.UnlockType != ECardUnlockType.EnemyDrop;
         }
 
         /// <summary>

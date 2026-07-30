@@ -42,8 +42,6 @@ namespace EchoesOfAsh.Town
         [SWGroup("임시 테스트")]
         [Tooltip("설계도 해금 테스트용 아이템입니다. 봉인된 서고 팝업(아트 시점) 도입 시 제거합니다.")]
         [SerializeField] private ItemData testBlueprintItem;
-        [Tooltip("발견형 해금 테스트용 카드입니다. 보상 굴림(7-4 로직) 도입 시 제거합니다.")]
-        [SerializeField] private CardData testDiscoveryCard;
 
         private readonly StringBuilder stringBuilder = new();
         #endregion // 필드
@@ -409,15 +407,6 @@ namespace EchoesOfAsh.Town
             {
                 RefreshHud();
             }
-        }
-
-        /// <summary>
-        /// 테스트용 발견형 해금을 실행합니다. 보상 굴림 도입 시 제거합니다.
-        /// </summary>
-        [SWButton("테스트 발견형 해금")]
-        private void TestUnlockByDiscovery()
-        {
-            CardUnlockService.TryUnlockByDiscovery(testDiscoveryCard);
         }
     }
 }

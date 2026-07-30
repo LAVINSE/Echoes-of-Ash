@@ -1452,9 +1452,17 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1804488630}
     - target: {fileID: 3190026900988275682, guid: 18e8f36dcdf99ab4d9bcfb5bd6f30c71, type: 3}
+      propertyPath: chapterData
+      value: 
+      objectReference: {fileID: 11400000, guid: d20504ecb6797a245ad0d417e8716ad6, type: 2}
+    - target: {fileID: 3190026900988275682, guid: 18e8f36dcdf99ab4d9bcfb5bd6f30c71, type: 3}
       propertyPath: battleManager
       value: 
       objectReference: {fileID: 161359733}
+    - target: {fileID: 3190026900988275682, guid: 18e8f36dcdf99ab4d9bcfb5bd6f30c71, type: 3}
+      propertyPath: relicDatabase
+      value: 
+      objectReference: {fileID: 11400000, guid: 2138cf5016d45544e959f21f408ee475, type: 2}
     - target: {fileID: 3190026900988275682, guid: 18e8f36dcdf99ab4d9bcfb5bd6f30c71, type: 3}
       propertyPath: nodeScreenView
       value: 

@@ -49,7 +49,6 @@ MonoBehaviour:
     - actionName: "\uD53C\uD574"
       effects:
       - rid: 3116056955899871236
-  dropTableId: 0
   enemyPortraitSprite: {fileID: 0}
   references:
     version: 2

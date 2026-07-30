@@ -22,6 +22,8 @@ namespace EchoesOfAsh.Dungeon
         private int carriedSanity = -1;
         private int moveCount;
         private int ashConsumedFloor = -1;
+        /// <summary>던전 중 보유 골드입니다. 던전 1회 수명 자원입니다 (STS식 - 잠정 규칙: 던전 종료 시 소멸).</summary>
+        private int gold;
         private bool isCurrentNodeResolved = true;
         /// <summary>이번 던전에서 광기 이벤트가 발생했는지 여부입니다 (던전당 1회 규칙 - DD 결의 판정 방식).</summary>
         private bool hasMadnessEventOccurred;
@@ -55,6 +57,8 @@ namespace EchoesOfAsh.Dungeon
         public int MoveCount => moveCount;
         /// <summary>잿불에 잠식된 마지막 층입니다. 잠식된 층이 없으면 -1입니다.</summary>
         public int AshConsumedFloor => ashConsumedFloor;
+        /// <summary>던전 중 보유 골드입니다.</summary>
+        public int Gold => gold;
         /// <summary>현재 노드의 진입 처리가 완료되었는지 여부입니다. 미완료 상태로 복원되면 진입 처리를 다시 실행합니다.</summary>
         public bool IsCurrentNodeResolved => isCurrentNodeResolved;
         /// <summary>이번 던전에서 광기 이벤트가 이미 발생했는지 여부입니다.</summary>
@@ -159,6 +163,48 @@ namespace EchoesOfAsh.Dungeon
         public bool RemoveCard(CardInstance card)
         {
             return deck.Remove(card);
+        }
+
+        /// <summary>
+        /// 골드를 획득합니다.
+        /// </summary>
+        /// <param name="amount">획득할 골드량입니다.</param>
+        public void AddGold(int amount)
+        {
+            if (amount < 0)
+            {
+                SWLog.LogError("[DungeonState] AddGold 실패: 음수 골드는 획득할 수 없습니다.");
+                return;
+            }
+
+            if (amount == 0)
+            {
+                return;
+            }
+
+            gold += amount;
+        }
+
+        /// <summary>
+        /// 골드를 소비합니다. 보유량이 부족하면 소비하지 않습니다 (검사 후 일괄 차감 - TryConsumeItems 계약 계열).
+        /// </summary>
+        /// <param name="amount">소비할 골드량입니다.</param>
+        /// <returns>소비에 성공했으면 true입니다.</returns>
+        public bool TrySpendGold(int amount)
+        {
+            if (amount < 0)
+            {
+                SWLog.LogError("[DungeonState] TrySpendGold 실패: 음수 골드는 소비할 수 없습니다.");
+                return false;
+            }
+
+            if (gold < amount)
+            {
+                return false;
+            }
+
+            gold -= amount;
+            return true;
         }
 
         /// <summary>

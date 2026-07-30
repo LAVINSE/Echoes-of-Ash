@@ -40,6 +40,8 @@ namespace EchoesOfAsh.Save
         public int ashConsumedFloor;
         /// <summary>이번 던전에서 광기 이벤트가 발생했는지 여부입니다 (던전당 1회 - 기본값 false = 구저장 호환).</summary>
         public bool hasMadnessEventOccurred;
+        /// <summary>던전 중 보유 골드입니다 (P2-M7 7-4 - 기본값 0 = 구저장 호환).</summary>
+        public int gold;
 
         /// <summary>맵의 모든 노드입니다 (방문/잠식 상태 포함).</summary>
         public List<MapNode> mapNodes = new();

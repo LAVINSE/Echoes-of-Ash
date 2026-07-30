@@ -87,6 +87,11 @@ namespace EchoesOfAsh.Dungeon
         private DungeonEventData currentEventData;
         private bool isBattleEventSubscribed;
 
+        private ShopService shopService;
+        private readonly List<CardData> unlockedCardBuffer = new();
+        private readonly List<CardData> discoveryCandidateBuffer = new();
+        private readonly List<CardData> pendingRewardCards = new();
+
         private readonly List<CharacterData> selectedParty = new();
         private readonly List<MapNode> availableNodeBuffer = new();
         private readonly List<ItemStackData> dropRollBuffer = new();
@@ -109,6 +114,11 @@ namespace EchoesOfAsh.Dungeon
         /// <summary>파티가 광기 구간인지 여부입니다. 광기 복도 통행 판정에 사용합니다.</summary>
         public bool IsPartyMadness => dungeonState != null && partyData != null
             && dungeonState.CarriedSanity < partyData.SanityThreshold;
+
+        /// <summary>선택 대기 중인 카드 보상 선택지입니다. 보상 화면(아트 시점)의 표시 원본입니다.</summary>
+        public IReadOnlyList<CardData> PendingRewardCards => pendingRewardCards;
+        /// <summary>현재 상점입니다. 상점 노드 밖에서는 null입니다.</summary>
+        public ShopService CurrentShop => shopService;
 
         /// <summary>던전이 시작될 때 호출됩니다.</summary>
         public event Action OnDungeonStarted;
@@ -440,6 +450,8 @@ namespace EchoesOfAsh.Dungeon
                 dungeonState.AddRelic(relicData);
             }
 
+            dungeonState.AddGold(saveData.gold);
+
             if (dungeonState.Deck.Count == 0)
             {
                 SWLog.LogError("[DungeonManager] ResumeDungeon 실패: 복원한 덱이 비어 있습니다.");
@@ -510,7 +522,9 @@ namespace EchoesOfAsh.Dungeon
             currentBattleNode = null;
             currentEncounterData = null;
             currentEventData = null;
+            shopService = null;
 
+            pendingRewardCards.Clear();
             selectedParty.Clear();
 
             // 런 종료 = 스냅샷 소멸. 회수/해금 반영은 메타 저장 소관 (P2-M6/M7)
@@ -685,6 +699,10 @@ namespace EchoesOfAsh.Dungeon
                     TransferCarriedToStorage();
                     ShowNodeScreen(GetNodeEventData(EMapNodeType.Storage), "보관");
                     break;
+                case EMapNodeType.Shop:
+                    OpenShop();
+                    MarkNodeResolvedAndSave();
+                    break;
                 default:
                     SWLog.Log($"[DungeonManager] {node.NodeType} 노드에 진입했습니다.");
                     LogAvailableNodes("노드 통과");
@@ -704,21 +722,105 @@ namespace EchoesOfAsh.Dungeon
             return chapterData != null ? chapterData.GetRandomEventData(nodeType) : null;
         }
 
-        /// <summary>
-        /// 이동 가능한 첫 번째 노드로 이동합니다.
-        /// </summary>
-        [SWButton("테스트: 첫 번째 노드로 이동")]
-        private void MoveToFirstAvailableNode()
-        {
-            GetAvailableNodes(availableNodeBuffer);
+        
 
-            if (availableNodeBuffer.Count == 0)
+        /// <summary>
+        /// 상점 노드에 진입해 재고를 굴립니다. 상점 뷰(아트 시점) 도입 전까지는 재고 로그와 테스트 버튼으로 검증합니다.
+        /// 잠정 규칙: 미해결 노드 재진입 = 재고 재굴림 (저장 스키마 무확장).
+        /// </summary>
+        private void OpenShop()
+        {
+            ShopConfigData shopConfig = chapterData != null ? chapterData.ShopConfigData : null;
+
+            if (shopConfig == null)
             {
-                SWLog.LogWarning("[DungeonManager] 이동 가능한 노드가 없습니다.");
+                SWLog.LogWarning("[DungeonManager] 상점 진입 건너뜀: 챕터에 상점 구성 데이터가 없습니다.");
                 return;
             }
 
-            MoveToNode(availableNodeBuffer[0].Identifier);
+            CardUnlockService.CollectUnlockedCards(cardDatabase, unlockedCardBuffer);
+
+            shopService = new ShopService(shopConfig, dungeonState);
+            shopService.RollStock(unlockedCardBuffer, relicDatabase);
+
+            SWLog.Log($"[DungeonManager] 상점 진입: 카드 {shopService.CardOffers.Count}종, "
+                + $"유물 {shopService.RelicOffers.Count}종, 카드 제거 {shopService.RemoveCost} 골드 (보유 {dungeonState.Gold})");
+
+            foreach (ShopService.CardOffer offer in shopService.CardOffers)
+            {
+                SWLog.Log($"[DungeonManager] 상점 카드: {offer.Card.DisplayName} - {offer.Price} 골드");
+            }
+
+            foreach (ShopService.RelicOffer offer in shopService.RelicOffers)
+            {
+                SWLog.Log($"[DungeonManager] 상점 유물: {offer.Relic.DisplayName} - {offer.Price} 골드");
+            }
+        }
+
+        /// <summary>
+        /// 상점에서 카드를 구매하고 즉시 저장합니다. 상점 뷰의 구매 진입로입니다.
+        /// </summary>
+        /// <param name="offerIndex">구매할 카드 판매 항목의 순번입니다.</param>
+        /// <returns>구매에 성공했으면 true입니다.</returns>
+        public bool PurchaseShopCard(int offerIndex)
+        {
+            if (shopService == null)
+            {
+                SWLog.LogWarning("[DungeonManager] PurchaseShopCard 무시: 상점이 열려 있지 않습니다.");
+                return false;
+            }
+
+            if (!shopService.TryPurchaseCard(offerIndex))
+            {
+                return false;
+            }
+
+            SaveDungeon();
+            return true;
+        }
+
+        /// <summary>
+        /// 상점에서 유물을 구매하고 즉시 저장합니다. 상점 뷰의 구매 진입로입니다.
+        /// </summary>
+        /// <param name="offerIndex">구매할 유물 판매 항목의 순번입니다.</param>
+        /// <returns>구매에 성공했으면 true입니다.</returns>
+        public bool PurchaseShopRelic(int offerIndex)
+        {
+            if (shopService == null)
+            {
+                SWLog.LogWarning("[DungeonManager] PurchaseShopRelic 무시: 상점이 열려 있지 않습니다.");
+                return false;
+            }
+
+            if (!shopService.TryPurchaseRelic(offerIndex))
+            {
+                return false;
+            }
+
+            SaveDungeon();
+            return true;
+        }
+
+        /// <summary>
+        /// 상점에서 골드를 소모해 덱 카드 한 장을 제거하고 즉시 저장합니다. 상점 뷰의 제거 진입로입니다.
+        /// </summary>
+        /// <param name="card">제거할 카드 인스턴스입니다.</param>
+        /// <returns>제거에 성공했으면 true입니다.</returns>
+        public bool PurchaseCardRemoval(CardInstance card)
+        {
+            if (shopService == null)
+            {
+                SWLog.LogWarning("[DungeonManager] PurchaseCardRemoval 무시: 상점이 열려 있지 않습니다.");
+                return false;
+            }
+
+            if (!shopService.TryRemoveCard(card))
+            {
+                return false;
+            }
+
+            SaveDungeon();
+            return true;
         }
         #endregion // 이동
 
@@ -804,15 +906,6 @@ namespace EchoesOfAsh.Dungeon
             SWLog.Log($"[DungeonManager] 파티 정신력이 변화했습니다. "
                 + $"현재: {dungeonState.CarriedSanity}, 광기 여부: {IsPartyMadness}");
             RefreshMapViewState();
-        }
-
-        /// <summary>
-        /// 광기 통행 검증용으로 파티 정신력을 20 감소시킵니다.
-        /// </summary>
-        [SWButton("테스트: 정신력 -20")]
-        private void TestReduceSanity()
-        {
-            ChangeDungeonSanity(-20);
         }
         #endregion // 정신력
 
@@ -909,6 +1002,12 @@ namespace EchoesOfAsh.Dungeon
                 }
             }
 
+            // 몬스터 드랍형 카드 굴림 (P2-M7 7-4 - 조우당 1회)
+            RollEncounterCardDrop();
+
+            // 골드·카드 보상 굴림 (P2-M7 7-4)
+            RollBattleReward();
+
             currentEncounterData = null;
 
             if (currentBattleNode != null && currentBattleNode.NodeType == EMapNodeType.Boss)
@@ -928,6 +1027,129 @@ namespace EchoesOfAsh.Dungeon
 
             LogAvailableNodes("맵 복귀");
             MarkNodeResolvedAndSave();
+        }
+
+        /// <summary>
+        /// 조우의 몬스터 드랍형 카드를 굴립니다 (조우당 1회 - P2-M7 7-4).
+        /// 드랍된 카드는 던전 덱에 즉시 추가하고 도감에 발견 처리합니다 (즉시 영구 - 기획서 13-1 계열).
+        /// </summary>
+        private void RollEncounterCardDrop()
+        {
+            if (currentEncounterData == null || dungeonState == null)
+            {
+                return;
+            }
+
+            CardData dropCard = currentEncounterData.DropCard;
+
+            if (dropCard == null)
+            {
+                return;
+            }
+
+            if (!SWRandom.Chance(currentEncounterData.DropCardChance))
+            {
+                return;
+            }
+
+            if (dropCard.UnlockType != ECardUnlockType.EnemyDrop)
+            {
+                SWLog.LogWarning($"[DungeonManager] 카드 드랍 건너뜀: 몬스터 드랍형이 아닙니다 - {dropCard.CodeName} ({currentEncounterData.CodeName})");
+                return;
+            }
+
+            dungeonState.AddCard(new CardInstance(dropCard));
+
+            // 첫 드랍 = 도감 발견 확정 + 즉시 저장 (이후 사망 무관 보존)
+            if (CardUnlockService.TryUnlockByEnemyDrop(dropCard))
+            {
+                SWLog.Log($"[DungeonManager] 도감 발견! 몬스터 드랍형 카드가 처음 드랍되었습니다: {dropCard.DisplayName}");
+            }
+
+            SWLog.Log($"[DungeonManager] 카드 드랍 획득: {dropCard.DisplayName} ({currentEncounterData.DisplayName})");
+        }
+
+        /// <summary>
+        /// 승리한 전투의 골드와 카드 보상을 굴립니다. 골드는 즉시 반영하고, 카드는 선택 대기 목록에 보관합니다.
+        /// 선택지에 등장한 발견형 카드는 이 시점에 즉시 영구 해금합니다 (기획서 5-3/13-1 - 등장 = 해금 확정).
+        /// </summary>
+        private void RollBattleReward()
+        {
+            RewardConfigData rewardConfig = chapterData != null ? chapterData.RewardConfigData : null;
+
+            if (rewardConfig == null)
+            {
+                SWLog.LogWarning("[DungeonManager] 보상 굴림 건너뜀: 챕터에 보상 구성 데이터가 없습니다.");
+                return;
+            }
+
+            EMapNodeType nodeType = currentBattleNode != null ? currentBattleNode.NodeType : EMapNodeType.Battle;
+            int goldReward = rewardConfig.RollGold(nodeType);
+            dungeonState.AddGold(goldReward);
+            SWLog.Log($"[DungeonManager] 골드 획득: +{goldReward} (보유 {dungeonState.Gold})");
+
+            CardUnlockService.CollectUnlockedCards(cardDatabase, unlockedCardBuffer);
+            CardUnlockService.CollectDiscoveryCandidates(cardDatabase, discoveryCandidateBuffer);
+
+            pendingRewardCards.Clear();
+            rewardConfig.RollCardChoices(unlockedCardBuffer, discoveryCandidateBuffer, pendingRewardCards);
+
+            // 발견형 등장 = 즉시 영구 해금 (원장 확정 = 조립 지점 소관 - 굴림/원장 분리)
+            foreach (CardData choice in pendingRewardCards)
+            {
+                if (choice.UnlockType == ECardUnlockType.Discovery && !CardUnlockService.IsUnlocked(choice))
+                {
+                    CardUnlockService.TryUnlockByDiscovery(choice);
+                    SWLog.Log($"[DungeonManager] NEW 해금! 발견형 카드가 보상에 등장했습니다: {choice.DisplayName}");
+                }
+            }
+
+            for (int index = 0; index < pendingRewardCards.Count; index++)
+            {
+                SWLog.Log($"[DungeonManager] 카드 보상 선택지 {index}: {pendingRewardCards[index].DisplayName}");
+            }
+        }
+
+        /// <summary>
+        /// 카드 보상 선택지에서 한 장을 골라 던전 덱에 추가합니다. 보상 화면(아트 시점)의 확정 진입로입니다.
+        /// </summary>
+        /// <param name="choiceIndex">선택할 선택지 순번입니다.</param>
+        /// <returns>선택에 성공했으면 true입니다.</returns>
+        public bool SelectBattleRewardCard(int choiceIndex)
+        {
+            if (pendingRewardCards.Count == 0)
+            {
+                SWLog.LogWarning("[DungeonManager] SelectBattleRewardCard 무시: 대기 중인 카드 보상이 없습니다.");
+                return false;
+            }
+
+            if (choiceIndex < 0 || choiceIndex >= pendingRewardCards.Count)
+            {
+                SWLog.LogError($"[DungeonManager] SelectBattleRewardCard 실패: 잘못된 선택지 순번입니다 - {choiceIndex}");
+                return false;
+            }
+
+            CardData pickedCard = pendingRewardCards[choiceIndex];
+            dungeonState.AddCard(new CardInstance(pickedCard));
+            pendingRewardCards.Clear();
+            SaveDungeon();
+
+            SWLog.Log($"[DungeonManager] 보상 카드를 획득했습니다: {pickedCard.DisplayName}");
+            return true;
+        }
+
+        /// <summary>
+        /// 카드 보상을 건너뜁니다 (기획서 14-6 - 건너뛰기 허용).
+        /// </summary>
+        public void SkipBattleRewardCard()
+        {
+            if (pendingRewardCards.Count == 0)
+            {
+                return;
+            }
+
+            pendingRewardCards.Clear();
+            SWLog.Log("[DungeonManager] 카드 보상을 건너뛰었습니다.");
         }
         #endregion // 전투
 
@@ -1071,6 +1293,33 @@ namespace EchoesOfAsh.Dungeon
         }
         #endregion // 로그
 
+        #region 테스트
+        /// <summary>
+        /// 광기 통행 검증용으로 파티 정신력을 20 감소시킵니다.
+        /// </summary>
+        [SWButton("테스트: 정신력 -20")]
+        private void TestReduceSanity()
+        {
+            ChangeDungeonSanity(-20);
+        }
+
+        /// <summary>
+        /// 이동 가능한 첫 번째 노드로 이동합니다.
+        /// </summary>
+        [SWButton("테스트: 첫 번째 노드로 이동")]
+        private void MoveToFirstAvailableNode()
+        {
+            GetAvailableNodes(availableNodeBuffer);
+
+            if (availableNodeBuffer.Count == 0)
+            {
+                SWLog.LogWarning("[DungeonManager] 이동 가능한 노드가 없습니다.");
+                return;
+            }
+
+            MoveToNode(availableNodeBuffer[0].Identifier);
+        }
+
         /// <summary>
         /// 테스트 유물을 획득합니다 (임시 조치 - 보상 화면 도입 시 제거). 획득 반영은 다음 전투 시작부터입니다.
         /// </summary>
@@ -1089,5 +1338,62 @@ namespace EchoesOfAsh.Dungeon
                 DungeonSaveService.Save(dungeonState);
             }
         }
+
+        /// <summary>
+        /// 테스트용 골드를 지급합니다. 상점 뷰 도입 시 제거합니다.
+        /// </summary>
+        [SWButton("테스트 골드 +100")]
+        private void TestAddGold()
+        {
+            if (dungeonState == null)
+            {
+                return;
+            }
+
+            dungeonState.AddGold(100);
+            SWLog.Log($"[DungeonManager] 테스트 골드 지급: 보유 {dungeonState.Gold}");
+        }
+
+        /// <summary>
+        /// 테스트용으로 카드 보상 첫 선택지를 획득합니다. 보상 화면 도입 시 제거합니다.
+        /// </summary>
+        [SWButton("테스트 보상 첫 카드 선택")]
+        private void TestSelectFirstRewardCard()
+        {
+            SelectBattleRewardCard(0);
+        }
+
+        /// <summary>
+        /// 테스트용으로 상점 첫 카드를 구매합니다. 상점 뷰 도입 시 제거합니다.
+        /// </summary>
+        [SWButton("테스트 상점 첫 카드 구매")]
+        private void TestPurchaseFirstShopCard()
+        {
+            PurchaseShopCard(0);
+        }
+
+        /// <summary>
+        /// 테스트용으로 상점 첫 유물을 구매합니다. 상점 뷰 도입 시 제거합니다.
+        /// </summary>
+        [SWButton("테스트 상점 첫 유물 구매")]
+        private void TestPurchaseFirstShopRelic()
+        {
+            PurchaseShopRelic(0);
+        }
+
+        /// <summary>
+        /// 테스트용으로 덱 첫 카드를 제거합니다. 상점 뷰 도입 시 제거합니다.
+        /// </summary>
+        [SWButton("테스트 카드 제거 (덱 첫 장)")]
+        private void TestRemoveFirstDeckCard()
+        {
+            if (dungeonState == null || dungeonState.Deck.Count == 0)
+            {
+                return;
+            }
+
+            PurchaseCardRemoval(dungeonState.Deck[0]);
+        }
+        #endregion // 테스트
     }
 }

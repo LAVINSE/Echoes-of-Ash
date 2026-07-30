@@ -20,8 +20,6 @@ MonoBehaviour:
   spriteIcon: {fileID: 0}
   cardType: 0
   rarityType: 0
-  isCharacterCard: 0
-  ownerCharacter: {fileID: 0}
   apCost: 1
   targetingType: 0
   effects:
@@ -31,6 +29,7 @@ MonoBehaviour:
   isUpgrade: 0
   upgradeCard: {fileID: 0}
   unlockType: 0
+  isDefaultUnlocked: 1
   cardIconSprite: {fileID: 0}
   references:
     version: 2

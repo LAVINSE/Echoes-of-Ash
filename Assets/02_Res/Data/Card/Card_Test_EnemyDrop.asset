@@ -10,32 +10,32 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ca360e868a5482b4ba66271865e2847e, type: 3}
-  m_Name: Card_Test1
+  m_Name: Card_Test_EnemyDrop
   m_EditorClassIdentifier: Assembly-CSharp::EchoesOfAsh.Data.CardData
   categories: []
-  id: 0
-  codeName: Card_Test1
-  displayName: "\uCE74\uB4DC \uD14C\uC2A4\uD2B8 1"
+  id: 5
+  codeName: Card_Test_EnemyDrop
+  displayName: Card_Test_EnemyDrop
   description: 
   spriteIcon: {fileID: 0}
-  cardType: 4
+  cardType: 0
   rarityType: 0
-  apCost: 1
+  apCost: 0
   targetingType: 0
   effects:
-  - rid: 3116057183566430305
+  - rid: 3116057316901519448
   isSanityEffect: 0
   sanityEffects: []
   isUpgrade: 0
   upgradeCard: {fileID: 0}
-  unlockType: 0
+  unlockType: 2
   isDefaultUnlocked: 1
   cardIconSprite: {fileID: 0}
   references:
     version: 2
     RefIds:
-    - rid: 3116057183566430305
-      type: {class: StatusEffect, ns: EchoesOfAsh.Effect, asm: Assembly-CSharp}
+    - rid: 3116057316901519448
+      type: {class: DamageEffect, ns: EchoesOfAsh.Effect, asm: Assembly-CSharp}
       data:
-        statusType: 5
-        stack: 1
+        damage: 3
+        times: 5

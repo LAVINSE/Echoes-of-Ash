@@ -150,6 +150,8 @@ namespace EchoesOfAsh.Enum
         [InspectorName("발견형 (자동 해금)")] Discovery,
         /// <summary>제작형 (설계도 해금)입니다.</summary>
         [InspectorName("제작형 (설계도 해금)")] Blueprint,
+        /// <summary>몬스터 드랍형 (특정 조우 승리 드랍 한정)입니다.</summary>
+        [InspectorName("몬스터 드랍형 (특정 조우 한정)")] EnemyDrop,
     }
 
     /// <summary>

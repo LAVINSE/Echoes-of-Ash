@@ -45,10 +45,6 @@ namespace EchoesOfAsh.Data
         [SWGroup("HP 페이즈 전환")]
         [SerializeField] private List<EnemyPhasePatternData> phasePatterns = new();
 
-        [SWGroup("드랍 테이블")]
-        [Tooltip("임시 변수")]
-        [SerializeField] private int dropTableId;
-
         [SWGroup("표시")]
         [SerializeField] private Sprite enemyPortraitSprite;
         #endregion // 필드

@@ -21,3 +21,6 @@ MonoBehaviour:
   entries:
   - enemyData: {fileID: 11400000, guid: 6b36dbefcdeaaf14eb42c0fbfdaba7c0, type: 2}
     spawnPosition: {x: 4, y: 4}
+  dropTable: {fileID: 0}
+  dropCard: {fileID: 11400000, guid: a0f80144458dc014c8a26cb457e6b93f, type: 2}
+  dropCardChance: 1

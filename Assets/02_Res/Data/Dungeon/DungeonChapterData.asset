@@ -12,10 +12,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc2d70faec3e87d4c9ca9cffbb9b2e28, type: 3}
   m_Name: DungeonChapterData
   m_EditorClassIdentifier: Assembly-CSharp::EchoesOfAsh.Data.DungeonChapterData
-  mapConfigData: {fileID: 0}
-  battleEncounters: []
-  eliteEncounters: []
-  bossEncounters: []
-  nodeEventPools: []
+  mapConfigData: {fileID: 11400000, guid: 66807c471d662b64dab97a8a42812eeb, type: 2}
+  battleEncounters:
+  - {fileID: 11400000, guid: e7b43b9945e28924bb63d24076592ae4, type: 2}
+  eliteEncounters:
+  - {fileID: 11400000, guid: e7b43b9945e28924bb63d24076592ae4, type: 2}
+  bossEncounters:
+  - {fileID: 11400000, guid: e7b43b9945e28924bb63d24076592ae4, type: 2}
+  nodeEventPools:
+  - nodeType: 2
+    eventDatas:
+    - {fileID: 11400000, guid: ffb990e5a9e1b7f4a987b5d84fecb696, type: 2}
+  - nodeType: 5
+    eventDatas:
+    - {fileID: 11400000, guid: a464bfdbcc47caf489444ded10d2c16f, type: 2}
   sanityEventDatas: []
-  statusDatas: []
+  statusDatas:
+  - {fileID: 11400000, guid: 1b0b93c403f8cea479c0b93304f08cb7, type: 2}
+  - {fileID: 11400000, guid: d9a5fab48f4193a4b98df77fe682e8e9, type: 2}
+  rewardConfigData: {fileID: 11400000, guid: 53dced04516d4da4f8a52375a574e1c8, type: 2}
+  shopConfigData: {fileID: 11400000, guid: e2c8745cd56979148b8b4179c7ac1893, type: 2}

@@ -62,6 +62,7 @@ namespace EchoesOfAsh.Save
                 moveCount = dungeonState.MoveCount,
                 ashConsumedFloor = dungeonState.AshConsumedFloor,
                 hasMadnessEventOccurred = dungeonState.HasMadnessEventOccurred,
+                gold = dungeonState.Gold,
             };
 
             saveData.mapNodes.AddRange(dungeonState.MapGraph.Nodes);

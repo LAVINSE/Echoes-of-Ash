@@ -56,6 +56,12 @@ namespace EchoesOfAsh.Data
         [SWGroup("상태이상")]
         [Tooltip("이 챕터의 전투에서 유효한 상태이상 정의 목록입니다.")]
         [SerializeField] private List<StatusEffectData> statusDatas = new();
+
+        [SWGroup("보상 / 상점")]
+        [Tooltip("전투 승리 보상 구성입니다 (골드·카드 보상 굴림 - P2-M7 7-4)")]
+        [SerializeField] private RewardConfigData rewardConfigData;
+        [Tooltip("상점 구성입니다 (슬롯·가격 - P2-M7 7-4)")]
+        [SerializeField] private ShopConfigData shopConfigData;
         #endregion // 필드
 
         #region 프로퍼티
@@ -65,6 +71,11 @@ namespace EchoesOfAsh.Data
         public IReadOnlyList<SanityEventData> SanityEventDatas => sanityEventDatas;
         /// <summary>이 챕터의 상태이상 정의 목록입니다.</summary>
         public IReadOnlyList<StatusEffectData> StatusDatas => statusDatas;
+
+        /// <summary>전투 승리 보상 구성입니다.</summary>
+        public RewardConfigData RewardConfigData => rewardConfigData;
+        /// <summary>상점 구성입니다.</summary>
+        public ShopConfigData ShopConfigData => shopConfigData;
         #endregion // 프로퍼티
 
         #region 조회
@@ -162,6 +173,16 @@ namespace EchoesOfAsh.Data
             if (battleEncounters.Count == 0)
             {
                 SWLog.LogWarning($"[DungeonChapterData] '{name}': 일반 조우 풀이 비어 있습니다.");
+            }
+
+            if (rewardConfigData == null)
+            {
+                SWLog.LogWarning($"[DungeonChapterData] '{name}': 보상 구성 데이터가 비어 있습니다 - 승리 보상이 굴려지지 않습니다.");
+            }
+
+            if (shopConfigData == null)
+            {
+                SWLog.LogWarning($"[DungeonChapterData] '{name}': 상점 구성 데이터가 비어 있습니다 - 상점 노드가 통과 처리됩니다.");
             }
 
             ValidateNodeEventPools();
