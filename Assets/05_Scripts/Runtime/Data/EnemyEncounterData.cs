@@ -10,7 +10,8 @@ namespace EchoesOfAsh.Data
 {
     /// <summary>
     /// 적 조우 데이터입니다.
-    /// 아이템 드랍 테이블과 몬스터 드랍형 카드를 함께 소유합니다 - 드랍의 소유 단위 = 조우 (P2-M7 7-4).
+    /// 아이템 드랍 테이블과 몬스터 드랍형 카드 드랍을 함께 소유합니다 - 드랍의 소유 단위 = 조우 (P2-M7 7-4).
+    /// 카드 드랍은 가중치 추첨입니다 (DropTableData 미러 - 꽝 가중치 + 후보 목록, 조우당 1회 굴림·최대 1장).
     /// </summary>
     [CreateAssetMenu(fileName = "EnemyEncounter_", menuName = "EchoesOfAsh/Data/EnemyEncounter")]
     public class EnemyEncounterData : SWIdentifiedObject
@@ -30,6 +31,23 @@ namespace EchoesOfAsh.Data
             /// <summary>배치 위치 (enemyRoot 기준 로컬 좌표)입니다.</summary>
             public Vector2 SpawnPosition => spawnPosition;
         }
+
+        /// <summary>
+        /// 몬스터 드랍형 카드의 가중치 추첨 항목입니다 (DropEntryData 대응물 - 카드는 수량이 없어 가중치만 소유).
+        /// </summary>
+        [System.Serializable]
+        public class CardDropEntry
+        {
+            [Tooltip("드랍될 수 있는 몬스터 드랍형 카드입니다")]
+            [SerializeField] private CardData cardData;
+            [Tooltip("추첨 가중치")]
+            [SerializeField, Min(0f)] private float weight = 1f;
+
+            /// <summary>드랍될 카드 데이터입니다.</summary>
+            public CardData CardData => cardData;
+            /// <summary>추첨 가중치입니다.</summary>
+            public float Weight => weight;
+        }
         #endregion // 데이터
 
         #region 필드
@@ -39,10 +57,12 @@ namespace EchoesOfAsh.Data
         [SWGroup("드랍")]
         [Tooltip("이 조우 승리 시 굴릴 드랍 테이블입니다. 비우면 드랍 없음")]
         [SerializeField] private DropTableData dropTable;
-        [Tooltip("이 조우 승리 시 드랍될 수 있는 몬스터 드랍형 카드입니다. 비우면 카드 드랍 없음")]
-        [SerializeField] private CardData dropCard;
-        [Tooltip("카드 드랍 확률입니다 (조우당 1회 굴림)")]
-        [SerializeField, Range(0f, 1f)] private float dropCardChance;
+
+        [SWGroup("카드 드랍")]
+        [Tooltip("카드가 드랍되지 않을 가중치 - 0이면 반드시 드랍 (후보가 있을 때)")]
+        [SerializeField, Min(0f)] private float noCardDropWeight = 1f;
+        [Tooltip("몬스터 드랍형 카드 가중치 추첨 후보 목록입니다 (조우당 1회 굴림, 최대 1장 드랍)")]
+        [SerializeField] private List<CardDropEntry> cardDropEntries = new();
         #endregion // 필드
 
         #region 프로퍼티
@@ -53,27 +73,115 @@ namespace EchoesOfAsh.Data
 
         /// <summary>승리 시 굴릴 드랍 테이블입니다. 없으면 null입니다.</summary>
         public DropTableData DropTable => dropTable;
-        /// <summary>승리 시 드랍될 수 있는 몬스터 드랍형 카드입니다. 없으면 null입니다.</summary>
-        public CardData DropCard => dropCard;
-        /// <summary>카드 드랍 확률입니다.</summary>
-        public float DropCardChance => dropCardChance;
+        /// <summary>몬스터 드랍형 카드 추첨 후보 목록입니다.</summary>
+        public IReadOnlyList<CardDropEntry> CardDropEntries => cardDropEntries;
         #endregion // 프로퍼티
+
+        #region 굴림
+        /// <summary>
+        /// 몬스터 드랍형 카드를 가중치로 추첨합니다 (조우당 1회 굴림 - DropTableData 전례, 순회 순서 = 판정 순서).
+        /// </summary>
+        /// <returns>추첨된 카드입니다. 후보가 없거나 꽝이면 null입니다.</returns>
+        public CardData RollDropCard()
+        {
+            float totalWeight = GetCardDropTotalWeight();
+
+            if (totalWeight <= 0f)
+            {
+                return null;
+            }
+
+            float picked = SWRandom.Range(0f, totalWeight);
+
+            if (picked < noCardDropWeight)
+            {
+                return null;
+            }
+
+            picked -= noCardDropWeight;
+
+            foreach (CardDropEntry entry in cardDropEntries)
+            {
+                if (entry == null || entry.CardData == null)
+                {
+                    continue;
+                }
+
+                if (picked < entry.Weight)
+                {
+                    return entry.CardData;
+                }
+
+                picked -= entry.Weight;
+            }
+
+            // 부동소수 오차로 경계를 넘긴 경우 - 마지막 유효 항목으로 보정 (DropTableData 전례)
+            for (int index = cardDropEntries.Count - 1; index >= 0; index--)
+            {
+                if (cardDropEntries[index] != null && cardDropEntries[index].CardData != null)
+                {
+                    return cardDropEntries[index].CardData;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// 꽝 가중치를 포함한 카드 드랍 전체 가중치 합을 반환합니다. 유효 후보가 없으면 0입니다 (굴림 자체를 생략).
+        /// </summary>
+        /// <returns>전체 가중치 합입니다.</returns>
+        private float GetCardDropTotalWeight()
+        {
+            float totalWeight = 0f;
+
+            foreach (CardDropEntry entry in cardDropEntries)
+            {
+                if (entry != null && entry.CardData != null)
+                {
+                    totalWeight += entry.Weight;
+                }
+            }
+
+            // 후보가 하나도 없으면 꽝 가중치도 의미가 없습니다 - 카드 드랍 없는 조우
+            if (totalWeight <= 0f)
+            {
+                return 0f;
+            }
+
+            return totalWeight + noCardDropWeight;
+        }
+        #endregion // 굴림
 
         #region 에디터
 #if UNITY_EDITOR
         /// <summary>
-        /// 드랍 카드의 해금 방식 정합을 검증합니다 (ItemData.unlockCard 검사 전례).
+        /// 카드 드랍 후보의 해금 방식 정합과 가중치 설정을 검증합니다 (ItemData.unlockCard 검사 전례).
         /// </summary>
         private void OnValidate()
         {
-            if (dropCard != null && dropCard.UnlockType != ECardUnlockType.EnemyDrop)
+            foreach (CardDropEntry entry in cardDropEntries)
             {
-                SWLog.LogWarning($"[EnemyEncounterData] '{name}': 드랍 카드가 몬스터 드랍형이 아닙니다 - {dropCard.name} (unlockType을 확인하세요)");
-            }
+                if (entry == null)
+                {
+                    continue;
+                }
 
-            if (dropCard != null && dropCardChance <= 0f)
-            {
-                SWLog.LogWarning($"[EnemyEncounterData] '{name}': 드랍 카드가 연결되어 있지만 드랍 확률이 0입니다.");
+                if (entry.CardData == null)
+                {
+                    SWLog.LogWarning($"[EnemyEncounterData] '{name}': 카드가 비어 있는 카드 드랍 항목이 있습니다.");
+                    continue;
+                }
+
+                if (entry.CardData.UnlockType != ECardUnlockType.EnemyDrop)
+                {
+                    SWLog.LogWarning($"[EnemyEncounterData] '{name}': 드랍 후보가 몬스터 드랍형이 아닙니다 - {entry.CardData.name} (unlockType을 확인하세요)");
+                }
+
+                if (entry.Weight <= 0f)
+                {
+                    SWLog.LogWarning($"[EnemyEncounterData] '{name}': 가중치가 0인 카드 드랍 항목이 있습니다 - {entry.CardData.name} (추첨되지 않습니다)");
+                }
             }
         }
 #endif // UNITY_EDITOR

@@ -1040,14 +1040,9 @@ namespace EchoesOfAsh.Dungeon
                 return;
             }
 
-            CardData dropCard = currentEncounterData.DropCard;
+            CardData dropCard = currentEncounterData.RollDropCard();
 
             if (dropCard == null)
-            {
-                return;
-            }
-
-            if (!SWRandom.Chance(currentEncounterData.DropCardChance))
             {
                 return;
             }
