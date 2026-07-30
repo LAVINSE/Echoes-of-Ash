@@ -80,12 +80,14 @@ namespace EchoesOfAsh.Data
 
         #region 조회
         /// <summary>
-        /// 노드 타입에 맞는 조우 풀에서 조우를 무작위로 선택합니다.
+        /// 노드 타입에 맞는 조우 풀에서 현재 층에 등장할 수 있는 조우를 무작위로 선택합니다 (SpawnRange 결합 - P2-M7 7-3).
         /// 엘리트와 보스는 전용 풀을 우선 사용하고, 비어 있으면 일반 조우 풀로 폴백합니다.
+        /// 층 필터 결과가 비어 있으면 필터를 무시하고 풀 전체에서 추첨합니다 (조우 유실은 런 진행을 막지 않습니다).
         /// </summary>
         /// <param name="nodeType">진입한 전투 노드의 타입입니다.</param>
+        /// <param name="floor">진입한 노드의 층입니다 (0 = 입구층).</param>
         /// <returns>선택한 조우 데이터입니다. 사용할 수 있는 조우가 없으면 null입니다.</returns>
-        public EnemyEncounterData GetRandomEncounter(EMapNodeType nodeType)
+        public EnemyEncounterData GetRandomEncounter(EMapNodeType nodeType, int floor)
         {
             List<EnemyEncounterData> pool = SelectEncounterPool(nodeType);
 
@@ -95,7 +97,23 @@ namespace EchoesOfAsh.Data
                 return null;
             }
 
-            return pool[SWRandom.Range(0, pool.Count)];
+            List<EnemyEncounterData> spawnablePool = new();
+
+            foreach (EnemyEncounterData encounter in pool)
+            {
+                if (encounter != null && encounter.IsSpawnableAtFloor(floor))
+                {
+                    spawnablePool.Add(encounter);
+                }
+            }
+
+            if (spawnablePool.Count == 0)
+            {
+                SWLog.LogWarning($"[DungeonChapterData] '{name}': {floor}층에 등장할 수 있는 {nodeType} 조우가 없어 필터를 무시하고 추첨합니다.");
+                return pool[SWRandom.Range(0, pool.Count)];
+            }
+
+            return spawnablePool[SWRandom.Range(0, spawnablePool.Count)];
         }
 
         /// <summary>

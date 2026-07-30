@@ -77,6 +77,42 @@ namespace EchoesOfAsh.Data
         public IReadOnlyList<CardDropEntry> CardDropEntries => cardDropEntries;
         #endregion // 프로퍼티
 
+        #region 조회
+        /// <summary>
+        /// 이 조우가 지정한 층에 등장할 수 있는지 확인합니다 (SpawnRange 결합 - 구성 적 전원의 등장 구간이 층을 포함해야 합니다).
+        /// 잠정 규칙: 등장 구간이 (0, 0)인 적은 미설정 = 무제한으로 취급합니다.
+        /// </summary>
+        /// <param name="floor">확인할 층입니다 (0 = 입구층).</param>
+        /// <returns>등장할 수 있으면 true입니다.</returns>
+        public bool IsSpawnableAtFloor(int floor)
+        {
+            foreach (EncounterEntry entry in entries)
+            {
+                EnemyData enemyData = entry != null ? entry.EnemyData : null;
+
+                if (enemyData == null)
+                {
+                    continue;
+                }
+
+                Vector2Int spawnRange = enemyData.SpawnRange;
+
+                // (0, 0) = 미설정 - 등장 구간 제한 없음 (잠정 규칙)
+                if (spawnRange.x <= 0 && spawnRange.y <= 0)
+                {
+                    continue;
+                }
+
+                if (floor < spawnRange.x || floor > spawnRange.y)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        #endregion // 조회
+
         #region 굴림
         /// <summary>
         /// 몬스터 드랍형 카드를 가중치로 추첨합니다 (조우당 1회 굴림 - DropTableData 전례, 순회 순서 = 판정 순서).

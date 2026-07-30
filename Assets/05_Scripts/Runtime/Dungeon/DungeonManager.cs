@@ -954,7 +954,7 @@ namespace EchoesOfAsh.Dungeon
 
             currentPhase = EDungeonPhase.Battle;
 
-            EnemyEncounterData enemyEncounterData = chapterData.GetRandomEncounter(node.NodeType);
+            EnemyEncounterData enemyEncounterData = chapterData.GetRandomEncounter(node.NodeType, node.Floor);
 
             if (enemyEncounterData == null)
             {
