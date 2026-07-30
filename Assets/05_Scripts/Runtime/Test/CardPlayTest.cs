@@ -36,7 +36,7 @@ namespace EchoesOfAsh.Test
         [SerializeField] private bool useFixedSeed = true;
         [SerializeField] private int seed = 12345;
 
-        private bool isRun;
+        private bool isRunning;
 
         private SanityHolder partySanityHolder;
         private DeckSystem deckSystem;
@@ -55,7 +55,7 @@ namespace EchoesOfAsh.Test
         [SWButton("테스트 시작")]
         private void RunTest()
         {
-            if (!Application.isPlaying || isRun)
+            if (!Application.isPlaying || isRunning)
             {
                 return;
             }
@@ -69,7 +69,7 @@ namespace EchoesOfAsh.Test
                 return;
             }
 
-            // 런 시드 고정 — 같은 시드 = 같은 셔플/무작위 결과
+            // 같은 값을 사용하면 카드 섞기와 무작위 결과를 다시 확인할 수 있습니다.
             if (useFixedSeed)
             {
                 SWRandom.SetSeed(seed);
@@ -89,7 +89,7 @@ namespace EchoesOfAsh.Test
 
             // 덱 구성
             List<CardInstance> cardInstances = new();
-            foreach (var cardData in startingCards)
+            foreach (CardData cardData in startingCards)
             {
                 if (cardData != null)
                 {
@@ -117,12 +117,12 @@ namespace EchoesOfAsh.Test
             deckSystem.OnOverdraw += card =>
                 SWLog.Log($"[CardPlayTest] 손패 초과 — '{card.DisplayName}' 버림 더미로 이동");
 
-            isRun = true;
+            isRunning = true;
             SWLog.Log("[CardPlayTest] --- 테스트 준비 완료. '턴 시작'으로 AP 지급 + 드로우 ---");
         }
 
         /// <summary>
-        /// 카드 사용 시험 상태와 생성한 런타임 객체를 초기화합니다.
+        /// 카드 사용 시험 상태와 시험 중 생성한 객체를 초기화합니다.
         /// </summary>
         [SWButton("테스트 초기화")]
         private void ResetTest()
@@ -136,7 +136,7 @@ namespace EchoesOfAsh.Test
         }
 
         /// <summary>
-        /// 객체가 제거될 때 시험용 런타임 객체를 정리합니다.
+        /// 객체가 제거될 때 시험을 위해 만든 객체를 정리합니다.
         /// </summary>
         private void OnDestroy()
         {
@@ -156,7 +156,7 @@ namespace EchoesOfAsh.Test
             effectExecutor = null;
             cardPlayService = null;
 
-            isRun = false;
+            isRunning = false;
         }
         #endregion // 테스트
 
@@ -166,7 +166,7 @@ namespace EchoesOfAsh.Test
         /// </summary>
         private void OnGUI()
         {
-            if (!isRun)
+            if (!isRunning)
             {
                 return;
             }
@@ -254,10 +254,10 @@ namespace EchoesOfAsh.Test
         {
             GUILayout.Label($"=== 손패 ({deckSystem.Hand.Count}/{deckSystem.MaxHandSize}) — 버튼 클릭 = 적 대상 사용 ===");
 
-            // OnGUI 도중 컬렉션이 변하므로 스냅샷 순회
-            var handSnapshot = new List<CardInstance>(deckSystem.Hand);
+            // 카드를 사용하면 손패가 바뀔 수 있으므로 미리 복사한 목록을 확인합니다.
+            List<CardInstance> handSnapshot = new(deckSystem.Hand);
 
-            foreach (var card in handSnapshot)
+            foreach (CardInstance card in handSnapshot)
             {
                 GUILayout.BeginHorizontal();
 

@@ -27,9 +27,9 @@ namespace EchoesOfAsh.View.UI
         /// <summary>강조 연출이 적용되는 시각 요소의 루트입니다. 배치용 루트 트랜스폼에는 영향을 주지 않습니다.</summary>
         [SWGroup("강조")]
         [SerializeField] private Transform visualRoot;
-        /// <summary>호버 시 확대 배율입니다.</summary>
+        /// <summary>마우스가 카드를 가리킬 때 적용할 확대 비율입니다.</summary>
         [SerializeField, Min(1f)] private float hoverScale = 1.15f;
-        /// <summary>호버 시 위로 올라가는 높이입니다.</summary>
+        /// <summary>마우스가 카드를 가리킬 때 위로 올릴 높이입니다.</summary>
         [SerializeField, Min(0f)] private float hoverRaise = 40f;
 
         [SWGroup("색상")]
@@ -49,13 +49,13 @@ namespace EchoesOfAsh.View.UI
         public CardInstance CardInstance => cardInstance;
         /// <summary>현재 사용 가능 표시 상태입니다.</summary>
         public bool IsPlayable => isPlayable;
-        /// <summary>현재 호버 강조 상태입니다.</summary>
+        /// <summary>현재 카드가 강조되어 있는지 여부입니다.</summary>
         public bool IsHovered => isHovered;
         #endregion // 프로퍼티
 
         #region 초기화
         /// <summary>
-        /// 비활성화될 때 카드의 호버와 표시 상태를 초기화합니다.
+        /// 비활성화될 때 카드의 강조와 표시 상태를 초기화합니다.
         /// </summary>
         private void OnDisable()
         {
@@ -177,7 +177,7 @@ namespace EchoesOfAsh.View.UI
         }
 
         /// <summary>
-        /// 호버와 드래그 상태에 맞춰 그리기 순서를 갱신합니다.
+        /// 카드의 강조와 드래그 상태에 맞춰 그리기 순서를 갱신합니다.
         /// </summary>
         private void UpdatePromotion()
         {

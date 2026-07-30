@@ -6,7 +6,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Data
 {
     /// <summary>
-    /// 건물 데이터
+    /// 건물의 기본 정보와 레벨별 설정을 보관합니다.
     /// </summary>
     [CreateAssetMenu(fileName = "BuildingData_", menuName = "EchoesOfAsh/Data/BuildingData")]
     public class BuildingData : SWIdentifiedObject
@@ -39,7 +39,7 @@ namespace EchoesOfAsh.Data
         /// <summary>
         /// 현재 레벨 기준 다음 레벨 승급 비용을 반환합니다.
         /// </summary>
-        /// <param name="currentLevel">현재 레벨입니다 (0 = 미승급).</param>
+        /// <param name="currentLevel">현재 레벨입니다. 0이면 아직 승급하지 않은 상태입니다.</param>
         /// <returns>다음 레벨 승급 비용입니다. 최대 레벨이면 null입니다.</returns>
         public IReadOnlyList<ItemStackData> GetUpgradeCosts(int currentLevel)
         {

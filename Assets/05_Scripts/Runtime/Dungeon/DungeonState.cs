@@ -22,7 +22,7 @@ namespace EchoesOfAsh.Dungeon
         private int carriedSanity = -1;
         private int moveCount;
         private int ashConsumedFloor = -1;
-        /// <summary>던전 중 보유 골드입니다. 던전 1회 수명 자원입니다 (STS식 - 잠정 규칙: 던전 종료 시 소멸).</summary>
+        /// <summary>현재 던전에서 사용할 수 있는 골드입니다. 던전이 끝나면 사라집니다.</summary>
         private int gold;
         private bool isCurrentNodeResolved = true;
         /// <summary>이번 던전에서 광기 이벤트가 발생했는지 여부입니다 (던전당 1회 규칙 - DD 결의 판정 방식).</summary>
@@ -30,7 +30,7 @@ namespace EchoesOfAsh.Dungeon
 
         /// <summary>던전 중 획득해 들고 있는 아이템 목록입니다. 회수 판정 전까지의 임시 보유분입니다.</summary>
         private readonly List<ItemStackData> carriedItems = new();
-        /// <summary>던전 중 획득한 유물 목록입니다. 획득 순서 = 트리거 발화 순서입니다 (기획서 15-2).</summary>
+        /// <summary>던전 중 획득한 유물 목록입니다. 유물 효과는 획득한 순서대로 실행됩니다.</summary>
         private readonly List<RelicData> relics = new();
         #endregion // 필드
 
@@ -186,7 +186,7 @@ namespace EchoesOfAsh.Dungeon
         }
 
         /// <summary>
-        /// 골드를 소비합니다. 보유량이 부족하면 소비하지 않습니다 (검사 후 일괄 차감 - TryConsumeItems 계약 계열).
+        /// 골드가 충분하면 지정한 금액을 차감합니다. 부족하면 변경하지 않습니다.
         /// </summary>
         /// <param name="amount">소비할 골드량입니다.</param>
         /// <returns>소비에 성공했으면 true입니다.</returns>
@@ -208,7 +208,7 @@ namespace EchoesOfAsh.Dungeon
         }
 
         /// <summary>
-        /// 유물을 획득합니다. 이미 보유한 유물은 무시합니다 (유물 유일 보유 - 잠정 규칙).
+        /// 유물을 획득합니다. 이미 보유한 유물은 추가하지 않습니다.
         /// </summary>
         /// <param name="relicData">획득할 유물입니다.</param>
         /// <returns>획득에 성공했으면 true입니다.</returns>

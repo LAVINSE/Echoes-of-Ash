@@ -10,8 +10,8 @@ namespace EchoesOfAsh.Data
 {
     /// <summary>
     /// 적 조우 데이터입니다.
-    /// 아이템 드랍 테이블과 몬스터 드랍형 카드 드랍을 함께 소유합니다 - 드랍의 소유 단위 = 조우 (P2-M7 7-4).
-    /// 카드 드랍은 가중치 추첨입니다 (DropTableData 미러 - 꽝 가중치 + 후보 목록, 조우당 1회 굴림·최대 1장).
+    /// 전투에 등장할 적과 승리 시 받을 수 있는 아이템 및 카드 정보를 보관합니다.
+    /// 카드는 전투마다 한 번 추첨하며 최대 한 장을 획득할 수 있습니다.
     /// </summary>
     [CreateAssetMenu(fileName = "EnemyEncounter_", menuName = "EchoesOfAsh/Data/EnemyEncounter")]
     public class EnemyEncounterData : SWIdentifiedObject
@@ -80,9 +80,9 @@ namespace EchoesOfAsh.Data
         #region 조회
         /// <summary>
         /// 이 조우가 지정한 층에 등장할 수 있는지 확인합니다 (SpawnRange 결합 - 구성 적 전원의 등장 구간이 층을 포함해야 합니다).
-        /// 잠정 규칙: 등장 구간이 (0, 0)인 적은 미설정 = 무제한으로 취급합니다.
+        /// 등장 층 범위가 (0, 0)이면 모든 층에 등장할 수 있습니다.
         /// </summary>
-        /// <param name="floor">확인할 층입니다 (0 = 입구층).</param>
+        /// <param name="floor">확인할 층입니다. 0은 입구층입니다.</param>
         /// <returns>등장할 수 있으면 true입니다.</returns>
         public bool IsSpawnableAtFloor(int floor)
         {
@@ -97,7 +97,7 @@ namespace EchoesOfAsh.Data
 
                 Vector2Int spawnRange = enemyData.SpawnRange;
 
-                // (0, 0) = 미설정 - 등장 구간 제한 없음 (잠정 규칙)
+                // 등장 층 범위가 설정되지 않았으면 층 제한을 적용하지 않습니다.
                 if (spawnRange.x <= 0 && spawnRange.y <= 0)
                 {
                     continue;
@@ -115,7 +115,7 @@ namespace EchoesOfAsh.Data
 
         #region 굴림
         /// <summary>
-        /// 몬스터 드랍형 카드를 가중치로 추첨합니다 (조우당 1회 굴림 - DropTableData 전례, 순회 순서 = 판정 순서).
+        /// 각 카드의 가중치에 따라 드랍 카드 한 장을 선택합니다.
         /// </summary>
         /// <returns>추첨된 카드입니다. 후보가 없거나 꽝이면 null입니다.</returns>
         public CardData RollDropCard()
@@ -151,7 +151,7 @@ namespace EchoesOfAsh.Data
                 picked -= entry.Weight;
             }
 
-            // 부동소수 오차로 경계를 넘긴 경우 - 마지막 유효 항목으로 보정 (DropTableData 전례)
+            // 소수점 계산 오차가 있으면 마지막 유효 카드를 반환합니다.
             for (int index = cardDropEntries.Count - 1; index >= 0; index--)
             {
                 if (cardDropEntries[index] != null && cardDropEntries[index].CardData != null)
@@ -192,7 +192,7 @@ namespace EchoesOfAsh.Data
         #region 에디터
 #if UNITY_EDITOR
         /// <summary>
-        /// 카드 드랍 후보의 해금 방식 정합과 가중치 설정을 검증합니다 (ItemData.unlockCard 검사 전례).
+        /// 드랍 카드의 획득 방식과 가중치가 올바르게 설정되었는지 검사합니다.
         /// </summary>
         private void OnValidate()
         {

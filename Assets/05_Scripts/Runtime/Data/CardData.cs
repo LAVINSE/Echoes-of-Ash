@@ -103,7 +103,7 @@ namespace EchoesOfAsh.Data
 
         /// <summary>
         /// 현재 정신력 구간에 해당하는 효과 목록을 반환합니다.
-        /// 정신력 영향을 받지 않는 카드인 경우 기본 효과 반환합니다.
+        /// 정신력의 영향을 받지 않는 카드인 경우 기본 효과를 반환합니다.
         /// </summary>
         /// <param name="sanityType">현재 파티 정신력 유형입니다.</param>
         /// <returns>적용할 효과 목록입니다.</returns>

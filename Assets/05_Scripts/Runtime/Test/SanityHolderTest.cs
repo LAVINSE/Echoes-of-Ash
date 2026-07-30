@@ -25,10 +25,21 @@ namespace EchoesOfAsh.Test
         private int partyTypeChangedCount;
         private int enemyTypeChangedCount;
 
-        private bool isRun = false;
+        private bool isRunning;
         #endregion // 필드
 
+        #region 생명주기
+        /// <summary>
+        /// 객체가 제거될 때 정신력 시험 객체를 정리합니다.
+        /// </summary>
+        private void OnDestroy()
+        {
+            partySanityHolder?.Dispose();
+            enemySanityHolder?.Dispose();
+        }
+        #endregion // 생명주기
 
+        #region 테스트
         /// <summary>
         /// 파티와 적 정신력 객체를 생성하고 변경 이벤트 기록을 시작합니다.
         /// </summary>
@@ -40,7 +51,7 @@ namespace EchoesOfAsh.Test
                 return;
             }
 
-            isRun = true;
+            isRunning = true;
 
             if (partyData != null)
             {
@@ -77,24 +88,18 @@ namespace EchoesOfAsh.Test
             partySanityHolder?.Dispose();
             enemySanityHolder?.Dispose();
 
-            isRun = false;
+            isRunning = false;
         }
 
-        /// <summary>
-        /// 객체가 제거될 때 정신력 시험 객체를 정리합니다.
-        /// </summary>
-        private void OnDestroy()
-        {
-            partySanityHolder?.Dispose();
-            enemySanityHolder?.Dispose();
-        }
+        #endregion // 테스트
 
+        #region 테스트 UI
         /// <summary>
         /// 정신력 값과 전환 경계 시험 조작 화면을 그립니다.
         /// </summary>
         private void OnGUI()
         {
-            if (!isRun)
+            if (!isRunning)
             {
                 return;
             }
@@ -108,7 +113,6 @@ namespace EchoesOfAsh.Test
             GUILayout.EndArea();
         }
 
-        #region 테스트 UI
         /// <summary>
         /// 지정한 정신력 객체의 상태와 조작 버튼을 그립니다.
         /// </summary>
@@ -140,12 +144,14 @@ namespace EchoesOfAsh.Test
 
             GUILayout.EndHorizontal();
 
-            if (GUILayout.Button("정신력 전환 테스트 (임계값 ±1 왕복 10회 — 전환 발화 수 확인)"))
+            if (GUILayout.Button("정신력 전환 테스트 (경계값 앞뒤로 10회 변경하여 발생 횟수 확인)"))
             {
                 RunBoundaryOscillationTest(holder);
             }
         }
+        #endregion // 테스트 UI
 
+        #region 경계 검증
         /// <summary>
         /// 정신력 값이 경계를 반복해서 오갈 때 실제 구간 변경에만 이벤트가 발생하는지 검증합니다.
         /// 임계값 미만과 임계값 사이를 왕복하면 광기 및 평정 전환이 각각 한 번씩 발생해야 합니다.
@@ -155,29 +161,29 @@ namespace EchoesOfAsh.Test
         {
             SWLog.Log("[SanityTester] --- 정신력 전환 테스트 시작 ---");
 
-            // 1) 평정 구간 내 진동 (임계값 ↔ 임계값+1) — 전환 0회 기대
+            // 평정 구간 안에서 값을 바꿀 때 상태 변경이 발생하지 않는지 확인합니다.
             holder.ChangeSanity(holder.SanityThreshold + 1 - holder.CurrentSanity);
 
             for (int iteration = 0; iteration < 10; ++iteration)
             {
-                holder.ChangeSanity(-1); // 임계값 (평정 유지)
-                holder.ChangeSanity(1);  // 임계값+1 (평정 유지)
+                holder.ChangeSanity(-1); // 경계값에서도 평정 상태를 유지합니다.
+                holder.ChangeSanity(1);  // 경계값보다 1 높아도 평정 상태를 유지합니다.
             }
 
             SWLog.Log("[SanityTester] 기본 구간 내 진동 완료 — 전환 로그가 없어야 정상");
 
-            // 2) 경계 교차 진동 (임계값-1 ↔ 임계값) — 왕복마다 광기/평정 각 1회 기대
+            // 경계 앞뒤로 값을 바꿀 때마다 광기와 평정 상태가 한 번씩 발생하는지 확인합니다.
             for (int iteration = 0; iteration < 3; ++iteration)
             {
-                holder.ChangeSanity(-1); // 임계값-1 → 광기
-                holder.ChangeSanity(1);  // 임계값 → 평정
+                holder.ChangeSanity(-1); // 경계값 아래에서 광기 상태가 됩니다.
+                holder.ChangeSanity(1);  // 경계값에서 평정 상태로 돌아옵니다.
             }
 
             SWLog.Log("[SanityTester] --- 정신력 전환 테스트 종료 (교차 3왕복 = 전환 6회 기대) ---");
         }
-        #endregion // 테스트 UI
+        #endregion // 경계 검증
 
-
+        #region 이벤트
         /// <summary>
         /// 정신력 변경 이벤트를 시험 기록과 유형 변경 횟수 처리에 연결합니다.
         /// </summary>
@@ -195,5 +201,6 @@ namespace EchoesOfAsh.Test
                 SWLog.Log($"[SanityTester] {label} OnSanityTypeChanged: {(type == ESanityType.Madness ? "광기" : "평정")} ★");
             };
         }
+        #endregion // 이벤트
     }
 }

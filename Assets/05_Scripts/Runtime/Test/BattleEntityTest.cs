@@ -22,10 +22,20 @@ namespace EchoesOfAsh.Test
         private EnemyEntity enemy;
         private CharacterEntity character;
 
-        private bool isRun = false;
+        private bool isRunning;
         #endregion // 필드
 
+        #region 생명주기
+        /// <summary>
+        /// 객체가 제거될 때 시험용 엔티티와 정신력 객체를 정리합니다.
+        /// </summary>
+        private void OnDestroy()
+        {
+            ResetCreatedEntities();
+        }
+        #endregion // 생명주기
 
+        #region 테스트
         /// <summary>
         /// 시험용 전투 엔티티와 정신력 객체를 생성하고 이벤트 기록을 시작합니다.
         /// </summary>
@@ -37,7 +47,7 @@ namespace EchoesOfAsh.Test
                 return;
             }
 
-            isRun = true;
+            isRunning = true;
 
             if (enemyData != null)
             {
@@ -75,17 +85,8 @@ namespace EchoesOfAsh.Test
             }
 
             ResetCreatedEntities();
-            isRun = false;
+            isRunning = false;
         }
-
-        /// <summary>
-        /// 객체가 제거될 때 시험용 엔티티와 정신력 객체를 정리합니다.
-        /// </summary>
-        private void OnDestroy()
-        {
-            ResetCreatedEntities();
-        }
-
 
         /// <summary>
         /// 테스트에서 생성한 전투 엔티티를 정리합니다.
@@ -118,13 +119,15 @@ namespace EchoesOfAsh.Test
                 Destroy(battleEntityGameObject);
             }
         }
+        #endregion // 테스트
 
+        #region 테스트 UI
         /// <summary>
         /// 전투 엔티티 시험 조작 화면을 그립니다.
         /// </summary>
         private void OnGUI()
         {
-            if (!isRun)
+            if (!isRunning)
             {
                 return;
             }
@@ -138,7 +141,6 @@ namespace EchoesOfAsh.Test
             GUILayout.EndArea();
         }
 
-        #region 테스트 UI
         /// <summary>
         /// 지정한 전투 엔티티의 상태와 조작 버튼을 그립니다.
         /// </summary>
@@ -176,7 +178,7 @@ namespace EchoesOfAsh.Test
 
             GUILayout.EndHorizontal();
 
-            // SanityDamageEffect.Apply와 동일한 경로 — ISanityHolder 캐스팅 후 ChangeSanity
+            // 실제 정신력 피해 효과와 같이 정신력 보유 여부를 확인한 뒤 값을 변경합니다.
             if (battleEntity is ISanityHolder holder)
             {
                 GUILayout.BeginHorizontal();
@@ -189,6 +191,7 @@ namespace EchoesOfAsh.Test
         }
         #endregion // 테스트 UI
 
+        #region 이벤트
         /// <summary>
         /// 전투 엔티티의 피해와 체력 변경 이벤트를 시험 기록에 연결합니다.
         /// </summary>
@@ -222,5 +225,6 @@ namespace EchoesOfAsh.Test
             holder.OnSanityTypeChanged += type
                 => SWLog.Log($"[CombatantTest] 적 OnSanityTypeChanged: {type} ★");
         }
+        #endregion // 이벤트
     }
 }

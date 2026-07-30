@@ -8,7 +8,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Deck
 {
     /// <summary>
-    /// 덱 / 손패 / 버림 더미입니다.
+    /// 카드 덱과 손패, 버림 더미를 관리합니다.
     /// </summary>
     public class DeckSystem
     {
@@ -63,7 +63,7 @@ namespace EchoesOfAsh.Deck
 
             if (startingCards != null)
             {
-                foreach (var card in startingCards)
+                foreach (CardInstance card in startingCards)
                 {
                     if (card != null)
                     {
@@ -78,26 +78,26 @@ namespace EchoesOfAsh.Deck
 
         #region 초기화
         /// <summary>
-        /// DeckSystem 리셋입니다.
+        /// 모든 카드의 전투 한정 행동력 비용 보정치를 초기화합니다.
         /// </summary>
         public void ResetDeckSystem()
         {
-            foreach (var card in drawPile)
+            foreach (CardInstance card in drawPile)
             {
                 card.ResetBattleApCost();
             }
 
-            foreach (var card in hand)
+            foreach (CardInstance card in hand)
             {
                 card.ResetBattleApCost();
             }
 
-            foreach (var card in discardPile)
+            foreach (CardInstance card in discardPile)
             {
                 card.ResetBattleApCost();
             }
 
-            foreach (var card in exclusionPile)
+            foreach (CardInstance card in exclusionPile)
             {
                 card.ResetBattleApCost();
             }
@@ -108,7 +108,7 @@ namespace EchoesOfAsh.Deck
         /// <summary>
         /// 지정한 수만큼 카드를 뽑습니다.
         /// 덱이 비면 버림 더미를 섞어 덱을 다시 구성한 뒤 계속 뽑습니다.
-        /// 손패가 가득 차면 뽑은 카드는 버림 더미로 이동입니다.
+        /// 손패가 가득 차면 뽑은 카드를 버림 더미로 이동합니다.
         /// </summary>
         /// <param name="count">수량입니다.</param>
         /// <returns>실제 손패에 들어간 카드 수입니다.</returns>
@@ -230,7 +230,7 @@ namespace EchoesOfAsh.Deck
                 return;
             }
 
-            foreach (var card in hand)
+            foreach (CardInstance card in hand)
             {
                 discardPile.Add(card);
             }
@@ -261,7 +261,7 @@ namespace EchoesOfAsh.Deck
         {
             bool isChanged = false;
 
-            // 제외 해제 카드 → 버림 더미 복귀 (부활 대비 — 역방향 순회로 안전 제거)
+            // 다시 사용할 수 있게 된 카드를 버림 더미로 옮깁니다. 뒤에서부터 확인해 안전하게 제거합니다.
             for (int index = exclusionPile.Count - 1; index >= 0; index--)
             {
                 CardInstance card = exclusionPile[index];

@@ -90,7 +90,7 @@ namespace EchoesOfAsh.View.UI
         }
 
         /// <summary>
-        /// 표시 비율을 채움 이미지에 적용한다
+        /// 표시 비율을 채움 이미지에 적용합니다.
         /// </summary>
         private void ApplyFill()
         {
@@ -101,9 +101,9 @@ namespace EchoesOfAsh.View.UI
         }
 
         /// <summary>
-        /// 색을 변경한다
+        /// 채움 이미지의 색상을 변경합니다.
         /// </summary>
-        /// <param name="color">적용할 색</param>
+        /// <param name="color">적용할 색상입니다.</param>
         public void SetFillColor(Color color)
         {
             if (fillImage != null)
@@ -113,10 +113,10 @@ namespace EchoesOfAsh.View.UI
         }
 
         /// <summary>
-        /// 정신력 전환 마커를 바 해당 비율 위치에 배치한다
+        /// 정신력 전환 표시를 게이지의 해당 비율 위치에 배치합니다.
         /// </summary>
-        /// <param name="threshold">전환 임계값</param>
-        /// <param name="max">최대 값</param>
+        /// <param name="threshold">전환 임계값입니다.</param>
+        /// <param name="max">최대 값입니다.</param>
         public void SetSanityMarker(int threshold, int max)
         {
             if (sanityMarkerRect == null)
@@ -134,7 +134,7 @@ namespace EchoesOfAsh.View.UI
 
             sanityMarkerRect.gameObject.SetActive(true);
 
-            // 앵커를 비율 위치로 이동 — 바 폭이 바뀌어도 항상 같은 비율 지점 유지 (barWidth 세트 불필요)
+            // 막대 너비가 바뀌어도 같은 비율 지점에 표시되도록 기준 위치를 옮깁니다.
             sanityMarkerRect.anchorMin = new Vector2(ratio, sanityMarkerRect.anchorMin.y);
             sanityMarkerRect.anchorMax = new Vector2(ratio, sanityMarkerRect.anchorMax.y);
             sanityMarkerRect.anchoredPosition = new Vector2(0f, sanityMarkerRect.anchoredPosition.y);
@@ -152,7 +152,7 @@ namespace EchoesOfAsh.View.UI
                 return;
             }
 
-            // OnValidate 내 UI 직접 갱신은 SendMessage 경고 유발 — 지연 적용 + fake null 가드 (5-3 체계 동일)
+            // 에디터 검사 중에는 즉시 갱신할 수 없으므로 다음 편집기 갱신 시점에 적용합니다.
             UnityEditor.EditorApplication.delayCall += () =>
             {
                 if (this == null)

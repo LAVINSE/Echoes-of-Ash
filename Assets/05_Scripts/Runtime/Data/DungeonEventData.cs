@@ -7,7 +7,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Data
 {
     /// <summary>
-    /// 이벤트 노드의 선택지
+    /// 이벤트 노드에서 선택할 수 있는 항목입니다.
     /// </summary>
     [System.Serializable]
     public class DungeonEventChoice
@@ -27,14 +27,14 @@ namespace EchoesOfAsh.Data
     }
 
     /// <summary>
-    /// 이벤트 노드 데이터
+    /// 이벤트 노드의 설명과 선택지 목록을 보관합니다.
     /// </summary>
     [CreateAssetMenu(fileName = "DungeonEvent_", menuName = "EchoesOfAsh/Data/DungeonEvent")]
     public class DungeonEventData : SWIdentifiedObject
     {
         #region 필드
         [SWGroup("선택지")]
-        [Tooltip("선택지 목록입니다. 기획 기준 1~3개입니다.")]
+        [Tooltip("화면에 표시할 선택지 목록입니다. 한 개부터 세 개까지 설정할 수 있습니다.")]
         [SerializeField] private List<DungeonEventChoice> choices = new();
         #endregion // 필드
 

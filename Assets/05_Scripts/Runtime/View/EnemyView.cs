@@ -16,7 +16,7 @@ namespace EchoesOfAsh.View
     {
         #region 필드
         [SWGroup("표시")]
-        [SerializeField] private SpriteRenderer enemySprite; // TODO : 나중에 수정예정 (아직 2D animation할지 그냥 Sprite할지 모름)
+        [SerializeField] private SpriteRenderer enemySprite;
         [SerializeField] private TMP_Text nameText;
         [SerializeField] private Color deadTint = new(0.25f, 0.25f, 0.25f, 1f);
 

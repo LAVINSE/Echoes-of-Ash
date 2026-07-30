@@ -35,7 +35,7 @@ namespace EchoesOfAsh.Data
         public Sprite ItemSprite => itemSprite;
 
         /// <summary>
-        /// 기본 자원 여부입니다. 기본 자원은 던전 패배 시에도 항상 회수됩니다
+        /// 기본 자원 여부입니다. 기본 자원은 던전 패배 시에도 항상 회수됩니다.
         /// </summary>
         public bool IsBaseResource => itemType == EItemType.Resource;
         #endregion // 프로퍼티

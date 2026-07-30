@@ -12,7 +12,7 @@ namespace EchoesOfAsh.View.UI
 {
     /// <summary>
     /// 선택지형 노드 화면(휴식/이벤트/보관 골격)의 제목, 설명 및 선택지를 표시합니다.
-    /// 어떤 노드의 화면인지는 조립 지점(DungeonManager)이 데이터로 결정합니다.
+    /// DungeonManager가 전달한 노드 데이터를 화면에 표시합니다.
     /// </summary>
     public class NodeScreenView : SWMonoBehaviour
     {
@@ -23,7 +23,7 @@ namespace EchoesOfAsh.View.UI
         [SerializeField] private TextMeshProUGUI descriptionText;
 
         [SWGroup("선택지")]
-        [Tooltip("선택지 버튼 슬롯입니다. 기획 최대치인 3개를 사전 배치합니다.")]
+        [Tooltip("화면에 미리 배치한 선택지 버튼 목록입니다.")]
         [SerializeField] private List<Button> choiceButtons = new();
         [Tooltip("선택지 버튼과 같은 순서의 문구 텍스트입니다.")]
         [SerializeField] private List<TextMeshProUGUI> choiceTexts = new();
@@ -47,10 +47,10 @@ namespace EchoesOfAsh.View.UI
 
         #region 표시
         /// <summary>
-        /// 이벤트 내용을 표시하고 선택 콜백을 연결합니다.
+        /// 이벤트 내용과 선택지를 표시하고 선택 결과를 받을 동작을 연결합니다.
         /// </summary>
         /// <param name="eventData">표시할 이벤트 데이터입니다.</param>
-        /// <param name="onChoiceSelected">선택지 인덱스를 전달할 콜백입니다.</param>
+        /// <param name="onChoiceSelected">선택한 번호를 전달할 동작입니다.</param>
         public void Show(DungeonEventData eventData, Action<int> onChoiceSelected)
         {
             if (eventData == null || eventData.Choices.Count == 0)
@@ -89,7 +89,7 @@ namespace EchoesOfAsh.View.UI
         }
 
         /// <summary>
-        /// 화면을 숨기고 콜백 연결을 해제합니다.
+        /// 화면을 숨기고 선택 동작을 해제합니다.
         /// </summary>
         public void Hide()
         {
@@ -102,15 +102,15 @@ namespace EchoesOfAsh.View.UI
         }
         #endregion // 표시
 
-        #region 핸들러
+        #region 선택 처리
         /// <summary>
-        /// 선택지 클릭을 콜백으로 전달합니다.
+        /// 클릭한 선택지 번호를 연결된 동작에 전달합니다.
         /// </summary>
         /// <param name="choiceIndex">클릭한 선택지 인덱스입니다.</param>
         private void HandleChoiceClicked(int choiceIndex)
         {
             onChoiceSelected?.Invoke(choiceIndex);
         }
-        #endregion // 핸들러
+        #endregion // 선택 처리
     }
 }

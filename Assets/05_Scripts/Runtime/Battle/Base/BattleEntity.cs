@@ -98,7 +98,7 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 객체가 제거될 때 전투 엔티티의 런타임 상태를 정리합니다.
+        /// 객체가 제거될 때 전투 중에 연결한 상태를 정리합니다.
         /// </summary>
         protected virtual void OnDestroy()
         {
@@ -243,7 +243,7 @@ namespace EchoesOfAsh.Battle
         public StatusController StatusController => statusController;
 
         /// <summary>
-        /// 상태 이상 정의 목록을 등록합니다. 조립 지점(BattleManager)에서 스폰 직후 호출합니다.
+        /// 이 전투에서 사용할 상태 이상 목록을 등록합니다.
         /// </summary>
         /// <param name="statusDatas">상태 이상 정의 목록입니다.</param>
         public void SetStatusDatas(IReadOnlyList<StatusEffectData> statusDatas)
@@ -266,7 +266,7 @@ namespace EchoesOfAsh.Battle
             => statusController.GetStatusStack(statusType);
 
         /// <summary>
-        /// 라운드 종료 시점의 상태 이상 중첩 감소를 처리합니다. 조립 지점이 라운드 종료마다 호출합니다.
+        /// 라운드가 끝날 때 상태 이상 중첩을 감소시킵니다.
         /// </summary>
         public void TickStatusRound()
             => statusController.TickRound();

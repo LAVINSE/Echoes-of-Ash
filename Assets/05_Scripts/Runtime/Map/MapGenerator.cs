@@ -75,7 +75,7 @@ namespace EchoesOfAsh.Map
         /// </summary>
         /// <param name="mapGraph">생성한 노드를 저장할 맵 그래프입니다.</param>
         /// <param name="floor">노드가 배치될 층입니다.</param>
-        /// <param name="lane">노드가 배치될 레인입니다.</param>
+        /// <param name="lane">노드가 배치될 세로 칸입니다.</param>
         /// <returns>지정한 격자에 배치된 노드입니다.</returns>
         private MapNode GetOrCreateNode(MapGraph mapGraph, int floor, int lane)
         {
@@ -318,7 +318,7 @@ namespace EchoesOfAsh.Map
         }
 
         /// <summary>
-        /// 층과 레인 간격에 무작위 편차를 더하여 각 노드의 화면 좌표를 설정합니다.
+        /// 층과 세로 칸의 간격에 작은 무작위 차이를 더해 각 노드의 화면 좌표를 정합니다.
         /// </summary>
         /// <param name="mapGraph">좌표를 설정할 맵 그래프입니다.</param>
         /// <param name="mapConfigData">노드 배치 간격을 제공하는 규칙 데이터입니다.</param>

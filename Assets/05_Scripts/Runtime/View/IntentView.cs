@@ -130,7 +130,7 @@ namespace EchoesOfAsh.View
         /// <returns>스타일입니다.</returns>
         private IntentStyle FindStyle(EIntentType intentType)
         {
-            foreach (var style in styles)
+            foreach (IntentStyle style in styles)
             {
                 if (style.IntentType == intentType)
                 {

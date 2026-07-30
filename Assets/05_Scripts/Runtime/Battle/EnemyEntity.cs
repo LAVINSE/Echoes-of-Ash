@@ -28,7 +28,7 @@ namespace EchoesOfAsh.Battle
         /// <summary>표시 이름입니다.</summary>
         public override string DisplayName => enemyData != null ? enemyData.DisplayName : name;
 
-        /// <summary>행동 패턴 순환 인덱스입니다.</summary>
+        /// <summary>다음에 사용할 행동의 순번입니다.</summary>
         public int ActionIndex
         {
             get => actionIndex;

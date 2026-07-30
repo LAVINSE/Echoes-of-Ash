@@ -56,4 +56,4 @@ MonoBehaviour:
   - {fileID: 11400000, guid: c1ef57e4035afeb4e803d1c9f88d5c2e, type: 2}
   useFixedSeed: 1
   seed: 12345
-  isShowTestGui: 1
+  showTestGui: 1

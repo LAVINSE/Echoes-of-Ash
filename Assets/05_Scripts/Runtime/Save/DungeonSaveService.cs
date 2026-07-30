@@ -6,29 +6,29 @@ using SW.Util;
 namespace EchoesOfAsh.Save
 {
     /// <summary>
-    /// 던전 스냅샷 구획의 기록, 판독, 소멸을 담당합니다.
-    /// 파일 입출력은 GameSaveService에 위임합니다 - 던전 소멸은 파일 삭제가 아니라 깃발 하강이며 거점 구획은 보존됩니다.
-    /// 잠정 규칙: 개발 중에는 마이그레이션 없이 버전 불일치 = 폐기합니다 (데이터 보존 시작 시점에 계층 복원 — 기획서 15-5).
+    /// 진행 중인 던전 데이터를 저장하고 불러오며 삭제합니다.
+    /// 실제 파일 처리는 GameSaveService에 맡기고 마을 저장 데이터는 그대로 유지합니다.
+    /// 저장 버전이 다르면 이전 던전 데이터는 사용하지 않습니다.
     /// </summary>
     public static class DungeonSaveService
     {
         #region 상수
-        /// <summary>현재 저장 스키마 버전입니다. 구버전 스냅샷을 강제 폐기하고 싶을 때만 증가시킵니다.</summary>
+        /// <summary>현재 던전 저장 형식의 버전입니다.</summary>
         public const int CurrentVersion = 1;
         #endregion // 상수
 
         #region 함수
         /// <summary>
-        /// 진행 중인 던전 스냅샷이 있는지 확인합니다.
+        /// 진행 중인 던전 저장 데이터가 있는지 확인합니다.
         /// </summary>
-        /// <returns>스냅샷이 있으면 true입니다.</returns>
+        /// <returns>저장 데이터가 있으면 true입니다.</returns>
         public static bool HasSave()
         {
             return GameSaveService.Current.hasDungeon;
         }
 
         /// <summary>
-        /// 던전 스냅샷을 소멸시킵니다. 던전 종료 시 호출합니다. 거점 구획은 보존됩니다.
+        /// 진행 중인 던전 저장 데이터를 삭제합니다. 마을 저장 데이터는 유지합니다.
         /// </summary>
         public static void DeleteSave()
         {
@@ -40,7 +40,7 @@ namespace EchoesOfAsh.Save
         }
 
         /// <summary>
-        /// 던전 상태를 스냅샷으로 저장합니다.
+        /// 현재 던전 상태를 저장합니다.
         /// </summary>
         /// <param name="dungeonState">저장할 던전 상태입니다.</param>
         /// <returns>저장에 성공했으면 true입니다.</returns>
@@ -91,7 +91,7 @@ namespace EchoesOfAsh.Save
                 }
             }
 
-            // 소지 드랍 기록 (P2-M6 - 회수 판정 전까지의 임시 보유분)
+            // 아직 마을로 옮기지 않은 소지 아이템을 기록합니다.
             foreach (ItemStackData stack in dungeonState.CarriedItems)
             {
                 if (stack == null || stack.ItemData == null)
@@ -106,7 +106,7 @@ namespace EchoesOfAsh.Save
                 });
             }
             
-            // 보유 유물 기록 (P2-M7 - 목록 순서 유지 = 획득 순 발화 계약 보존)
+            // 유물 효과 실행 순서를 유지하도록 현재 목록 순서대로 기록합니다.
             foreach (RelicData relic in dungeonState.Relics)
             {
                 if (relic != null)
@@ -123,7 +123,7 @@ namespace EchoesOfAsh.Save
         }
 
         /// <summary>
-        /// 던전 스냅샷을 읽어옵니다. 버전이 다르면 폐기합니다 (개발 중 잠정 규칙 - 마이그레이션 없음).
+        /// 던전 저장 데이터를 읽어옵니다. 저장 버전이 다르면 사용하지 않습니다.
         /// </summary>
         /// <returns>읽어온 저장 데이터입니다. 실패하면 null입니다.</returns>
         public static DungeonSaveData Load()

@@ -32,13 +32,13 @@ namespace EchoesOfAsh.View.UI
 
         #region 초기화
         /// <summary>
-        /// 광기 오버레이의 입력 차단과 초기 투명도를 설정합니다.
+        /// 광기 화면 효과가 버튼 입력을 막지 않도록 설정합니다.
         /// </summary>
         private void Awake()
         {
             if (overlayImage != null)
             {
-                // 풀스크린 이미지가 턴 종료 버튼 등 UI 레이캐스트를 가로채지 않도록 강제
+                // 화면 효과가 턴 종료 버튼 등의 입력을 가로채지 않게 합니다.
                 overlayImage.raycastTarget = false;
             }
         }
@@ -52,7 +52,7 @@ namespace EchoesOfAsh.View.UI
         }
 
         /// <summary>
-        /// 매 프레임 오버레이 투명도를 목표값으로 보간합니다.
+        /// 매 프레임 화면 효과를 목표 투명도에 가깝게 변경합니다.
         /// </summary>
         private void Update()
         {
@@ -79,7 +79,7 @@ namespace EchoesOfAsh.View.UI
             {
                 sanityHolder.OnSanityTypeChanged += HandleSanityTypeChanged;
 
-                // 초기 1회 직접 갱신 + 즉시 반영 (전투 시작 시 페이드 없이 현재 구간 상태로 시작)
+                // 전투 시작 시 현재 정신력에 맞는 화면 효과를 즉시 표시합니다.
                 HandleSanityTypeChanged(sanityHolder.CurrentSanityType);
                 currentAlpha = targetAlpha;
                 ApplyAlpha();
@@ -104,7 +104,7 @@ namespace EchoesOfAsh.View.UI
         #endregion // 초기화
 
         /// <summary>
-        /// 정신력 구간 전환 시 목표 알파를 갱신합니다.
+        /// 정신력 구간이 바뀌면 목표 투명도를 갱신합니다.
         /// </summary>
         /// <param name="sanityType">현재 정신력 유형입니다.</param>
         private void HandleSanityTypeChanged(ESanityType sanityType)
@@ -113,7 +113,7 @@ namespace EchoesOfAsh.View.UI
         }
 
         /// <summary>
-        /// 현재 알파를 오버레이에 적용합니다.
+        /// 현재 투명도를 화면 효과에 적용합니다.
         /// </summary>
         private void ApplyAlpha()
         {
@@ -126,7 +126,7 @@ namespace EchoesOfAsh.View.UI
             color.a = currentAlpha;
             overlayImage.color = color;
 
-            // 완전 투명이면 렌더 비용 절약을 위해 꺼둔다
+            // 완전히 투명할 때는 이미지를 숨깁니다.
             overlayImage.enabled = currentAlpha > 0f;
         }
     }

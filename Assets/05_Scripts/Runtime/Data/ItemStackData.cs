@@ -4,7 +4,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Data
 {
     /// <summary>
-    /// 아이템과 수량의 묶음
+    /// 아이템과 해당 수량을 하나의 묶음으로 보관합니다.
     /// </summary>
     [System.Serializable]
     public class ItemStackData

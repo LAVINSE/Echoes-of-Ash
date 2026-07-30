@@ -122,7 +122,7 @@ namespace EchoesOfAsh.Enum
     {
         /// <summary>자동 감소 없음 (효과로만 제거)입니다.</summary>
         [InspectorName("지속 (자동 감소 없음)")] None,
-        /// <summary>라운드 종료마다 1 감소 (중첩 = 남은 라운드 수)입니다.</summary>
+        /// <summary>라운드가 끝날 때마다 1씩 감소하며, 중첩은 남은 라운드 수를 뜻합니다.</summary>
         [InspectorName("라운드마다 1 감소")] TurnCountdown,
     }
 
@@ -251,7 +251,7 @@ namespace EchoesOfAsh.Enum
     }
 
     /// <summary>
-    /// 거점에서 던전 씬으로 전환할 때 타입
+    /// 거점에서 던전 장면으로 전환할 때 사용할 출발 방식입니다.
     /// </summary>
     public enum EDungeonLaunchMode
     {
@@ -260,7 +260,7 @@ namespace EchoesOfAsh.Enum
         [InspectorName("요청 없음")] None,
         /// <summary>새 던전 출발 - 편성 화면을 거쳐 시작합니다.</summary>
         [InspectorName("새 던전 출발")] NewDungeon,
-        /// <summary>저장된 스냅샷 이어하기입니다.</summary>
+        /// <summary>저장된 던전 이어하기입니다.</summary>
         [InspectorName("이어하기")] Resume,
     }
 }

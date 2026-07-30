@@ -12,7 +12,7 @@ using Pointer = UnityEngine.InputSystem.Pointer;
 namespace EchoesOfAsh.Battle
 {
     /// <summary>
-    /// 카드 드래그 컨트롤러입니다.
+    /// 마우스로 카드를 선택하고 대상에게 사용하는 과정을 처리합니다.
     /// </summary>
     public class CardDragController : SWMonoBehaviour
     {
@@ -70,7 +70,7 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 비활성화될 때 호버와 드래그 상태를 정리합니다.
+        /// 비활성화될 때 카드 강조와 드래그 상태를 정리합니다.
         /// </summary>
         private void OnDisable()
         {
@@ -79,7 +79,7 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 매 프레임 포인터 입력을 읽어 카드 호버와 드래그를 처리합니다.
+        /// 매 프레임 마우스 입력을 확인해 카드 선택과 드래그를 처리합니다.
         /// </summary>
         private void Update()
         {
@@ -90,7 +90,7 @@ namespace EchoesOfAsh.Battle
                 return;
             }
 
-            // 드래그 중 — 갱신 또는 드롭
+            // 카드를 들고 있으면 위치를 옮기거나 사용을 마칩니다.
             if (draggedCard != null)
             {
                 if (!TryGetPointerWorldPosition(out Vector2 dragPosition))
@@ -108,7 +108,7 @@ namespace EchoesOfAsh.Battle
                 return;
             }
 
-            // 대기 중 — 호버 갱신 후 픽업 시도
+            // 마우스 아래의 카드를 강조하고 클릭하면 집습니다.
             if (!CanInteract() || !TryGetPointerWorldPosition(out Vector2 pointerWorldPosition))
             {
                 SetHoveredCard(null);
@@ -126,7 +126,7 @@ namespace EchoesOfAsh.Battle
 
         #region 드래그
         /// <summary>
-        /// 호버 중인 카드가 사용 가능하면 집습니다.
+        /// 마우스 아래의 카드를 사용할 수 있으면 집습니다.
         /// </summary>
         private void TryBeginDrag()
         {
@@ -152,7 +152,7 @@ namespace EchoesOfAsh.Battle
 
             if (isAimedTargeting)
             {
-                // 카드는 손패에 고정하고 화살표로 대상을 지정합니다 (Slay the Spire의 표준 사용자 경험)
+                // 카드는 손패에 둔 상태에서 화살표로 대상을 지정합니다.
                 targetingArrow.BeginAiming(cardTransform.position);
             }
             else
@@ -193,7 +193,7 @@ namespace EchoesOfAsh.Battle
 
              targetingArrow.EndAiming();
 
-            // 조준 카드는 해당 대상 위에서만 성립하고, 빗나가면 취소됩니다 (Single/Self 대칭)
+            // 대상을 지정하는 카드는 알맞은 대상 위에 놓았을 때만 사용됩니다.
             bool isPlayed = cardView.CardInstance.TargetingType switch
             {
                 ETargetingType.Single => TryPlayOnEnemy(cardView, pointerWorldPosition),
@@ -201,7 +201,7 @@ namespace EchoesOfAsh.Battle
                 _ => TryPlayAboveLine(cardView, pointerWorldPosition),
             };
 
-            // 성공 시 뷰는 OnHandChanged 재구성으로 풀에 반환됨 — 재사용 대비 소팅 레이어만 복원
+            // 사용된 카드 화면은 손패 갱신 과정에서 정리되므로 표시 순서만 되돌립니다.
             cardView.SetDragging(false);
 
             if (!isPlayed)
@@ -238,11 +238,11 @@ namespace EchoesOfAsh.Battle
         }
         #endregion // 드래그
 
-        #region 호버
+        #region 카드 강조
         /// <summary>
-        /// 호버 대상 카드를 교체하고 강조 표시를 갱신합니다.
+        /// 마우스 아래의 카드를 교체하고 강조 표시를 갱신합니다.
         /// </summary>
-        /// <param name="cardView">새 호버 대상입니다. 없으면 <see langword="null"/>입니다.</param>
+        /// <param name="cardView">새로 강조할 카드입니다. 대상이 없으면 <see langword="null"/>입니다.</param>
         private void SetHoveredCard(CardView cardView)
         {
             if (hoveredCard == cardView)
@@ -308,7 +308,7 @@ namespace EchoesOfAsh.Battle
 
             return topmostCard;
         }
-        #endregion // 호버
+        #endregion // 카드 강조
 
         #region 판정
         /// <summary>

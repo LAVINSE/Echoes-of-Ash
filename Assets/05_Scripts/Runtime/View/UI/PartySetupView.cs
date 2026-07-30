@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using EchoesOfAsh.Data;
+using EchoesOfAsh.Effect.Trigger;
 using SW.Attributes;
 using SW.Base;
 using SW.Util;
@@ -101,7 +102,7 @@ namespace EchoesOfAsh.View.UI
         {
             if (candidates == null || candidates.Count == 0 || onConfirm == null)
             {
-                SWLog.LogError("[PartySetupView] Show 실패: 후보 목록 또는 콜백이 없습니다");
+                SWLog.LogError("[PartySetupView] Show 실패: 후보 목록 또는 선택 동작이 없습니다.");
                 return;
             }
 
@@ -277,7 +278,7 @@ namespace EchoesOfAsh.View.UI
 
             stringBuilder.Clear();
 
-            foreach (var passive in characterData.Passives)
+            foreach (TriggerEffect passive in characterData.Passives)
             {
                 if (passive == null)
                 {
@@ -331,7 +332,7 @@ namespace EchoesOfAsh.View.UI
         }
 
         /// <summary>
-        /// 시작 덱 미리보기를 갱신합니다 (데이터 정의 기반 — 기획서 4-5).
+        /// 시작 덱에 포함된 카드 목록을 갱신합니다.
         /// </summary>
         /// <param name="startingCards">시작 덱 카드 목록입니다.</param>
         private void RefreshStartingDeck(IReadOnlyList<CardData> startingCards)

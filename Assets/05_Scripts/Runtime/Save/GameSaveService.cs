@@ -4,9 +4,9 @@ using SW.Util;
 namespace EchoesOfAsh.Save
 {
     /// <summary>
-    /// 프로필 저장 파일의 로드/저장 단일 진입점입니다. SWSaveDataManager를 직접 호출하는 유일한 클래스입니다.
-    /// 슬롯 = 프로필 (저장 칸 본래 의미). 구획 접근은 HubSaveService / DungeonSaveService를 경유합니다.
-    /// 잠정 규칙: 개발 중에는 저장 데이터를 보존하지 않으므로 마이그레이션 없이 버전 불일치 = 폐기합니다 (데이터 보존 시작 시점에 계층 복원 — 기획서 15-5).
+    /// 프로필 저장 파일을 읽고 쓰는 공통 서비스입니다.
+    /// 마을과 던전 데이터는 각각 TownSaveService와 DungeonSaveService를 통해 변경합니다.
+    /// 저장 버전이 다르면 이전 데이터를 사용하지 않습니다.
     /// </summary>
     public static class GameSaveService
     {
@@ -48,7 +48,7 @@ namespace EchoesOfAsh.Save
 
             if (SWSaveDataManager.HasSave())
             {
-                // 정적 단일 데이터 구조이므로 호출 직전 타입을 등록합니다 (P2-D7 — 이 클래스 내부로 국소화)
+                // 저장하기 직전에 현재 저장 데이터 형식을 등록합니다.
                 SWSaveDataManager.SetData(gameData);
                 SWSaveDataManager.LoadAll(null, null, cloudFirst: false);
 
@@ -69,7 +69,7 @@ namespace EchoesOfAsh.Save
         }
 
         /// <summary>
-        /// 현재 프로필의 저장 데이터를 파일에 씁니다. 클라우드 백업은 잠정 제외입니다 (출시 준비 시 일괄 결정).
+        /// 현재 프로필의 저장 데이터를 파일에 씁니다. 클라우드 저장은 사용하지 않습니다.
         /// </summary>
         /// <returns>저장 성공 여부입니다.</returns>
         public static bool Save()

@@ -3,7 +3,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Data
 {
     /// <summary>
-    /// 드랍 항목
+    /// 드랍 가능한 아이템과 가중치 및 수량 범위를 보관합니다.
     /// </summary>
     [System.Serializable]
     public class DropEntryData

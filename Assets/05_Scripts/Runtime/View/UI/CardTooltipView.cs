@@ -109,7 +109,7 @@ namespace EchoesOfAsh.View.UI
         /// 카드 툴팁을 표시합니다.
         /// </summary>
         /// <param name="card">표시할 카드입니다.</param>
-        /// <param name="anchorWorldPosition">호버 카드의 월드 좌표입니다.</param>
+        /// <param name="anchorWorldPosition">마우스가 가리키는 카드의 게임 공간 좌표입니다.</param>
         public void Show(CardInstance card, Vector3 anchorWorldPosition)
         {
             if (card == null)
@@ -148,20 +148,20 @@ namespace EchoesOfAsh.View.UI
         /// <summary>
         /// 카드 오른쪽에 툴팁을 배치하며, 화면을 벗어나면 왼쪽에 배치합니다.
         /// </summary>
-        /// <param name="anchorWorldPosition">호버 카드의 월드 좌표(중심)입니다.</param>
+        /// <param name="anchorWorldPosition">마우스가 가리키는 카드 중심의 게임 공간 좌표입니다.</param>
         private void PlaceBesideCard(Vector3 anchorWorldPosition)
         {
             // 툴팁 폭의 절반 - 레이아웃 갱신 후 실제 폭을 읽는다 (없으면 0)
             float tooltipHalfWidth = rectTransform != null ? rectTransform.rect.width * 0.5f : 0f;
 
-            // 카드 오른쪽 가장자리 + 여백 + 툴팁 반쪽 = 툴팁 중심 (오른쪽 배치 기준)
+            // 카드의 오른쪽 가장자리에서 여백만큼 떨어진 곳에 설명 창의 중심을 맞춥니다.
             float rightCenterX = anchorWorldPosition.x + cardHalfWidth + sideGap + tooltipHalfWidth;
             float leftCenterX = anchorWorldPosition.x - cardHalfWidth - sideGap - tooltipHalfWidth;
 
             // 오른쪽 배치 시 툴팁 오른쪽 끝의 월드 좌표
             Vector3 rightEdge = new(rightCenterX + tooltipHalfWidth, anchorWorldPosition.y, anchorWorldPosition.z);
 
-            // 오른쪽 배치가 화면 오른쪽을 넘으면 왼쪽으로 뒤집습니다 (Slay the Spire 방식)
+            // 오른쪽 공간이 부족하면 설명 창을 카드 왼쪽에 표시합니다.
             bool fitsRight = !ExceedsRightEdge(rightEdge);
             float centerX = fitsRight ? rightCenterX : leftCenterX;
 

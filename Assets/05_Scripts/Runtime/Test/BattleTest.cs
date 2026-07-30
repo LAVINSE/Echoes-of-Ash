@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using EchoesOfAsh.Battle;
 using EchoesOfAsh.Card;
 using EchoesOfAsh.Data;
+using EchoesOfAsh.Deck;
 using EchoesOfAsh.Dungeon;
 using EchoesOfAsh.Enum;
 using EchoesOfAsh.Interface;
@@ -9,6 +10,7 @@ using SW.Attributes;
 using SW.Base;
 using SW.Util;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace EchoesOfAsh.Test
 {
@@ -32,9 +34,10 @@ namespace EchoesOfAsh.Test
 
         [SWGroup("테스트 UI")]
         [Tooltip("OnGUI 테스트 패널 표시 여부")]
-        [SerializeField] private bool isShowTestGui = true;
+        [FormerlySerializedAs("isShowTestGui")]
+        [SerializeField] private bool showTestGui = true;
 
-        private bool isRun;
+        private bool isRunning;
         private bool isSubscribed;
         private int selectedEnemyIndex;
         private int selectedAllyIndex;
@@ -48,7 +51,7 @@ namespace EchoesOfAsh.Test
         [SWButton("전투 시작")]
         private void RunTest()
         {
-            if (!Application.isPlaying || isRun)
+            if (!Application.isPlaying || isRunning)
             {
                 return;
             }
@@ -59,7 +62,7 @@ namespace EchoesOfAsh.Test
                 return;
             }
 
-            // 런 시드 고정 — 같은 시드 = 같은 셔플/무작위 결과 (D3)
+            // 같은 결과를 반복해서 확인할 수 있도록 무작위 시드를 고정합니다.
             if (useFixedSeed)
             {
                 SWRandom.SetSeed(seed);
@@ -76,7 +79,7 @@ namespace EchoesOfAsh.Test
             }
 
             selectedEnemyIndex = 0;
-            isRun = true;
+            isRunning = true;
         }
 
         /// <summary>
@@ -91,7 +94,7 @@ namespace EchoesOfAsh.Test
             }
 
             battleManager?.ResetBattle();
-            isRun = false;
+            isRunning = false;
         }
 
         /// <summary>
@@ -120,7 +123,7 @@ namespace EchoesOfAsh.Test
         /// </summary>
         private void OnGUI()
         {
-            if (!isRun || !isShowTestGui)
+            if (!isRunning || !showTestGui)
             {
                 return;
             }
@@ -141,7 +144,7 @@ namespace EchoesOfAsh.Test
         }
 
         /// <summary>
-        /// 턴 번호 / 진행 단계 / 전투 결과를 표시합니다.
+        /// 턴 번호와 진행 단계, 전투 결과를 표시합니다.
         /// </summary>
         private void DrawTurnStatus()
         {
@@ -165,9 +168,9 @@ namespace EchoesOfAsh.Test
         /// </summary>
         private void DrawPartyStatus()
         {
-            var partyMembers = battleManager.Party;
-            var partySanity = battleManager.PartySanityHolder;
-            var apSystem = battleManager.ApSystem;
+            IReadOnlyList<CharacterEntity> partyMembers = battleManager.Party;
+            ISanityHolder partySanity = battleManager.PartySanityHolder;
+            ApSystem apSystem = battleManager.ApSystem;
 
             if (partyMembers == null || partyMembers.Count == 0 || partySanity == null || apSystem == null)
             {
@@ -178,7 +181,7 @@ namespace EchoesOfAsh.Test
 
             for (int index = 0; index < partyMembers.Count; index++)
             {
-                var member = partyMembers[index];
+                CharacterEntity member = partyMembers[index];
                 string selectionPrefix = index == selectedAllyIndex ? "▶ " : "   ";
 
                 if (GUILayout.Button($"{selectionPrefix}{member.DisplayName}  HP {member.CurrentHp}/{member.MaxHp}  " +
@@ -230,12 +233,12 @@ namespace EchoesOfAsh.Test
 
                 GUILayout.EndHorizontal();
 
-                // 의도 표시 — M5에서 아이콘 UI로 대체 예정
+                // 현재는 적의 다음 행동을 글자로 표시합니다.
                 EnemyAI enemyAI = enemyAIs[index];
 
                 if (!enemy.IsDead && enemyAI.NextAction != null)
                 {
-                    var action = enemyAI.NextAction;
+                    EnemyActionData action = enemyAI.NextAction;
                     string intents = string.Join(", ", action.GetIntentTypes());
                     GUILayout.Label($"    의도: '{action.ActionName}' [{intents}]  " +
                                     $"피해 {action.GetIntentDamageValue()}  " +
@@ -249,8 +252,8 @@ namespace EchoesOfAsh.Test
         /// </summary>
         private void DrawHand()
         {
-            var deckSystem = battleManager.DeckSystem;
-            var cardPlayService = battleManager.CardPlayService;
+            DeckSystem deckSystem = battleManager.DeckSystem;
+            CardPlayService cardPlayService = battleManager.CardPlayService;
 
             if (deckSystem == null || cardPlayService == null)
             {
@@ -262,7 +265,7 @@ namespace EchoesOfAsh.Test
             bool isPlayerAction = battleManager.TurnManager != null
                 && battleManager.TurnManager.CurrentPhase == ETurnPhase.PlayerAction;
 
-            // 사용 시 손패가 변형되므로 인덱스 순회 + 사용 즉시 중단
+            // 카드를 사용하면 손패가 바뀌므로 한 장을 사용한 즉시 확인을 마칩니다.
             for (int index = 0; index < deckSystem.Hand.Count; index++)
             {
                 CardInstance card = deckSystem.Hand[index];
@@ -328,10 +331,10 @@ namespace EchoesOfAsh.Test
             }
             else if (card.TargetingType == ETargetingType.Self)
             {
-                var partyMembers = battleManager.Party;
+                IReadOnlyList<CharacterEntity> partyMembers = battleManager.Party;
                 int allyIndex = Mathf.Clamp(selectedAllyIndex, 0, partyMembers.Count - 1);
 
-                // 사망 아군 선택 시 null 전달 → ResolveSelf가 시전자 폴백 (폴백 검증 경로)
+                // 선택한 아군이 사망했으면 시전자를 대상으로 사용하도록 null을 전달합니다.
                 designatedTarget = partyMembers[allyIndex];
             }
 

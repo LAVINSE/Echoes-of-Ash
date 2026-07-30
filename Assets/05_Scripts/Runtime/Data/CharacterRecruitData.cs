@@ -4,7 +4,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Data
 {
     /// <summary>
-    /// 캐릭터 영입 데이터
+    /// 영입할 캐릭터와 필요한 비용을 보관합니다.
     /// </summary>
     [System.Serializable]
     public class CharacterRecruitData

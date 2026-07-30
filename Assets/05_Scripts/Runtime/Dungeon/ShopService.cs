@@ -7,10 +7,9 @@ using SW.Util;
 namespace EchoesOfAsh.Dungeon
 {
     /// <summary>
-    /// 상점 노드 1회 방문의 재고와 거래를 관리합니다 (순수 클래스 - 기획서 12장).
-    /// 재고 굴림, 카드/유물 구매, 카드 제거 API만 담당하며 뷰는 알지 못합니다 (로직 계층 선행 - 개정 23).
-    /// 저장 시점은 조립 지점(DungeonManager) 소관입니다.
-    /// 잠정 규칙: 미해결 상점 노드에 재진입하면 재고를 다시 굴립니다 (저장 스키마 무확장).
+    /// 상점의 판매 목록과 카드 및 유물 구매를 관리합니다.
+    /// 화면 표시와 저장은 DungeonManager가 담당합니다.
+    /// 완료하지 않은 상점에 다시 들어오면 판매 목록을 새로 만듭니다.
     /// </summary>
     public class ShopService
     {
@@ -96,7 +95,7 @@ namespace EchoesOfAsh.Dungeon
         public IReadOnlyList<RelicOffer> RelicOffers => relicOffers;
         /// <summary>카드 제거 비용입니다.</summary>
         public int RemoveCost => removeCost;
-        /// <summary>카드 제거 서비스를 이미 사용했는지 여부입니다 (상점당 1회 - 기획서 12-1).</summary>
+        /// <summary>이번 상점에서 카드 제거를 이미 사용했는지 여부입니다.</summary>
         public bool IsRemoveUsed => isRemoveUsed;
         #endregion // 프로퍼티
 
@@ -126,7 +125,7 @@ namespace EchoesOfAsh.Dungeon
         #region 재고
         /// <summary>
         /// 상점 재고를 굴립니다. 카드는 해금 풀에서, 유물은 미보유 유물에서 각각 중복 없이 추첨합니다.
-        /// 잠정 규칙: 발견형 등장은 전투 보상 한정입니다 - 상점 카드는 해금 풀만 사용합니다 (기획서 12-1 "해금 풀 기반 랜덤").
+        /// 상점에서는 이미 해금된 카드만 판매합니다.
         /// </summary>
         /// <param name="unlockedCardPool">해금된 카드 풀입니다 (CardUnlockService.CollectUnlockedCards 결과).</param>
         /// <param name="relicDatabase">전체 유물 데이터베이스입니다.</param>
@@ -172,7 +171,7 @@ namespace EchoesOfAsh.Dungeon
         }
 
         /// <summary>
-        /// 유물 판매 슬롯을 굴립니다. 이미 보유한 유물은 후보에서 제외합니다 (유물 유일 보유 - 잠정 규칙).
+        /// 판매할 유물을 선택합니다. 이미 보유한 유물은 제외합니다.
         /// </summary>
         /// <param name="relicDatabase">전체 유물 데이터베이스입니다.</param>
         private void RollRelicStock(SWIODatabase relicDatabase)
@@ -287,7 +286,7 @@ namespace EchoesOfAsh.Dungeon
         }
 
         /// <summary>
-        /// 골드를 소모해 던전 덱에서 카드 한 장을 제거합니다 (상점당 1회 - 기획서 12-1).
+        /// 골드를 사용해 던전 덱에서 카드 한 장을 제거합니다. 상점마다 한 번만 사용할 수 있습니다.
         /// </summary>
         /// <param name="card">제거할 카드 인스턴스입니다.</param>
         /// <returns>제거에 성공했으면 true입니다.</returns>

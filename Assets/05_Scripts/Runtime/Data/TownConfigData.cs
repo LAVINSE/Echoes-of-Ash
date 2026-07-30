@@ -6,10 +6,10 @@ using UnityEngine;
 namespace EchoesOfAsh.Data
 {
     /// <summary>
-    /// 마을 구성 데이터
+    /// 마을의 건물, 영입 항목과 기본 캐릭터 구성을 보관합니다.
     /// </summary>
     /// <remarks>
-    /// 마을에 존재하는 건물, 막사 영입 항목, 기본 캐릭터를 에셋 하나로 소유합니다 (MapConfigData 전례 - 구성 = SO 외부화).
+    /// 마을에 존재하는 건물, 막사 영입 항목과 기본 캐릭터를 에셋 하나로 소유합니다.
     /// 씬 오브젝트는 참조할 수 없으므로 건물의 배치-데이터 연결은 씬의 TownBuildingView가 소유합니다.
     /// </remarks>
     [CreateAssetMenu(fileName = "TownConfigData", menuName = "EchoesOfAsh/Data/TownConfigData")]

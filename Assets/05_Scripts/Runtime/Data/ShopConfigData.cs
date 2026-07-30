@@ -7,18 +7,17 @@ using UnityEngine;
 namespace EchoesOfAsh.Data
 {
     /// <summary>
-    /// 상점 구성 데이터입니다 (기획서 12장).
-    /// 슬롯 수와 등급별 가격 범위, 카드 제거 비용을 소유합니다. 가격 굴림 로직은 SO가 소유합니다 (DropTableData 전례).
-    /// 잠정 규칙: 소모품 슬롯은 소모품 사용 경로(포션 시스템)가 등장할 때 증축합니다 (1-5 원칙 - 실요구 전 구조 확장 금지).
+    /// 상점의 판매 수량, 카드 등급별 가격과 카드 제거 비용을 설정합니다.
+    /// 소모품 판매 기능은 아직 포함하지 않습니다.
     /// </summary>
     [CreateAssetMenu(fileName = "ShopConfig_", menuName = "EchoesOfAsh/Data/ShopConfig")]
     public class ShopConfigData : SWIdentifiedObject
     {
         #region 필드
         [SWGroup("슬롯")]
-        [Tooltip("카드 판매 슬롯 수입니다 (기획서 12-1 - 4개)")]
+        [Tooltip("한 번에 판매할 카드 수입니다.")]
         [SerializeField, Min(0)] private int cardSlotCount = 4;
-        [Tooltip("유물 판매 슬롯 수입니다 (기획서 12-1 - 2개)")]
+        [Tooltip("한 번에 판매할 유물 수입니다.")]
         [SerializeField, Min(0)] private int relicSlotCount = 2;
 
         [SWGroup("카드 가격")]
@@ -30,9 +29,9 @@ namespace EchoesOfAsh.Data
         [SerializeField, Min(0)] private int cardRarePriceMin = 80;
         [Tooltip("희귀 카드 가격 최대값입니다")]
         [SerializeField, Min(0)] private int cardRarePriceMax = 120;
-        [Tooltip("에픽 카드 가격 최소값입니다 (잠정 - 기획서 12-2 미정의 구간)")]
+        [Tooltip("에픽 카드 가격 최소값입니다.")]
         [SerializeField, Min(0)] private int cardEpicPriceMin = 150;
-        [Tooltip("에픽 카드 가격 최대값입니다 (잠정 - 기획서 12-2 미정의 구간)")]
+        [Tooltip("에픽 카드 가격 최대값입니다.")]
         [SerializeField, Min(0)] private int cardEpicPriceMax = 200;
 
         [SWGroup("유물 가격")]
@@ -44,15 +43,15 @@ namespace EchoesOfAsh.Data
         [SerializeField, Min(0)] private int relicRarePriceMin = 200;
         [Tooltip("희귀 유물 가격 최대값입니다")]
         [SerializeField, Min(0)] private int relicRarePriceMax = 250;
-        [Tooltip("에픽 유물 가격 최소값입니다 (잠정 - 기획서 12-2 미정의 구간)")]
+        [Tooltip("에픽 유물 가격 최소값입니다.")]
         [SerializeField, Min(0)] private int relicEpicPriceMin = 300;
-        [Tooltip("에픽 유물 가격 최대값입니다 (잠정 - 기획서 12-2 미정의 구간)")]
+        [Tooltip("에픽 유물 가격 최대값입니다.")]
         [SerializeField, Min(0)] private int relicEpicPriceMax = 350;
 
         [SWGroup("카드 제거")]
-        [Tooltip("카드 제거 비용 최소값입니다 (기획서 12-2 - 75~100)")]
+        [Tooltip("카드 제거 비용 최소값입니다.")]
         [SerializeField, Min(0)] private int removeCostMin = 75;
-        [Tooltip("카드 제거 비용 최대값입니다 (기획서 12-2 - 75~100)")]
+        [Tooltip("카드 제거 비용 최대값입니다.")]
         [SerializeField, Min(0)] private int removeCostMax = 100;
         #endregion // 필드
 
@@ -66,7 +65,7 @@ namespace EchoesOfAsh.Data
         #region 굴림
         /// <summary>
         /// 카드 등급에 맞는 범위에서 판매 가격을 굴립니다.
-        /// 전설/고유 등급은 에픽 범위를 재사용합니다 (잠정 - 확장 예약분이라 별도 구간 미정의).
+        /// 전설과 고유 등급 카드는 에픽 등급의 가격 범위를 사용합니다.
         /// </summary>
         /// <param name="rarityType">카드 등급입니다.</param>
         /// <returns>굴린 가격입니다.</returns>
@@ -87,7 +86,7 @@ namespace EchoesOfAsh.Data
 
         /// <summary>
         /// 유물 등급에 맞는 범위에서 판매 가격을 굴립니다.
-        /// 전설/고유 등급은 에픽 범위를 재사용합니다 (잠정 - 보스 유물 = 고유 등급 매핑은 판매 풀 대상이 아닙니다).
+        /// 전설과 고유 등급 유물은 에픽 등급의 가격 범위를 사용합니다.
         /// </summary>
         /// <param name="rarityType">유물 등급입니다.</param>
         /// <returns>굴린 가격입니다.</returns>

@@ -185,7 +185,7 @@ namespace EchoesOfAsh.Battle
 
             if (party != null)
             {
-                foreach (var member in party)
+                foreach (CharacterEntity member in party)
                 {
                     if (member != null && member.IsTargetable)
                     {
@@ -225,7 +225,7 @@ namespace EchoesOfAsh.Battle
                 return null;
             }
 
-            foreach (var character in party)
+            foreach (CharacterEntity character in party)
             {
                 if (character != null && character.IsTargetable && character.GetStatusStack(EStatusEffectType.Taunt) > 0)
                 {
@@ -237,7 +237,7 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 도발 상태를 예고 표시에 즉시 반영합니다. 카드 사용 직후 조립 지점이 호출합니다.
+        /// 도발 상태가 바뀌면 다음 공격 대상을 다시 선택합니다.
         /// 도발자로의 교체만 수행하며 무작위 재추첨은 하지 않습니다.
         /// </summary>
         public void RefreshTauntPreview()
@@ -300,7 +300,7 @@ namespace EchoesOfAsh.Battle
             float hpRatio = entity.MaxHp > 0 ? (float)entity.CurrentHp / entity.MaxHp : 0f;
             EnemyPhasePatternData phasePatternData = null;
 
-            foreach (var phase in data.PhasePatterns)
+            foreach (EnemyPhasePatternData phase in data.PhasePatterns)
             {
                 if (phase == null || phase.ActionPatterns.Count == 0)
                 {

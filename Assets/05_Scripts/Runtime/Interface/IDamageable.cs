@@ -4,7 +4,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Interface
 {
     /// <summary>
-    /// HP와 방어막을 보유하고 피해를 받을 수 있는 대상의 계약을 정의합니다.
+    /// 체력과 방어막을 보유하고 피해를 받을 수 있는 대상의 기능을 정의합니다.
     /// </summary>
     public interface IDamageable
     {

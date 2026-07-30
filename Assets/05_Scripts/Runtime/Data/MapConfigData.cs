@@ -14,7 +14,7 @@ namespace EchoesOfAsh.Data
         [SWGroup("구조")]
         [Tooltip("보스 층을 제외한 층 수입니다.")]
         [SerializeField, Min(3)] private int floorCount = 12;
-        [Tooltip("각 층에 배치할 수 있는 레인 수입니다.")]
+        [Tooltip("각 층에 배치할 수 있는 세로 칸 수입니다.")]
         [SerializeField, Min(2)] private int laneCount = 3;
         [Tooltip("생성할 무작위 경로 수입니다. 값이 클수록 그래프가 촘촘해집니다.")]
         [SerializeField, Min(2)] private int pathCount = 5;
@@ -46,7 +46,7 @@ namespace EchoesOfAsh.Data
         [SWGroup("배치")]
         [Tooltip("층 사이의 가로 간격입니다.")]
         [SerializeField, Min(50f)] private float floorSpacing = 250f;
-        [Tooltip("레인 사이의 세로 간격입니다.")]
+        [Tooltip("세로 칸 사이의 간격입니다.")]
         [SerializeField, Min(50f)] private float laneSpacing = 220f;
         [Tooltip("시드에 따라 노드 좌표에 적용할 최대 무작위 편차입니다.")]
         [SerializeField, Min(0f)] private float positionOffset = 40f;
@@ -55,7 +55,7 @@ namespace EchoesOfAsh.Data
         #region 프로퍼티
         /// <summary>보스 층을 제외한 층 수입니다.</summary>
         public int FloorCount => floorCount;
-        /// <summary>각 층의 레인 수입니다.</summary>
+        /// <summary>각 층에 배치할 세로 칸 수입니다.</summary>
         public int LaneCount => laneCount;
         /// <summary>생성할 무작위 경로 수입니다.</summary>
         public int PathCount => pathCount;
@@ -82,7 +82,7 @@ namespace EchoesOfAsh.Data
 
         /// <summary>층 사이의 가로 간격입니다.</summary>
         public float FloorSpacing => floorSpacing;
-        /// <summary>레인 사이의 세로 간격입니다.</summary>
+        /// <summary>세로 칸 사이의 간격입니다.</summary>
         public float LaneSpacing => laneSpacing;
         /// <summary>노드 좌표에 적용할 최대 무작위 편차입니다.</summary>
         public float PositionOffset => positionOffset;

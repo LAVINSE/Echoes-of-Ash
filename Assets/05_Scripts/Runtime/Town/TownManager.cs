@@ -15,10 +15,10 @@ using UnityEngine.SceneManagement;
 namespace EchoesOfAsh.Town
 {
     /// <summary>
-    /// Town 씬의 조립 지점입니다. 건물 승급, 막사 영입, 던전 출발을 담당합니다 (DungeonManager와 씬 기준 명명 대칭).
-    /// 마을 상태의 진실 원본은 TownSaveData, 마을 구성의 진실 원본은 TownConfigData이며, 이 클래스는 둘을 잇는 판정만 소유합니다.
-    /// 표현은 하이브리드입니다 - 건물/배경 = 월드 스프라이트 (씬 배치), 팝업/HUD = Canvas.
-    /// 잠정 규칙: 팝업 뷰는 아트 시점 도입 - 건물 클릭은 로그만 남기고, 승급/영입 검증은 임시 테스트 버튼이 담당합니다.
+    /// 마을의 건물 승급, 캐릭터 영입과 던전 출발을 관리합니다.
+    /// 저장된 마을 상태와 마을 설정을 바탕으로 필요한 동작을 수행합니다.
+    /// 건물과 배경은 장면에 배치하고, 안내 화면과 상태 정보는 화면 위에 표시합니다.
+    /// 건물 상세 화면이 연결되기 전까지 건물 클릭은 기록만 남깁니다.
     /// </summary>
     public class TownManager : SWMonoBehaviour
     {
@@ -26,7 +26,7 @@ namespace EchoesOfAsh.Town
         [SWGroup("데이터")]
         [Tooltip("마을 구성 데이터입니다. 건물·막사 영입·기본 캐릭터 목록을 소유합니다.")]
         [SerializeField] private TownConfigData townConfigData;
-        [Tooltip("자원 요약의 아이템 이름 표시에 사용합니다. 미배선이면 코드명으로 표시합니다.")]
+        [Tooltip("자원 요약에 아이템 이름을 표시할 때 사용합니다. 지정하지 않으면 저장된 이름을 그대로 표시합니다.")]
         [SerializeField] private SWIODatabase itemDatabase;
 
         [SWGroup("씬")]
@@ -48,7 +48,7 @@ namespace EchoesOfAsh.Town
 
         #region 유니티 이벤트 함수
         /// <summary>
-        /// 씬 시작 시 구성을 검증하고, 기본 캐릭터를 보장한 뒤 뷰를 배선합니다.
+        /// 장면이 시작되면 설정을 확인하고 기본 캐릭터와 화면 입력을 준비합니다.
         /// </summary>
         private void Start()
         {
@@ -63,7 +63,7 @@ namespace EchoesOfAsh.Town
         }
 
         /// <summary>
-        /// 객체가 제거될 때 건물 뷰의 콜백 연결을 해제합니다.
+        /// 객체가 제거될 때 건물 클릭 처리를 해제합니다.
         /// </summary>
         private void OnDestroy()
         {
@@ -79,7 +79,7 @@ namespace EchoesOfAsh.Town
 
         #region 초기화
         /// <summary>
-        /// 보유 캐릭터가 하나도 없으면 기본 캐릭터를 영입하고 저장합니다 (최초 실행·구저장 폴백).
+        /// 보유 캐릭터가 없으면 기본 캐릭터를 추가하고 저장합니다.
         /// </summary>
         private void EnsureStarterCharacters()
         {
@@ -112,7 +112,7 @@ namespace EchoesOfAsh.Town
         }
 
         /// <summary>
-        /// 건물 뷰에 클릭 콜백을 주입하고 HUD를 배선합니다. 미배선분은 통과합니다 (미배선 통과 원칙).
+        /// 건물 클릭 처리와 마을 화면 버튼을 연결합니다. 연결되지 않은 화면은 건너뜁니다.
         /// 구성에 등록되지 않은 건물 데이터를 참조하는 뷰는 경고 후 동작합니다.
         /// </summary>
         private void InitViews()
@@ -142,14 +142,14 @@ namespace EchoesOfAsh.Town
             }
             else
             {
-                SWLog.Log("[TownManager] HUD 미배선: 인스펙터 버튼으로 조작합니다.");
+                SWLog.Log("[TownManager] 마을 화면이 연결되지 않아 인스펙터 버튼으로 조작합니다.");
             }
         }
         #endregion // 초기화
 
         #region 건물 클릭
         /// <summary>
-        /// 건물 클릭을 처리합니다. 팝업 도입 전이므로 현재 상태 로그만 남깁니다 (임시 조치 - 팝업 도입 시 팝업 열기로 대체).
+        /// 건물 클릭을 처리합니다. 현재는 클릭한 건물의 상태를 기록합니다.
         /// </summary>
         /// <param name="buildingView">클릭된 건물 뷰입니다.</param>
         private void HandleBuildingClicked(TownBuildingView buildingView)
@@ -246,38 +246,6 @@ namespace EchoesOfAsh.Town
         }
         #endregion // 막사
 
-        #region 임시 테스트
-        /// <summary>
-        /// 마을 구성의 첫 번째 건물 승급을 시도합니다 (임시 조치 - 팝업 도입 전 저장/차감 경로 검증용, 도입 시 제거).
-        /// </summary>
-        [SWButton("테스트: 첫 건물 승급")]
-        public void TestUpgradeFirstBuilding()
-        {
-            if (townConfigData == null || townConfigData.Buildings.Count == 0)
-            {
-                SWLog.LogWarning("[TownManager] 테스트 승급 무시: 마을 구성의 건물 목록이 비어 있습니다.");
-                return;
-            }
-
-            TryUpgradeBuilding(townConfigData.Buildings[0]);
-        }
-
-        /// <summary>
-        /// 마을 구성의 첫 번째 영입 항목의 영입을 시도합니다 (임시 조치 - 팝업 도입 전 저장/차감 경로 검증용, 도입 시 제거).
-        /// </summary>
-        [SWButton("테스트: 첫 항목 영입")]
-        public void TestRecruitFirstOffer()
-        {
-            if (townConfigData == null)
-            {
-                SWLog.LogWarning("[TownManager] 테스트 영입 무시: 마을 구성 데이터가 없습니다.");
-                return;
-            }
-
-            TryRecruit(0);
-        }
-        #endregion // 임시 테스트
-
         #region 던전 출발
         /// <summary>
         /// 새 던전 출발을 요청하고 던전 씬으로 전환합니다. 편성/시작은 던전 씬의 DungeonManager가 담당합니다.
@@ -290,7 +258,7 @@ namespace EchoesOfAsh.Town
         }
 
         /// <summary>
-        /// 저장된 던전 스냅샷의 이어하기를 요청하고 던전 씬으로 전환합니다.
+        /// 저장된 던전을 이어서 진행하도록 요청하고 던전 장면으로 전환합니다.
         /// </summary>
         [SWButton("던전 이어하기")]
         public void ResumeDungeon()
@@ -321,7 +289,7 @@ namespace EchoesOfAsh.Town
         }
 
         /// <summary>
-        /// 보유 아이템의 요약 문구를 구성합니다. 데이터베이스 미배선이면 코드명으로 표시합니다.
+        /// 보유 아이템의 요약 문구를 만듭니다. 데이터베이스가 없으면 코드명을 표시합니다.
         /// </summary>
         /// <returns>자원 요약 문구입니다.</returns>
         private string BuildResourceSummary()
@@ -397,6 +365,39 @@ namespace EchoesOfAsh.Town
         }
         #endregion // 화면 갱신
 
+        #region 테스트
+        /// <summary>
+        /// 마을 구성의 첫 번째 건물 승급을 시도합니다.
+        /// 팝업 도입 전 저장 및 차감 경로를 검증하기 위한 임시 테스트입니다.
+        /// </summary>
+        [SWButton("테스트: 첫 건물 승급")]
+        public void TestUpgradeFirstBuilding()
+        {
+            if (townConfigData == null || townConfigData.Buildings.Count == 0)
+            {
+                SWLog.LogWarning("[TownManager] 테스트 승급 무시: 마을 구성의 건물 목록이 비어 있습니다.");
+                return;
+            }
+
+            TryUpgradeBuilding(townConfigData.Buildings[0]);
+        }
+
+        /// <summary>
+        /// 마을 구성의 첫 번째 영입 항목을 영입 시도합니다.
+        /// 팝업 도입 전 저장 및 차감 경로를 검증하기 위한 임시 테스트입니다.
+        /// </summary>
+        [SWButton("테스트: 첫 항목 영입")]
+        public void TestRecruitFirstOffer()
+        {
+            if (townConfigData == null)
+            {
+                SWLog.LogWarning("[TownManager] 테스트 영입 무시: 마을 구성 데이터가 없습니다.");
+                return;
+            }
+
+            TryRecruit(0);
+        }
+
         /// <summary>
         /// 테스트용 설계도 해금을 실행합니다. 봉인된 서고 팝업 도입 시 제거합니다.
         /// </summary>
@@ -408,5 +409,6 @@ namespace EchoesOfAsh.Town
                 RefreshHud();
             }
         }
+        #endregion // 테스트
     }
 }

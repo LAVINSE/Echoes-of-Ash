@@ -7,9 +7,8 @@ using SW.Util;
 namespace EchoesOfAsh.Effect.Trigger
 {
     /// <summary>
-    /// 전투 중 트리거 효과를 등록하고 발동합니다. 등록 순서 = 발화 순서입니다.
-    /// 소유자는 ITargetable로만 다루고 카드 정보를 받지 않습니다 (Battle/Card 의존 차단 - 발화 신호는 조립 지점이 중계).
-    /// 잠정 규칙: 발화 중 재발화는 무시합니다 (피해 유발 효과의 무한 연쇄 방지).
+    /// 전투 중 조건에 맞는 자동 효과를 등록하고 실행합니다.
+    /// 효과는 등록한 순서대로 실행하며, 실행 중에 같은 효과가 다시 요청되면 무시합니다.
     /// </summary>
     public class TriggerEffectController
     {
@@ -21,7 +20,7 @@ namespace EchoesOfAsh.Effect.Trigger
         {
             /// <summary>효과 소유자입니다. 파티 범위 등록(공용 유물)이면 null입니다.</summary>
             public readonly ITargetable Owner;
-            /// <summary>파티 범위 등록의 발화 시점 시전자 공급자입니다 (첫 생존자 폴백). 소유자 등록이면 null입니다.</summary>
+            /// <summary>파티 공용 효과를 실행할 때 사용할 시전자를 반환합니다. 개인 효과에서는 사용하지 않습니다.</summary>
             public readonly Func<ITargetable> CasterProvider;
             /// <summary>경고 로그에 사용할 출처 이름입니다.</summary>
             public readonly string SourceName;
@@ -55,7 +54,7 @@ namespace EchoesOfAsh.Effect.Trigger
         private readonly List<TriggerEntry> entries = new();
         private readonly List<ITargetable> casterTargetBuffer = new();
 
-        /// <summary>발화 진행 중 여부입니다. 진행 중 재발화 요청은 무시합니다 (무한 연쇄 방지 - 잠정 규칙).</summary>
+        /// <summary>자동 효과를 실행 중인지 여부입니다. 실행 중에 들어온 추가 요청은 무시합니다.</summary>
         private bool isRaising;
         #endregion // 필드
 
@@ -79,7 +78,7 @@ namespace EchoesOfAsh.Effect.Trigger
 
         #region 등록
         /// <summary>
-        /// 소유자의 트리거 효과 목록을 등록합니다 (캐릭터 패시브, 전용 유물). 등록 순서 = 발화 순서입니다.
+        /// 캐릭터 패시브와 전용 유물 효과를 등록합니다. 등록한 순서대로 실행합니다.
         /// 소유자 사망 시 발동하지 않습니다.
         /// </summary>
         /// <param name="owner">효과 소유자입니다.</param>
@@ -96,11 +95,11 @@ namespace EchoesOfAsh.Effect.Trigger
         }
 
         /// <summary>
-        /// 파티 범위 트리거 효과 목록을 등록합니다 (공용 유물). 등록 순서 = 발화 순서입니다.
-        /// 시전자와 효과 대상은 발화 시점에 공급자가 결정합니다 (첫 생존자 폴백 - 잠정 규칙).
+        /// 파티 공용 유물 효과를 등록합니다. 등록한 순서대로 실행합니다.
+        /// 효과를 실행할 때 공급 함수에서 시전자를 가져옵니다.
         /// </summary>
         /// <param name="triggerEffects">등록할 트리거 효과 목록입니다.</param>
-        /// <param name="casterProvider">발화 시점의 시전자 공급자입니다. null 반환 = 발화 건너뜀입니다.</param>
+        /// <param name="casterProvider">효과를 실행할 시전자를 반환하는 함수입니다. null이면 실행하지 않습니다.</param>
         /// <param name="sourceName">경고 로그용 출처 이름입니다.</param>
         public void Register(IReadOnlyList<TriggerEffect> triggerEffects, Func<ITargetable> casterProvider, string sourceName)
         {
@@ -153,22 +152,22 @@ namespace EchoesOfAsh.Effect.Trigger
         }
         #endregion // 등록
 
-        #region 발화
+        #region 자동 효과 실행
         /// <summary>
-        /// 지정한 시점의 트리거 효과를 등록 순으로 발화합니다 (전투 시작, 턴 시작, 카드 사용, 전투 종료 등 전역 시점용).
+        /// 지정한 시점에 해당하는 자동 효과를 등록한 순서대로 실행합니다.
         /// </summary>
-        /// <param name="triggerType">발화할 시점입니다.</param>
+        /// <param name="triggerType">효과를 실행할 시점입니다.</param>
         public void Raise(ETriggerType triggerType)
         {
             RaiseInternal(triggerType, null);
         }
 
         /// <summary>
-        /// 특정 당사자에 귀속된 시점의 트리거 효과를 발화합니다 (피격 = 피격자, 가해 = 가해자).
-        /// 당사자 본인의 소유 효과와 파티 범위 효과만 발화합니다.
+        /// 피해를 받거나 주는 대상과 관련된 자동 효과를 실행합니다.
+        /// 해당 대상의 개인 효과와 파티 공용 효과만 실행합니다.
         /// </summary>
-        /// <param name="triggerType">발화할 시점입니다.</param>
-        /// <param name="instigator">발화의 당사자입니다.</param>
+        /// <param name="triggerType">효과를 실행할 시점입니다.</param>
+        /// <param name="instigator">피해를 받거나 준 대상입니다.</param>
         public void RaiseFor(ETriggerType triggerType, ITargetable instigator)
         {
             if (instigator == null)
@@ -180,11 +179,11 @@ namespace EchoesOfAsh.Effect.Trigger
         }
 
         /// <summary>
-        /// 발화 공통 처리입니다. 소유자 사망, 정신력 조건 불충족, 당사자 불일치 항목은 건너뜁니다.
-        /// 발화 중 재진입은 무시합니다 (무한 연쇄 방지 - 잠정 규칙).
+        /// 실행 조건을 확인하고 조건에 맞는 자동 효과를 처리합니다.
+        /// 소유자가 사망했거나 정신력 조건이 맞지 않으면 건너뜁니다.
         /// </summary>
-        /// <param name="triggerType">발화할 시점입니다.</param>
-        /// <param name="instigator">발화 당사자입니다. null이면 전역 발화입니다.</param>
+        /// <param name="triggerType">효과를 실행할 시점입니다.</param>
+        /// <param name="instigator">관련 대상입니다. null이면 모든 공용 효과를 확인합니다.</param>
         private void RaiseInternal(ETriggerType triggerType, ITargetable instigator)
         {
             if (isRaising)
@@ -203,7 +202,7 @@ namespace EchoesOfAsh.Effect.Trigger
                         continue;
                     }
 
-                    // 당사자 귀속 발화 - 소유 효과는 당사자 본인 것만, 파티 범위 효과는 항상 발화합니다
+                    // 개인 효과는 관련 대상의 것만 실행하고 파티 공용 효과는 항상 실행합니다.
                     if (instigator != null && !entry.IsPartyScoped && !ReferenceEquals(entry.Owner, instigator))
                     {
                         continue;
@@ -253,11 +252,11 @@ namespace EchoesOfAsh.Effect.Trigger
             bool isMadness = partySanityHolder.CurrentSanityType == ESanityType.Madness;
             return sanityCondition == ESanityCondition.MadnessOnly ? isMadness : !isMadness;
         }
-        #endregion // 발화
+        #endregion // 자동 효과 실행
 
         #region 이벤트
         /// <summary>
-        /// 턴 시작 처리입니다. TurnManager.OnTurnStarted에 구독됩니다 (방어막 리셋 이후 - 구독 순서 계약).
+        /// 방어막이 초기화된 뒤 턴 시작 자동 효과를 실행합니다.
         /// </summary>
         /// <param name="turnNumber">현재 턴 번호입니다.</param>
         public void HandleTurnStarted(int turnNumber)

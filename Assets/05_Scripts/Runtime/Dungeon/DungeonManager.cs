@@ -17,7 +17,7 @@ using UnityEngine.SceneManagement;
 namespace EchoesOfAsh.Dungeon
 {
     /// <summary>
-    /// 던전의 시작과 종료, 맵 이동, 노드 화면, 전투 전환, 런 중 저장을 관리합니다.
+    /// 던전 시작과 종료, 지도 이동, 장소 화면, 전투 전환과 진행 상황 저장을 관리합니다.
     /// </summary>
     public class DungeonManager : SWMonoBehaviour
     {
@@ -46,15 +46,15 @@ namespace EchoesOfAsh.Dungeon
 
         [SWGroup("데이터")]
         [SerializeField] private PartyData partyData;
-        [Tooltip("파티를 구성할 캐릭터 목록입니다 (임시 조치 — P2-M4 4-4 편성 화면으로 대체 예정)")]
+        [Tooltip("새 던전을 바로 시작할 때 사용할 파티원 목록입니다.")]
         [SerializeField] private List<CharacterData> characterDatas = new();
         [Tooltip("카드 데이터베이스입니다. 저장된 덱을 코드명으로 복원할 때 사용합니다.")]
         [SerializeField] private SWIODatabase cardDatabase;
-        [Tooltip("편성 화면에서 선택할 수 있는 보유 캐릭터 목록입니다 (임시 조치 — 메타 저장 도입 시 대체)")]
+        [Tooltip("파티 편성 화면에서 선택할 수 있는 캐릭터 목록입니다.")]
         [SerializeField] private List<CharacterData> availableCharacters = new();
-        [Tooltip("캐릭터 데이터베이스입니다. 저장된 파티를 코드명으로 복원할 때 사용합니다 (카드 DB와 같은 에셋 연결 가능)")]
+        [Tooltip("저장된 이름으로 파티원을 찾을 때 사용할 캐릭터 데이터베이스입니다.")]
         [SerializeField] private SWIODatabase characterDatabase;
-        [Tooltip("아이템 codeName 복원용 데이터베이스입니다 (저장 스키마 v3)")]
+        [Tooltip("저장된 이름으로 아이템을 찾을 때 사용할 데이터베이스입니다.")]
         [SerializeField] private SWIODatabase itemDatabase;
         [Tooltip("유물 복원용 데이터베이스입니다. 저장된 코드명으로 유물을 되찾습니다.")]
         [SerializeField] private SWIODatabase relicDatabase;
@@ -77,7 +77,7 @@ namespace EchoesOfAsh.Dungeon
         [SerializeField] private string townSceneName = "Town";
 
         [SWGroup("테스트")]
-        [Tooltip("테스트 유물 획득 버튼이 사용할 유물입니다 (임시 조치 - 보상 화면 도입 시 제거).")]
+        [Tooltip("테스트 유물 획득 버튼으로 지급할 유물입니다.")]
         [SerializeField] private RelicData testRelicData;
 
         private DungeonState dungeonState;
@@ -203,7 +203,7 @@ namespace EchoesOfAsh.Dungeon
 
             if (partySetupView == null || availableCharacters.Count == 0)
             {
-                SWLog.Log("[DungeonManager] 편성 화면 미배선: 기본 파티로 던전을 시작합니다.");
+                SWLog.Log("[DungeonManager] 편성 화면이 연결되지 않아 기본 파티로 던전을 시작합니다.");
                 StartDungeon();
                 return;
             }
@@ -214,7 +214,7 @@ namespace EchoesOfAsh.Dungeon
         /// <summary>
         /// 편성 확정을 처리하고 던전을 시작합니다.
         /// </summary>
-        /// <param name="members">확정된 파티 구성입니다 (선택 순서 = 파티 순서).</param>
+        /// <param name="members">선택을 마친 파티원 목록입니다. 선택한 순서대로 배치됩니다.</param>
         private void HandlePartyConfirmed(List<CharacterData> members)
         {
             selectedParty.Clear();
@@ -230,7 +230,7 @@ namespace EchoesOfAsh.Dungeon
 
         /// <summary>
         /// 마을 저장의 보유 캐릭터 명단으로 편성 후보를 갱신합니다.
-        /// 명단이 비어 있으면 인스펙터 목록을 유지합니다 (구저장·씬 단독 테스트 폴백). 등록 순서 = 영입 순서입니다.
+        /// 저장된 명단이 비어 있으면 인스펙터에 설정된 목록을 사용합니다. 캐릭터는 영입한 순서대로 등록합니다.
         /// </summary>
         private void RefreshAvailableCharactersFromTown()
         {
@@ -334,7 +334,7 @@ namespace EchoesOfAsh.Dungeon
         }
 
         /// <summary>
-        /// 저장된 스냅샷으로 던전을 복원하고 맵 선택 상태로 전환합니다.
+        /// 저장된 던전 데이터로 진행 상태를 복원하고 맵 선택 화면으로 전환합니다.
         /// 진입 처리가 완료되지 않은 노드는 진입 처리를 다시 실행합니다.
         /// </summary>
         [SWButton("던전 이어하기")]
@@ -369,7 +369,7 @@ namespace EchoesOfAsh.Dungeon
                 return;
             }
 
-            // 저장된 파티 복원 (스키마 v2). 구버전 저장은 인스펙터 기본 파티로 폴백합니다
+            // 저장된 파티가 없으면 인스펙터에 설정된 기본 파티를 사용합니다.
             List<CharacterData> partyMembers = characterDatas;
 
             if (saveData.partyCharacterCodeNames != null && saveData.partyCharacterCodeNames.Count > 0)
@@ -402,7 +402,7 @@ namespace EchoesOfAsh.Dungeon
                 SWLog.LogWarning("[DungeonManager] 구버전 저장: 파티를 인스펙터 기본 목록으로 복원합니다.");
             }
             
-            // 재개 후 난수는 비연속 (P2-D1 스냅샷 - 같은 시드 재설정 시 소비된 난수열 재등장 방지)
+            // 이어하기에서는 이전과 같은 무작위 결과가 반복되지 않도록 새 시드를 사용합니다.
             SWRandom.SetSeed(Environment.TickCount);
             dungeonState = new DungeonState(saveData.seed, partyData, partyMembers, startingCards, chapterData.SanityEventDatas);
 
@@ -420,10 +420,12 @@ namespace EchoesOfAsh.Dungeon
                 dungeonState.AddCard(new CardInstance(cardData, cardSave.isUpgrade));
             }
 
-            // 소지 드랍 복원 (P2-M6)
+            // 저장된 아이템을 복원합니다. 찾을 수 없는 아이템은 경고를 남기고 건너뜁니다.
             foreach (ItemCountSaveData itemSave in saveData.carriedItems)
             {
-                ItemData itemData = itemDatabase.GetDataByCodeName<ItemData>(itemSave.codeName);
+                ItemData itemData = itemDatabase != null
+                    ? itemDatabase.GetDataByCodeName<ItemData>(itemSave.codeName)
+                    : null;
 
                 if (itemData == null)
                 {
@@ -434,7 +436,7 @@ namespace EchoesOfAsh.Dungeon
                 dungeonState.AddCarriedItem(itemData, itemSave.count);
             }
 
-            // 보유 유물 복원 (P2-M7 - 미등록 코드명은 경고 후 건너뜁니다: 유물 유실은 런 진행을 막지 않습니다)
+            // 저장된 유물을 복원합니다. 찾을 수 없는 유물은 경고를 남기고 건너뜁니다.
             foreach (string relicCodeName in saveData.relicCodeNames)
             {
                 RelicData relicData = relicDatabase != null
@@ -527,7 +529,7 @@ namespace EchoesOfAsh.Dungeon
             pendingRewardCards.Clear();
             selectedParty.Clear();
 
-            // 런 종료 = 스냅샷 소멸. 회수/해금 반영은 메타 저장 소관 (P2-M6/M7)
+            // 던전이 끝나면 진행 중인 던전 저장 데이터를 삭제합니다.
             DungeonSaveService.DeleteSave();
 
             SWLog.Log($"[DungeonManager] 던전을 종료했습니다. 결과: {(isVictory ? "승리" : "패배")}");
@@ -535,7 +537,7 @@ namespace EchoesOfAsh.Dungeon
         }
 
         /// <summary>
-        /// 마을 씬으로 복귀합니다. 진행 중인 던전에서는 호출할 수 없습니다 (중간 탈출 없음 - 기획서 7-2).
+        /// 던전이 끝난 뒤 마을 장면으로 돌아갑니다. 진행 중에는 돌아갈 수 없습니다.
         /// </summary>
         [SWButton("마을로 복귀")]
         public void ReturnToTown()
@@ -726,7 +728,7 @@ namespace EchoesOfAsh.Dungeon
 
         /// <summary>
         /// 상점 노드에 진입해 재고를 굴립니다. 상점 뷰(아트 시점) 도입 전까지는 재고 로그와 테스트 버튼으로 검증합니다.
-        /// 잠정 규칙: 미해결 노드 재진입 = 재고 재굴림 (저장 스키마 무확장).
+        /// 완료하지 않은 상점 노드에 다시 들어오면 판매 목록을 새로 만듭니다.
         /// </summary>
         private void OpenShop()
         {
@@ -883,7 +885,7 @@ namespace EchoesOfAsh.Dungeon
         #region 정신력
         /// <summary>
         /// 던전 수위에서 파티 정신력을 변화시킵니다.
-        /// 전투 중에는 전투 정신력이 진실 원본이므로 호출을 무시합니다.
+        /// 전투 중에는 전투에서 정신력을 따로 관리하므로 호출을 무시합니다.
         /// 상한 보정은 전투 진입 시 정신력 홀더 생성 과정에서 처리합니다.
         /// </summary>
         /// <param name="delta">변화량입니다.</param>
@@ -897,7 +899,7 @@ namespace EchoesOfAsh.Dungeon
 
             if (currentPhase == EDungeonPhase.Battle)
             {
-                SWLog.LogWarning("[DungeonManager] ChangeDungeonSanity 무시: 전투 중에는 전투 정신력이 진실 원본입니다.");
+                SWLog.LogWarning("[DungeonManager] ChangeDungeonSanity 무시: 전투 중에는 전투에서 정신력을 관리합니다.");
                 return;
             }
 
@@ -911,7 +913,7 @@ namespace EchoesOfAsh.Dungeon
 
         #region 저장
         /// <summary>
-        /// 현재 던전 상태를 스냅샷으로 저장합니다.
+        /// 현재 던전 진행 상태를 저장합니다.
         /// </summary>
         private void SaveDungeon()
         {
@@ -1002,10 +1004,10 @@ namespace EchoesOfAsh.Dungeon
                 }
             }
 
-            // 몬스터 드랍형 카드 굴림 (P2-M7 7-4 - 조우당 1회)
+            // 이번 전투에서 드랍될 카드를 한 번 추첨합니다.
             RollEncounterCardDrop();
 
-            // 골드·카드 보상 굴림 (P2-M7 7-4)
+            // 전투 승리 골드와 카드 보상을 추첨합니다.
             RollBattleReward();
 
             currentEncounterData = null;
@@ -1030,8 +1032,8 @@ namespace EchoesOfAsh.Dungeon
         }
 
         /// <summary>
-        /// 조우의 몬스터 드랍형 카드를 굴립니다 (조우당 1회 - P2-M7 7-4).
-        /// 드랍된 카드는 던전 덱에 즉시 추가하고 도감에 발견 처리합니다 (즉시 영구 - 기획서 13-1 계열).
+        /// 이번 전투에서 드랍될 카드를 한 번 추첨합니다.
+        /// 드랍된 카드는 던전 덱에 추가하고 영구 해금합니다.
         /// </summary>
         private void RollEncounterCardDrop()
         {
@@ -1055,7 +1057,7 @@ namespace EchoesOfAsh.Dungeon
 
             dungeonState.AddCard(new CardInstance(dropCard));
 
-            // 첫 드랍 = 도감 발견 확정 + 즉시 저장 (이후 사망 무관 보존)
+            // 처음 얻은 카드는 즉시 도감에 등록하고 저장하여 던전 실패 후에도 유지합니다.
             if (CardUnlockService.TryUnlockByEnemyDrop(dropCard))
             {
                 SWLog.Log($"[DungeonManager] 도감 발견! 몬스터 드랍형 카드가 처음 드랍되었습니다: {dropCard.DisplayName}");
@@ -1066,7 +1068,7 @@ namespace EchoesOfAsh.Dungeon
 
         /// <summary>
         /// 승리한 전투의 골드와 카드 보상을 굴립니다. 골드는 즉시 반영하고, 카드는 선택 대기 목록에 보관합니다.
-        /// 선택지에 등장한 발견형 카드는 이 시점에 즉시 영구 해금합니다 (기획서 5-3/13-1 - 등장 = 해금 확정).
+        /// 보상 선택지에 처음 등장한 발견형 카드를 즉시 영구 해금합니다.
         /// </summary>
         private void RollBattleReward()
         {
@@ -1089,7 +1091,7 @@ namespace EchoesOfAsh.Dungeon
             pendingRewardCards.Clear();
             rewardConfig.RollCardChoices(unlockedCardBuffer, discoveryCandidateBuffer, pendingRewardCards);
 
-            // 발견형 등장 = 즉시 영구 해금 (원장 확정 = 조립 지점 소관 - 굴림/원장 분리)
+            // 처음 등장한 발견형 카드는 선택 여부와 관계없이 영구 해금합니다.
             foreach (CardData choice in pendingRewardCards)
             {
                 if (choice.UnlockType == ECardUnlockType.Discovery && !CardUnlockService.IsUnlocked(choice))
@@ -1134,7 +1136,7 @@ namespace EchoesOfAsh.Dungeon
         }
 
         /// <summary>
-        /// 카드 보상을 건너뜁니다 (기획서 14-6 - 건너뛰기 허용).
+        /// 현재 카드 보상을 선택하지 않고 닫습니다.
         /// </summary>
         public void SkipBattleRewardCard()
         {
@@ -1206,7 +1208,9 @@ namespace EchoesOfAsh.Dungeon
         #endregion // 맵 표시
 
         /// <summary>
-        /// 소지 아이템 전량을 거점(메타)으로 전송합니다. 전송 즉시 저장되므로 이후 사망해도 보존됩니다.
+        /// 던전에서 얻은 아이템을 모두 마을 보관함으로 옮깁니다.
+        /// 소지 아이템을 마을 보관함으로 옮기고 던전 소지 목록을 비웁니다.
+        /// 두 변경 사항을 함께 저장하여 같은 아이템이 두 번 지급되지 않게 합니다.
         /// </summary>
         private void TransferCarriedToStorage()
         {
@@ -1216,19 +1220,24 @@ namespace EchoesOfAsh.Dungeon
                 return;
             }
 
+            int transferredCount = dungeonState.CarriedItems.Count;
+
             foreach (ItemStackData stack in dungeonState.CarriedItems)
             {
                 TownSaveService.AddItem(stack.ItemData.CodeName, stack.Count);
             }
 
-            TownSaveService.Save();
-            SWLog.Log($"[DungeonManager] 보관 전송 완료: {dungeonState.CarriedItems.Count}종을 거점으로 보냈습니다.");
             dungeonState.ClearCarriedItems();
+
+            // 마을 보관함과 던전 소지 목록을 같은 저장 파일에 함께 기록합니다.
+            SaveDungeon();
+
+            SWLog.Log($"[DungeonManager] 보관 전송 완료: {transferredCount}종을 거점으로 보냈습니다.");
         }
 
         /// <summary>
         /// 던전 종료 시 소지 아이템의 회수를 판정합니다.
-        /// 승리 = 전량 회수, 패배 = 기본 자원만 회수하고 나머지는 소실됩니다 (기획서 2-1).
+        /// 승리하면 모든 아이템을 회수하고, 패배하면 기본 자원만 회수합니다.
         /// </summary>
         /// <param name="isVictory">던전 승리 여부입니다.</param>
         private void ResolveCarriedItems(bool isVictory)
@@ -1316,7 +1325,7 @@ namespace EchoesOfAsh.Dungeon
         }
 
         /// <summary>
-        /// 테스트 유물을 획득합니다 (임시 조치 - 보상 화면 도입 시 제거). 획득 반영은 다음 전투 시작부터입니다.
+        /// 설정된 테스트 유물을 획득합니다. 유물 효과는 다음 전투부터 적용됩니다.
         /// </summary>
         [SWButton("테스트 유물 획득")]
         public void AddTestRelic()

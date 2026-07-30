@@ -8,7 +8,7 @@ using UnityEngine;
 namespace EchoesOfAsh.View.UI
 {
     /// <summary>
-    /// 파티 슬롯 View
+    /// 파티원의 체력과 방어막 상태를 슬롯 형태로 표시합니다.
     /// </summary>
     public class PartyCharacterSlotView : SWMonoBehaviour
     {

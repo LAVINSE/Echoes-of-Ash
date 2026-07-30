@@ -7,7 +7,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Data
 {
     /// <summary>
-    /// 상태 이상 데이터
+    /// 상태 이상의 기본 정보와 중첩 제한을 보관합니다.
     /// </summary>
     [CreateAssetMenu(fileName = "Status_", menuName = "EchoesOfAsh/Data/StatusEffect")]
     public class StatusEffectData : SWIdentifiedObject

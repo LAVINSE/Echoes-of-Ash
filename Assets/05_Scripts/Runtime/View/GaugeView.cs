@@ -144,7 +144,7 @@ namespace EchoesOfAsh.View
             sanityMarker.gameObject.SetActive(true);
         }
 
-        #region 테스트
+        #region 에디터 테스트
 #if UNITY_EDITOR
         /// <summary>
         /// 인스펙터 값이 변경되면 테스트 슬라이더 상태를 게이지에 반영합니다.
@@ -215,6 +215,6 @@ namespace EchoesOfAsh.View
             fillRoot.localScale = Vector3.one;
         }
 #endif
-        #endregion // 테스트
+        #endregion // 에디터 테스트
     }
 }

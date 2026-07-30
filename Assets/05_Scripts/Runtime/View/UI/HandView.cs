@@ -69,7 +69,7 @@ namespace EchoesOfAsh.View.UI
         /// 초기화합니다.
         /// </summary>
         /// <param name="deckSystem">덱 시스템입니다.</param>
-        /// <param name="cardPlayService">카드 사용 파이프라인입니다.</param>
+        /// <param name="cardPlayService">카드 사용 가능 여부 확인과 효과 실행을 담당하는 서비스입니다.</param>
         /// <param name="apSystem">AP 시스템입니다.</param>
         public void Init(DeckSystem deckSystem, CardPlayService cardPlayService, ApSystem apSystem)
         {
@@ -145,7 +145,7 @@ namespace EchoesOfAsh.View.UI
 
             if (cardView == null)
             {
-                SWLog.LogError("[HandView] 카드 뷰 스폰 실패: 프리팹에 CardView가 없습니다");
+                SWLog.LogError("[HandView] 카드 생성 실패: 프리팹에 CardView가 없습니다.");
             }
 
             return cardView;

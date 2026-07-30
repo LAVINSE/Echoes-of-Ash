@@ -17,13 +17,13 @@ namespace EchoesOfAsh.Save
     }
 
     /// <summary>
-    /// 던전 1회 도전의 저장 스냅샷입니다 (P2-D1 - 전체 상태 스냅샷).
-    /// GameSaveData의 던전 구획으로 저장되며, 가변 런 상태만 담고 정적 구성(조우 풀, 이벤트 풀, 밸런스)은 저장하지 않습니다.
+    /// 진행 중인 던전의 변경 가능한 상태를 보관합니다.
+    /// 지도 구성, 조우 목록과 밸런스처럼 에셋에서 다시 읽을 수 있는 정보는 저장하지 않습니다.
     /// </summary>
     [System.Serializable]
     public class DungeonSaveData
     {
-        /// <summary>저장 스키마 버전입니다. 개발 중에는 마이그레이션 없이 버전 불일치 = 폐기입니다 (구버전 강제 폐기가 필요할 때만 증가).</summary>
+        /// <summary>던전 저장 데이터의 형식 버전입니다.</summary>
         public int version;
 
         /// <summary>던전 생성에 사용한 시드입니다 (생성 기록/재현용 - 재개 시 난수 연속성은 보장하지 않습니다).</summary>
@@ -38,9 +38,9 @@ namespace EchoesOfAsh.Save
         public int moveCount;
         /// <summary>잿불에 잠식된 마지막 층입니다.</summary>
         public int ashConsumedFloor;
-        /// <summary>이번 던전에서 광기 이벤트가 발생했는지 여부입니다 (던전당 1회 - 기본값 false = 구저장 호환).</summary>
+        /// <summary>이번 던전에서 광기 이벤트가 발생했는지 여부입니다. 이전 저장 데이터에서는 발생하지 않은 상태로 읽습니다.</summary>
         public bool hasMadnessEventOccurred;
-        /// <summary>던전 중 보유 골드입니다 (P2-M7 7-4 - 기본값 0 = 구저장 호환).</summary>
+        /// <summary>던전 중 보유한 골드입니다.</summary>
         public int gold;
 
         /// <summary>맵의 모든 노드입니다 (방문/잠식 상태 포함).</summary>
@@ -54,9 +54,9 @@ namespace EchoesOfAsh.Save
         /// <summary>파티 캐릭터 코드명 목록입니다 (편성 화면 도입분).</summary>
         public List<string> partyCharacterCodeNames = new();
 
-        /// <summary>던전 중 소지한 드랍 아이템 목록입니다. codeName 기준으로 복원합니다 (P2-M6).</summary>
+        /// <summary>던전 중 소지한 아이템 목록입니다. 코드명으로 원본 데이터를 찾습니다.</summary>
         public List<ItemCountSaveData> carriedItems = new();
-        /// <summary>던전 중 획득한 유물 코드명 목록입니다. 목록 순서 = 획득 순 = 발화 순입니다 (P2-M7).</summary>
+        /// <summary>던전 중 획득한 유물 코드명 목록입니다. 유물 효과는 목록 순서대로 실행됩니다.</summary>
         public List<string> relicCodeNames = new();
     }
 }

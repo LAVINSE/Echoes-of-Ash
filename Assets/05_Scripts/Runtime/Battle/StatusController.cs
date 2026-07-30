@@ -8,26 +8,26 @@ using UnityEngine;
 namespace EchoesOfAsh.Battle
 {
     /// <summary>
-    /// 전투원 1인의 상태 이상 관리하는 클래스
+    /// 전투원 한 명에게 적용된 상태 이상과 남은 중첩을 관리합니다.
     /// </summary>
     public class StatusController
     {
         #region 필드
-        /// <summary>상태이상별 현재 중첩입니다.</summary>
+        /// <summary>상태 이상별 현재 중첩입니다.</summary>
         private readonly Dictionary<EStatusEffectType, int> stacks = new();
-        /// <summary>적용 순서 활성 상태이상 목록</summary>
+        /// <summary>현재 적용된 상태 이상을 적용된 순서대로 보관합니다.</summary>
         private readonly List<EStatusEffectType> activeOrder = new();
-        /// <summary>상태이상별 정의 데이터</summary>
+        /// <summary>상태 이상별 설정 데이터입니다.</summary>
         private readonly Dictionary<EStatusEffectType, StatusEffectData> dataByType = new();
-        /// <summary>라운드 감소 순회용 버퍼</summary>
+        /// <summary>라운드 종료 시 안전하게 중첩을 줄이기 위한 임시 목록입니다.</summary>
         private readonly List<EStatusEffectType> tickBuffer = new();
         #endregion // 필드
 
         #region 프로퍼티
-        /// <summary>적용 순서 활성 상태이상 목록</summary>
+        /// <summary>현재 적용된 상태 이상 목록입니다.</summary>
         public IReadOnlyList<EStatusEffectType> ActiveStatuses => activeOrder;
 
-        /// <summary>상태 이상 중첩이 변경될 때 유형과 현재 중첩(만료 = 0)을 전달합니다.</summary>
+        /// <summary>상태 이상 중첩이 바뀌면 종류와 현재 값을 전달합니다. 만료되면 현재 값은 0입니다.</summary>
         public event Action<EStatusEffectType, int> OnStatusChanged;
         #endregion // 프로퍼티
 
@@ -66,7 +66,7 @@ namespace EchoesOfAsh.Battle
         public StatusEffectData GetData(EStatusEffectType statusType)
             => dataByType.TryGetValue(statusType, out StatusEffectData statusData) ? statusData : null;
 
-        #region 부여 - 조회
+        #region 부여 및 조회
         /// <summary>
         /// 상태 이상 중첩을 가감합니다. 음수 전달 시 감소하며 0 미만으로 내려가지 않습니다.
         /// </summary>
@@ -130,12 +130,12 @@ namespace EchoesOfAsh.Battle
 
             OnStatusChanged?.Invoke(statusType, newStack);
         }
-        #endregion // 부여 - 조회
+        #endregion // 부여 및 조회
 
         #region 판정
         /// <summary>
-        /// 활성 상태 이상 전체의 받는 피해 배율 곱을 반환합니다 (취약 = 1.5).
-        /// 배율은 중첩 수와 무관하게 활성 여부로만 적용됩니다 (중첩 = 남은 라운드 수).
+        /// 현재 적용된 모든 상태 이상을 반영한 받는 피해 비율을 반환합니다. 취약 상태에서는 1.5배입니다.
+        /// 중첩은 남은 라운드 수이며, 피해 비율에는 중첩 수가 아닌 적용 여부만 반영됩니다.
         /// </summary>
         /// <returns>받는 피해 배율입니다.</returns>
         public float GetDamageTakenMultiplier()
@@ -165,7 +165,7 @@ namespace EchoesOfAsh.Battle
                 return;
             }
 
-            // 순회 중 만료 제거가 일어나므로 버퍼로 순회 (부여 순 고정)
+            // 확인하는 동안 만료된 상태를 안전하게 제거하기 위해 목록을 복사합니다.
             tickBuffer.Clear();
             tickBuffer.AddRange(activeOrder);
 
@@ -187,7 +187,7 @@ namespace EchoesOfAsh.Battle
 
         #region 정리
         /// <summary>
-        /// 모든 상태 이상을 제거합니다. 활성 중이던 유형은 만료(0) 이벤트를 발화합니다.
+        /// 모든 상태 이상을 제거하고 각 상태의 중첩이 0이 되었음을 알립니다.
         /// </summary>
         public void ResetAll()
         {

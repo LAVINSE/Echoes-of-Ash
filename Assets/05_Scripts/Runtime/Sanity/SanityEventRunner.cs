@@ -9,10 +9,11 @@ using SW.Util;
 namespace EchoesOfAsh.Sanity
 {
     /// <summary>
-    /// 정신력 이벤트 러너입니다 (SanityEventData 실행 담당 - 데이터와 접두어 대칭).
-    /// 파티 공유 정신력이 광기 구간인 상태로 맞는 첫 턴 시작에 확정 발동합니다 (던전당 1회 - 다키스트 던전 결의 판정 방식).
-    /// 발동 여부의 진실 원본은 던전 상태이며 델리게이트로 주입받습니다 (Sanity -> Dungeon 의존 차단).
-    /// 잠정 규칙: 턴 중 광기 진입 후 같은 턴 내 회복(순간 스침)은 미발동, 전투 밖 광기 진입은 다음 전투 첫 턴 시작에 발동합니다.
+    /// 파티 정신력에 따라 정신력 이벤트를 실행합니다.
+    /// 파티가 광기 상태인 채로 턴을 시작하면 던전마다 한 번 이벤트가 발생합니다.
+    /// 이벤트 발생 여부는 전달받은 조회 및 기록 동작으로 던전 상태에 반영합니다.
+    /// 턴 도중 광기에 진입해도 같은 턴에 회복하면 이벤트를 실행하지 않습니다.
+    /// 전투 밖에서 광기에 진입하면 다음 전투의 첫 턴에 이벤트를 실행합니다.
     /// </summary>
     public class SanityEventRunner
     {
@@ -28,7 +29,7 @@ namespace EchoesOfAsh.Sanity
 
         /// <summary>파티원 목록입니다. 효과 대상은 판정 시점의 첫 생존자입니다.</summary>
         private readonly IReadOnlyList<ITargetable> partyMembers;
-        /// <summary>효과 대상 구성 버퍼입니다.</summary>
+        /// <summary>효과를 받을 파티원을 잠시 담는 목록입니다.</summary>
         private readonly List<ITargetable> selfTargetBuffer = new();
         #endregion // 필드
 
@@ -39,11 +40,11 @@ namespace EchoesOfAsh.Sanity
 
         #region 생성자
         /// <summary>
-        /// 정신력 이벤트 러너를 생성합니다.
+        /// 정신력 이벤트 실행에 필요한 정보를 설정합니다.
         /// </summary>
         /// <param name="partySanity">파티 공유 정신력입니다.</param>
         /// <param name="effectExecutor">효과 실행기입니다.</param>
-        /// <param name="sanityEvents">정신력 이벤트 풀입니다.</param>
+        /// <param name="sanityEvents">사용할 정신력 이벤트 목록입니다.</param>
         /// <param name="partyMembers">파티원 목록입니다.</param>
         /// <param name="hasOccurred">이번 던전의 정신력 이벤트 발생 여부 조회입니다.</param>
         /// <param name="markOccurred">정신력 이벤트 발생 기록입니다.</param>
@@ -68,7 +69,7 @@ namespace EchoesOfAsh.Sanity
 
         #region 판정
         /// <summary>
-        /// 턴 시작 훅 처리입니다. TurnManager.OnTurnStartHook에 구독됩니다.
+        /// 턴이 시작될 때 정신력 이벤트 발생 여부를 확인합니다.
         /// 광기 구간이 아니거나 이번 던전에서 이미 발생했으면 아무 일도 하지 않습니다.
         /// </summary>
         /// <param name="turnNumber">현재 턴 번호입니다.</param>
@@ -90,7 +91,7 @@ namespace EchoesOfAsh.Sanity
                 return;
             }
 
-            // 풀에서 무작위 1건 선택 (SWRandom 일원화 - 시드 결정성 유지)
+            // 설정된 목록에서 이벤트 하나를 무작위로 선택합니다.
             SanityEventData sanityEvent = sanityEvents[SWRandom.Range(0, sanityEvents.Count)];
 
             if (sanityEvent == null)
@@ -142,7 +143,7 @@ namespace EchoesOfAsh.Sanity
         }
 
         /// <summary>
-        /// 정신력 이벤트의 효과 시전/대상이 될 첫 생존 파티원을 반환합니다. 전원 사망이면 null입니다 (잠정 규칙).
+        /// 정신력 이벤트를 실행할 첫 번째 생존 파티원을 반환합니다. 모두 사망했으면 null을 반환합니다.
         /// </summary>
         /// <returns>첫 생존 파티원입니다.</returns>
         private ITargetable GetFirstAliveMember()

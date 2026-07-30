@@ -8,14 +8,14 @@ using UnityEngine;
 namespace EchoesOfAsh.Data
 {
     /// <summary>
-    /// 던전 1개의 챕터 데이터
+    /// 던전 챕터 하나의 지도, 조우, 보상과 이벤트 구성을 보관합니다.
     /// </summary>
     [CreateAssetMenu(fileName = "DungeonChapterData", menuName = "EchoesOfAsh/Data/DungeonChapter")]
     public class DungeonChapterData : SWScriptableObject
     {
         #region 데이터
         /// <summary>
-        /// 노드 타입 하나에 연결되는 이벤트 풀
+        /// 노드 유형 하나에 연결되는 이벤트 목록입니다.
         /// </summary>
         [System.Serializable]
         public class EventNodePoolEntry
@@ -40,17 +40,17 @@ namespace EchoesOfAsh.Data
         [SWGroup("적 데이터")]
         [Tooltip("일반 전투 노드에서 무작위로 선택할 풀입니다.")]
         [SerializeField] private List<EnemyEncounterData> battleEncounters = new();
-        [Tooltip("엘리트 노드의 조우 풀입니다. 비어 있으면 일반 풀로 폴백합니다.")]
+        [Tooltip("엘리트 장소에서 선택할 적 조합 목록입니다. 비어 있으면 일반 전투 목록을 사용합니다.")]
         [SerializeField] private List<EnemyEncounterData> eliteEncounters = new();
-        [Tooltip("보스 노드의 조우 풀입니다. 비어 있으면 일반 풀로 폴백합니다.")]
+        [Tooltip("보스 장소에서 선택할 적 조합 목록입니다. 비어 있으면 일반 전투 목록을 사용합니다.")]
         [SerializeField] private List<EnemyEncounterData> bossEncounters = new();
 
         [SWGroup("노드 이벤트")]
-        [Tooltip("노드 타입과 이벤트 풀의 매핑 목록입니다. 미등록 타입의 노드는 통과 처리됩니다.")]
+        [Tooltip("장소 종류별로 발생할 수 있는 이벤트 목록입니다. 목록이 없는 장소에서는 이벤트가 발생하지 않습니다.")]
         [SerializeField] private List<EventNodePoolEntry> nodeEventPools = new();
 
         [SWGroup("정신력")]
-        [Tooltip("이 챕터에서 발생할 수 있는 정신력 이벤트 풀입니다.")]
+        [Tooltip("이 챕터에서 발생할 수 있는 정신력 이벤트 목록입니다.")]
         [SerializeField] private List<SanityEventData> sanityEventDatas = new();
 
         [SWGroup("상태이상")]
@@ -58,9 +58,9 @@ namespace EchoesOfAsh.Data
         [SerializeField] private List<StatusEffectData> statusDatas = new();
 
         [SWGroup("보상 / 상점")]
-        [Tooltip("전투 승리 보상 구성입니다 (골드·카드 보상 굴림 - P2-M7 7-4)")]
+        [Tooltip("전투에서 승리했을 때 지급할 골드와 카드 보상 설정입니다.")]
         [SerializeField] private RewardConfigData rewardConfigData;
-        [Tooltip("상점 구성입니다 (슬롯·가격 - P2-M7 7-4)")]
+        [Tooltip("상점의 판매 수량과 가격 설정입니다.")]
         [SerializeField] private ShopConfigData shopConfigData;
         #endregion // 필드
 
@@ -80,12 +80,12 @@ namespace EchoesOfAsh.Data
 
         #region 조회
         /// <summary>
-        /// 노드 타입에 맞는 조우 풀에서 현재 층에 등장할 수 있는 조우를 무작위로 선택합니다 (SpawnRange 결합 - P2-M7 7-3).
-        /// 엘리트와 보스는 전용 풀을 우선 사용하고, 비어 있으면 일반 조우 풀로 폴백합니다.
-        /// 층 필터 결과가 비어 있으면 필터를 무시하고 풀 전체에서 추첨합니다 (조우 유실은 런 진행을 막지 않습니다).
+        /// 노드 유형과 현재 층에 맞는 조우를 무작위로 선택합니다.
+        /// 엘리트와 보스 목록이 비어 있으면 일반 조우 목록을 사용합니다.
+        /// 현재 층에 맞는 조우가 없으면 전체 목록에서 선택합니다.
         /// </summary>
         /// <param name="nodeType">진입한 전투 노드의 타입입니다.</param>
-        /// <param name="floor">진입한 노드의 층입니다 (0 = 입구층).</param>
+        /// <param name="floor">진입한 장소의 층입니다. 0은 입구층입니다.</param>
         /// <returns>선택한 조우 데이터입니다. 사용할 수 있는 조우가 없으면 null입니다.</returns>
         public EnemyEncounterData GetRandomEncounter(EMapNodeType nodeType, int floor)
         {
@@ -117,7 +117,7 @@ namespace EchoesOfAsh.Data
         }
 
         /// <summary>
-        /// 노드 타입에 매핑된 이벤트 풀에서 이벤트를 선택합니다. 풀 1개 = 고정, 복수 = 무작위입니다.
+        /// 장소 종류에 맞는 이벤트 목록에서 하나를 선택합니다. 하나뿐이면 그대로 사용하고 여러 개면 무작위로 고릅니다.
         /// </summary>
         /// <param name="nodeType">진입한 노드의 타입입니다.</param>
         /// <returns>선택한 이벤트 데이터입니다. 매핑이 없거나 풀이 비어 있으면 null (통과 처리)입니다.</returns>
@@ -144,7 +144,7 @@ namespace EchoesOfAsh.Data
         }
 
         /// <summary>
-        /// 노드 타입에 맞는 조우 풀을 반환합니다. 엘리트와 보스 풀이 비어 있으면 일반 풀로 폴백합니다.
+        /// 노드 유형에 맞는 조우 목록을 반환합니다. 엘리트와 보스 목록이 비어 있으면 일반 조우 목록을 반환합니다.
         /// </summary>
         /// <param name="nodeType">진입한 전투 노드의 타입입니다.</param>
         /// <returns>사용할 조우 풀입니다.</returns>
@@ -155,7 +155,7 @@ namespace EchoesOfAsh.Data
                 case EMapNodeType.Elite:
                     if (eliteEncounters.Count == 0)
                     {
-                        SWLog.LogWarning($"[DungeonChapterData] '{name}': 엘리트 조우 풀이 비어 있어 일반 조우 풀로 폴백합니다.");
+            SWLog.LogWarning($"[DungeonChapterData] '{name}': 엘리트 적 조합이 없어 일반 전투 목록을 사용합니다.");
                         return battleEncounters;
                     }
 
@@ -164,7 +164,7 @@ namespace EchoesOfAsh.Data
                 case EMapNodeType.Boss:
                     if (bossEncounters.Count == 0)
                     {
-                        SWLog.LogWarning($"[DungeonChapterData] '{name}': 보스 조우 풀이 비어 있어 일반 조우 풀로 폴백합니다.");
+            SWLog.LogWarning($"[DungeonChapterData] '{name}': 보스 적 조합이 없어 일반 전투 목록을 사용합니다.");
                         return battleEncounters;
                     }
 
@@ -207,7 +207,7 @@ namespace EchoesOfAsh.Data
         }
 
         /// <summary>
-        /// 노드 이벤트 매핑의 중복 타입과 전투 계열 타입을 검사합니다 (개정 11 결정).
+        /// 같은 노드 유형이 중복되었거나 전투 노드가 이벤트 목록에 등록되었는지 검사합니다.
         /// </summary>
         private void ValidateNodeEventPools()
         {

@@ -53,12 +53,12 @@ namespace EchoesOfAsh.Data
         #endregion // 프로퍼티
 
         /// <summary>
-        /// 현재 정신력 기준 광기 이벤트 발생 확률을 반환합니다.
-        /// 임계값 부근 = 기본 확률, 정신력 0 = 최대 확률로 선형 증가
+        /// 현재 정신력을 기준으로 광기 이벤트 발생 확률을 반환합니다.
+        /// 임계값 부근에서는 기본 확률이며, 정신력이 0에 가까워질수록 최대 확률까지 선형으로 증가합니다.
         /// </summary>
-        /// <param name="currentSanity">현재 정신력</param>
-        /// <param name="sanityThreshold">광기 전환 임계값</param>
-        /// <returns>발생 확률 0~1</returns>
+        /// <param name="currentSanity">현재 정신력입니다.</param>
+        /// <param name="sanityThreshold">광기 전환 임계값입니다.</param>
+        /// <returns>0 이상 1 이하의 발생 확률입니다.</returns>
         public float GetMadnessEventChance(int currentSanity, int sanityThreshold)
         {
             if (sanityThreshold <= 0)

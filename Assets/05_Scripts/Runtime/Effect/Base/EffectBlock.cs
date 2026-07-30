@@ -4,7 +4,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Effect
 {
     /// <summary>
-    /// 카드와 적 행동에서 실행되는 효과의 공통 계약을 정의합니다.
+    /// 카드와 적 행동에서 실행되는 모든 효과의 기본 기능을 정의합니다.
     /// </summary>
     [System.Serializable]
     public abstract class EffectBlock
@@ -18,7 +18,7 @@ namespace EchoesOfAsh.Effect
         /// <summary>
         /// 효과를 실행합니다.
         /// </summary>
-        /// <param name="context">실행 컨텍스트입니다.</param>
+        /// <param name="context">효과 실행에 필요한 시전자와 대상 정보입니다.</param>
         public abstract void Apply(EffectContext context);
 
         /// <summary>

@@ -87,7 +87,7 @@ namespace EchoesOfAsh.Battle
                 return false;
             }
 
-            foreach (var enemy in targetableBuffer)
+            foreach (ITargetable enemy in targetableBuffer)
             {
                 results.Add(enemy);
             }
@@ -142,7 +142,7 @@ namespace EchoesOfAsh.Battle
         #endregion // 타입별 구성
 
         /// <summary>
-        /// 대상 지정 가능한 적만 버퍼에 추가합니다.
+        /// 대상으로 지정할 수 있는 적만 임시 목록에 추가합니다.
         /// </summary>
         /// <param name="enemies">검사할 적 목록입니다.</param>
         private void CollectTargetable(IReadOnlyList<EnemyEntity> enemies)
@@ -154,7 +154,7 @@ namespace EchoesOfAsh.Battle
                 return;
             }
 
-            foreach (var enemy in enemies)
+            foreach (EnemyEntity enemy in enemies)
             {
                 if (enemy != null && enemy.IsTargetable)
                 {

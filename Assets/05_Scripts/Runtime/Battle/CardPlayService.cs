@@ -11,7 +11,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Battle
 {
     /// <summary>
-    /// 카드 사용 파이프라인입니다.
+    /// 카드 사용 가능 여부를 확인하고 카드 효과를 실행합니다.
     /// </summary>
     public class CardPlayService
     {
@@ -29,7 +29,7 @@ namespace EchoesOfAsh.Battle
 
         #region 생성자
         /// <summary>
-        /// 카드 사용 파이프라인을 생성합니다.
+        /// 카드 사용에 필요한 시스템을 연결합니다.
         /// </summary>
         /// <param name="apSystem">AP 시스템입니다.</param>
         /// <param name="deckSystem">덱 시스템입니다.</param>
@@ -88,7 +88,7 @@ namespace EchoesOfAsh.Battle
                 return false;
             }
 
-            foreach (var target in targets)
+            foreach (ITargetable target in targets)
             {
                 if (target == null || !target.IsTargetable)
                 {
@@ -140,7 +140,7 @@ namespace EchoesOfAsh.Battle
             }
 
             ESanityType sanityType = partySanityHolder.CurrentSanityType;
-            var effectBlocks = card.GetEffectBlocks(sanityType);
+            IReadOnlyList<EffectBlock> effectBlocks = card.GetEffectBlocks(sanityType);
 
             effectExecutor.Execute(effectBlocks, caster, targets);
 

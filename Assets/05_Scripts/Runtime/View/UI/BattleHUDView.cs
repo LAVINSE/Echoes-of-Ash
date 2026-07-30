@@ -12,7 +12,7 @@ using UnityEngine.UI;
 namespace EchoesOfAsh.View.UI
 {
     /// <summary>
-    /// 전투 HUD 뷰
+    /// 전투의 행동력, 카드 더미 수와 턴 종료 입력을 표시하고 처리합니다.
     /// </summary>
     public class BattleHUDView : SWMonoBehaviour
     {
@@ -101,8 +101,9 @@ namespace EchoesOfAsh.View.UI
         }
         #endregion // 초기화
 
+        #region 이벤트 처리
         /// <summary>
-        /// 턴 종료 버튼 콜백
+        /// 턴 종료 버튼 입력을 연결된 요청 함수에 전달합니다.
         /// </summary>
         private void HandleEndTurnClicked()
         {
@@ -110,10 +111,10 @@ namespace EchoesOfAsh.View.UI
         }
 
         /// <summary>
-        /// 턴 단계 변경 시 버튼 활성 상태 갱신 콜백
-        /// 플레이어 행동 단계에만 턴 종료 가능
+        /// 턴 단계가 변경되면 턴 종료 버튼의 활성 상태를 갱신합니다.
+        /// 플레이어 행동 단계에서만 턴을 종료할 수 있습니다.
         /// </summary>
-        /// <param name="phase">현재 턴 단계</param>
+        /// <param name="phase">현재 턴 단계입니다.</param>
         private void HandlePhaseChanged(ETurnPhase phase)
         {
             if (endTurnButton != null)
@@ -123,9 +124,9 @@ namespace EchoesOfAsh.View.UI
         }
 
         /// <summary>
-        /// AP 변경시 표시를 갱신 콜백
+        /// 행동력이 변경되면 표시 값을 갱신합니다.
         /// </summary>
-        /// <param name="currentAp">현재 AP</param>
+        /// <param name="currentAp">현재 행동력입니다.</param>
         private void HandleApChanged(int currentAp)
         {
             if (apText != null)
@@ -135,10 +136,10 @@ namespace EchoesOfAsh.View.UI
         }
 
         /// <summary>
-        /// 덱/버림 더미 수 변경 시 카운터 갱신 콜백
+        /// 덱과 버림 더미의 카드 수가 변경되면 표시 값을 갱신합니다.
         /// </summary>
-        /// <param name="drawCount">덱 남은 수</param>
-        /// <param name="discardCount">버림 더미 수</param>
+        /// <param name="drawCount">덱에 남은 카드 수입니다.</param>
+        /// <param name="discardCount">버림 더미의 카드 수입니다.</param>
         private void HandlePileChanged(int drawCount, int discardCount)
         {
             if (drawPileText != null)
@@ -151,5 +152,6 @@ namespace EchoesOfAsh.View.UI
                 discardPileText.text = discardCount.ToString();
             }
         }
+        #endregion // 이벤트 처리
     }
 }

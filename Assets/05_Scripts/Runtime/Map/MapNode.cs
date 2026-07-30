@@ -25,9 +25,9 @@ namespace EchoesOfAsh.Map
         public int Identifier => identifier;
         /// <summary>노드가 배치된 층입니다.</summary>
         public int Floor => floor;
-        /// <summary>노드가 배치된 레인입니다.</summary>
+        /// <summary>노드가 배치된 세로 칸입니다.</summary>
         public int Lane => lane;
-        /// <summary>노드의 타입입니다.</summary>
+        /// <summary>노드의 종류입니다.</summary>
         public EMapNodeType NodeType => nodeType;
         /// <summary>노드의 화면 좌표입니다.</summary>
         public Vector2 Position => position;
@@ -45,8 +45,8 @@ namespace EchoesOfAsh.Map
         /// </summary>
         /// <param name="identifier">노드의 식별자입니다.</param>
         /// <param name="floor">노드가 배치된 층입니다.</param>
-        /// <param name="lane">노드가 배치된 레인입니다.</param>
-        /// <param name="nodeType">노드의 타입입니다.</param>
+        /// <param name="lane">노드가 배치된 세로 칸입니다.</param>
+        /// <param name="nodeType">노드의 종류입니다.</param>
         /// <param name="position">노드의 화면 좌표입니다.</param>
         public MapNode(int identifier, int floor, int lane, EMapNodeType nodeType, Vector2 position)
         {
@@ -60,9 +60,9 @@ namespace EchoesOfAsh.Map
 
         #region 함수
         /// <summary>
-        /// 노드 타입을 변경합니다.
+        /// 노드 종류를 변경합니다.
         /// </summary>
-        /// <param name="nodeType">변경할 노드 타입입니다.</param>
+        /// <param name="nodeType">변경할 노드 종류입니다.</param>
         public void SetNodeType(EMapNodeType nodeType)
         {
             this.nodeType = nodeType;

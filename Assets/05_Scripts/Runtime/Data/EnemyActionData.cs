@@ -34,7 +34,7 @@ namespace EchoesOfAsh.Data
         {
             List<EIntentType> result = new();
 
-            foreach (var effect in effects)
+            foreach (EffectBlock effect in effects)
             {
                 EIntentType? intent = effect.IntentContribution;
 
@@ -61,7 +61,7 @@ namespace EchoesOfAsh.Data
         {
             int total = 0;
 
-            foreach (var effect in effects)
+            foreach (EffectBlock effect in effects)
             {
                 if (effect is DamageEffect damageEffect)
                 {
@@ -80,7 +80,7 @@ namespace EchoesOfAsh.Data
         {
             int total = 0;
 
-            foreach (var effect in effects)
+            foreach (EffectBlock effect in effects)
             {
                 if (effect is SanityChangeEffect sanityChangeEffect && sanityChangeEffect.Delta < 0)
                 {

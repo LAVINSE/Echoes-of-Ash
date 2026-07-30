@@ -19,14 +19,14 @@ using UnityEngine;
 namespace EchoesOfAsh.Battle
 {
     /// <summary>
-    /// 전투 매니저입니다.
+    /// 전투 준비부터 종료까지 전체 진행을 관리합니다.
     /// </summary>
     public class BattleManager : SWMonoBehaviour
     {
         #region 필드
         [SWGroup("데이터")]
         [SerializeField] private BattleBalanceData balanceData;
-        [Tooltip("이 전투에서 유효한 상태 이상 정의 목록입니다 (임시 조치)")]
+        [Tooltip("챕터에 상태 이상 목록이 없을 때 사용할 기본 목록입니다.")]
         [SerializeField] private List<StatusEffectData> statusDatas;
 
         [SWGroup("배치")]
@@ -68,11 +68,11 @@ namespace EchoesOfAsh.Battle
         private readonly List<EnemyAI> enemyAIs = new();
         private readonly List<ITargetable> cardTargetBuffer = new();
         private readonly List<ITargetable> enemyTargetBuffer = new();
-        /// <summary>챕터에서 주입된 상태이상 정의입니다. 미주입이면 인스펙터 목록으로 폴백합니다.</summary>
+        /// <summary>챕터에 설정된 상태 이상 목록입니다. 설정되지 않았으면 인스펙터 목록을 사용합니다.</summary>
         private IReadOnlyList<StatusEffectData> chapterStatusDatas;
-        /// <summary>피격/가해 트리거 배선용 구독 목록입니다. 해제 대칭을 위해 보관합니다.</summary>
+        /// <summary>피해 발생 시 실행할 효과와 이를 해제할 때 필요한 정보를 보관합니다.</summary>
         private readonly List<(BattleEntity entity, Action<int, int> handler)> damageTriggerHandlers = new();
-        /// <summary>카드 실행 중 가해 트리거 귀속 시전자입니다. 귀속 구간 밖 피해(상태이상 틱 등)는 가해 트리거를 발화하지 않습니다.</summary>
+        /// <summary>현재 카드 효과를 실행한 시전자입니다. 카드 효과 밖에서 발생한 피해는 가해 효과를 실행하지 않습니다.</summary>
         private CharacterEntity dealDamageAttributionCaster;
         #endregion // 필드
 
@@ -82,11 +82,11 @@ namespace EchoesOfAsh.Battle
         /// <summary>전투 결과 타입입니다.</summary>
         public EBattleResult BattleResult => battleResult;
 
-        /// <summary>파티원 엔티티 목록입니다 (스폰 순서 고정).</summary>
+        /// <summary>전투에 참가한 파티원 목록입니다. 배치된 순서를 유지합니다.</summary>
         public IReadOnlyList<CharacterEntity> Party => party;
-        /// <summary>적 엔티티 목록 (스폰 순서 = 행동 순서)입니다.</summary>
+        /// <summary>전투에 참가한 적 목록입니다. 배치된 순서대로 행동합니다.</summary>
         public IReadOnlyList<EnemyEntity> EnemyEntities => enemyEntities;
-        /// <summary>적 인공지능 목록 (적 엔티티 목록 인덱스와 일치)입니다.</summary>
+        /// <summary>각 적의 행동을 결정하는 목록입니다. 적 목록과 같은 순서입니다.</summary>
         public IReadOnlyList<EnemyAI> EnemyAIs => enemyAIs;
 
         /// <summary>파티 공유 정신력입니다.</summary>
@@ -95,12 +95,12 @@ namespace EchoesOfAsh.Battle
         public DeckSystem DeckSystem => deckSystem;
         /// <summary>AP 시스템입니다.</summary>
         public ApSystem ApSystem => apSystem;
-        /// <summary>카드 사용 파이프라인입니다.</summary>
+        /// <summary>카드 사용 가능 여부 확인과 효과 실행을 담당합니다.</summary>
         public CardPlayService CardPlayService => cardPlayService;
         /// <summary>턴 매니저입니다.</summary>
         public TurnManager TurnManager => turnManager;
 
-        /// <summary>미주입(null) 시 인스펙터 목록을 사용하는 폴백입니다.</summary>
+        /// <summary>챕터에 별도 목록이 없으면 인스펙터에 설정된 상태 이상 목록을 반환합니다.</summary>
         private IReadOnlyList<StatusEffectData> ActiveStatusDatas => chapterStatusDatas ?? statusDatas;
 
         /// <summary>전투 시작 시 호출됩니다.</summary>
@@ -111,7 +111,7 @@ namespace EchoesOfAsh.Battle
 
         #region 초기화
         /// <summary>
-        /// 객체가 제거될 때 전투에서 생성하거나 구독한 런타임 자원을 정리합니다.
+        /// 객체가 제거될 때 전투에서 만든 객체와 연결한 이벤트를 정리합니다.
         /// </summary>
         private void OnDestroy()
         {
@@ -345,7 +345,7 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 파티원 생성 및 정신력 설정합니다. 스폰 순서 = 목록 순서 (발화 순서 결정성)입니다.
+        /// 목록 순서대로 파티원을 생성하고 공유 정신력을 설정합니다.
         /// </summary>
         private void SetupParty()
         {
@@ -392,7 +392,7 @@ namespace EchoesOfAsh.Battle
         {
             aggroSystem = new AggroSystem(balanceData);
 
-            foreach (var entry in currentEncounter.Entries)
+            foreach (EnemyEncounterData.EncounterEntry entry in currentEncounter.Entries)
             {
                 if (entry == null || entry.EnemyData == null)
                 {
@@ -472,7 +472,7 @@ namespace EchoesOfAsh.Battle
 
                 if (relic.IsShared)
                 {
-                    // 공용 유물 - 시전자/대상 = 발화 시점 첫 생존자 (잠정 규칙)
+                    // 공용 유물은 효과가 실행될 때 첫 번째 생존 파티원을 시전자와 대상으로 사용합니다.
                     triggerEffectController.Register(relic.TriggerEffects, () => GetDefaultCaster(), relic.DisplayName);
                 }
                 else
@@ -498,7 +498,7 @@ namespace EchoesOfAsh.Battle
 
             cardPlayService.OnCardPlayed += HandleCardPlayedForTrigger;
 
-            // 피격/가해 트리거 배선 (P2-M7 - 미배선 3종 해소)
+            // 피해 이벤트를 피격 효과와 가해 효과 처리에 연결합니다.
             foreach (CharacterEntity character in party)
             {
                 CharacterEntity damagedMember = character;
@@ -565,7 +565,7 @@ namespace EchoesOfAsh.Battle
 
             turnManager.EndBattle();
 
-            // 전투 종료 트리거 - 승리 시 1회 (잠정 규칙: 패배 = 던전 종료라 미발화). 효과의 정신력 변경이 아래 이월 기록에 반영됩니다
+            // 승리했을 때 전투 종료 효과를 한 번 실행한 뒤 변경된 정신력을 저장합니다.
             if (battleResult == EBattleResult.Victory)
             {
                 triggerEffectController?.Raise(ETriggerType.BattleEnd);
@@ -610,7 +610,7 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 라운드 종료 시 전투원 전체의 상태 이상 중첩 감소를 처리합니다. 순회 순서는 파티 → 적 (스폰 순 고정)입니다.
+        /// 라운드가 끝나면 파티원과 적의 순서로 상태 이상 중첩을 줄입니다.
         /// </summary>
         /// <param name="turn">현재 턴입니다.</param>
         private void HandleStatusRoundTick(int turn)
@@ -635,7 +635,7 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 공용 카드의 시전자인 파티 첫 생존자를 반환합니다. 전원 사망이면 null입니다
+        /// 공용 카드의 시전자인 첫 번째 생존 파티원을 반환합니다. 전원이 사망했으면 null입니다.
         /// </summary>
         /// <returns>파티 첫 생존자입니다.</returns>
         private CharacterEntity GetDefaultCaster()
@@ -652,7 +652,7 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 지정한 캐릭터 데이터로 스폰된 파티원을 찾습니다.
+        /// 지정한 캐릭터 데이터로 생성된 파티원을 찾습니다.
         /// </summary>
         /// <param name="characterData">찾을 캐릭터 데이터입니다.</param>
         /// <returns>해당 파티원입니다. 없으면 null입니다.</returns>
@@ -675,7 +675,7 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 파티 구성원의 전용 카드 목록으로 카드 → 소유자 조회 표를 구성합니다.
+        /// 파티원의 전용 카드를 기준으로 각 카드의 소유자를 기록합니다.
         /// 강화 버전 데이터도 함께 등록해 강화 카드의 소유 판정 유실을 방지합니다.
         /// </summary>
         private void BuildCardOwnerLookup()
@@ -744,9 +744,9 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 챕터의 상태이상 정의 목록을 주입합니다. 조립 지점(DungeonManager)이 던전 시작 시 호출합니다.
+        /// 이번 던전에서 사용할 상태 이상 목록을 설정합니다.
         /// </summary>
-        /// <param name="statusDatas">상태이상 정의 목록입니다. null이면 인스펙터 목록으로 폴백합니다.</param>
+        /// <param name="statusDatas">사용할 상태 이상 목록입니다. null이면 인스펙터 목록을 사용합니다.</param>
         public void SetChapterStatusDatas(IReadOnlyList<StatusEffectData> statusDatas)
             => chapterStatusDatas = statusDatas;
         #endregion // 전투
@@ -785,7 +785,7 @@ namespace EchoesOfAsh.Battle
                 return false;
             }
 
-            // 카드 실행 중 적이 받는 피해를 시전자 어그로와 가해 트리거로 귀속합니다
+            // 카드 효과로 준 피해를 시전자의 어그로와 가해 효과 처리에 연결합니다.
             bool isPlayed;
             aggroSystem?.BeginAttribution(caster);
             dealDamageAttributionCaster = caster;
@@ -803,7 +803,7 @@ namespace EchoesOfAsh.Battle
             // 도발 부여 카드였다면 적 표적 표시를 즉시 갱신합니다 (무작위 재추첨 없음)
             if (isPlayed)
             {
-                foreach (var enemyAI in enemyAIs)
+                foreach (EnemyAI enemyAI in enemyAIs)
                 {
                     enemyAI.RefreshTauntPreview();
                 }
@@ -882,7 +882,7 @@ namespace EchoesOfAsh.Battle
         /// <param name="turnNumber">턴 번호입니다.</param>
         private void HandleRoundEnded(int turnNumber)
         {
-            foreach (var enemyAI in EnemyAIs)
+            foreach (EnemyAI enemyAI in EnemyAIs)
             {
                 enemyAI.PrepareNextTurn();
             }
@@ -899,7 +899,7 @@ namespace EchoesOfAsh.Battle
                 return;
             }
 
-            foreach (var enemy in enemyEntities)
+            foreach (EnemyEntity enemy in enemyEntities)
             {
                 if (!enemy.IsDead)
                 {
@@ -931,7 +931,7 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 카드 사용 완료를 트리거 컨트롤러에 중계합니다 (Effect.Trigger의 Card 의존 차단 - 조립 지점 어댑터).
+        /// 카드 사용이 끝나면 카드 사용 시점에 실행되는 효과를 처리합니다.
         /// </summary>
         /// <param name="card">사용한 카드입니다.</param>
         /// <param name="sanityType">적용된 정신력 구간입니다.</param>
@@ -941,7 +941,7 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 파티원 피격을 피격 트리거로 중계합니다. 원본 피해 0 이하는 발화하지 않습니다 (방어막 전량 흡수는 피격으로 인정).
+        /// 파티원이 피해를 받으면 피격 효과를 실행합니다. 원래 피해량이 0 이하면 실행하지 않습니다.
         /// </summary>
         /// <param name="damagedMember">피격당한 파티원입니다.</param>
         /// <param name="originalAmount">계산 전 원본 피해량입니다.</param>
@@ -956,7 +956,7 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 적 피격을 가해 트리거로 중계합니다. 카드 귀속 구간 안의 피해만 인정합니다 (상태이상 틱 등 귀속 밖 = 미발화 - 어그로와 동일 잠정 규칙).
+        /// 카드 효과를 실행하는 동안 적에게 준 피해에만 가해 효과를 실행합니다.
         /// </summary>
         /// <param name="originalAmount">계산 전 원본 피해량입니다.</param>
         private void HandleEnemyDamagedForTrigger(int originalAmount)

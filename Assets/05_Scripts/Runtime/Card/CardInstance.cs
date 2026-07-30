@@ -85,7 +85,7 @@ namespace EchoesOfAsh.Card
         #region 전투 상태
         /// <summary>
         /// 전투 한정 행동력 비용 보정치를 누적합니다.
-        /// 음수 = 비용 감소입니다.
+        /// 음수 값을 지정하면 비용이 감소합니다.
         /// 유물, 이벤트 효과 등에서 사용합니다.
         /// </summary>
         public void AddBattleApCostDelta(int delta)

@@ -26,7 +26,7 @@ namespace EchoesOfAsh.Test
         private readonly List<MapNode> nextNodeBuffer = new();
         #endregion // 필드
 
-        #region 함수
+        #region 테스트
         /// <summary>
         /// 맵을 생성하고 검증 결과를 로그로 출력합니다.
         /// </summary>
@@ -78,7 +78,7 @@ namespace EchoesOfAsh.Test
                     string madnessOnlyMark = node.IsMadnessOnly ? "†" : string.Empty;
                     string nodeTypeDisplayName = GetNodeTypeDisplayName(node.NodeType);
                     stringBuilder.Append(
-                        $"[{node.Identifier,2}|레인 {node.Lane} {nodeTypeDisplayName}{madnessOnlyMark}] ");
+                    $"[{node.Identifier,2}|세로 칸 {node.Lane} {nodeTypeDisplayName}{madnessOnlyMark}] ");
                 }
 
                 stringBuilder.AppendLine();
@@ -188,6 +188,6 @@ namespace EchoesOfAsh.Test
                     return nodeType.ToString();
             }
         }
-        #endregion // 함수
+        #endregion // 테스트
     }
 }

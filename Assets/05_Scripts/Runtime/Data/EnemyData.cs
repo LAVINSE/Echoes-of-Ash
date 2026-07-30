@@ -107,7 +107,7 @@ namespace EchoesOfAsh.Data
                 SWLog.LogError($"[EnemyData] '{name}': 행동 패턴이 비어 있습니다.");
             }
 
-            foreach (var action in actions)
+            foreach (EnemyActionData action in actions)
             {
                 if (action.Effects.Count == 0)
                 {

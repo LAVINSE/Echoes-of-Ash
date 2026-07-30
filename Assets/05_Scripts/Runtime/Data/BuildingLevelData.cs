@@ -4,7 +4,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Data
 {
     /// <summary>
-    /// 건물 레벨 데이터
+    /// 건물의 레벨별 비용과 효과 설명을 보관합니다.
     /// </summary>
     [System.Serializable]
     public class BuildingLevelData

@@ -29,9 +29,9 @@ namespace EchoesOfAsh.Data
         #endregion // 프로퍼티
 
         /// <summary>
-        /// 드랍 뽑기를 진행해 목록에 추가한다
+        /// 드랍 추첨을 진행하고 결과 목록에 아이템 묶음을 추가합니다.
         /// </summary>
-        /// <param name="results">결과 목록</param>
+        /// <param name="results">추첨 결과를 추가할 목록입니다.</param>
         public void Roll(List<ItemStackData> results)
         {
             if (results == null)
@@ -83,7 +83,7 @@ namespace EchoesOfAsh.Data
         }
 
         /// <summary>
-        /// 가중치 비례로 항목 하나를 추첨합니다. 순회 순서 = 판정 순서 (결정성).
+        /// 각 항목의 가중치에 따라 하나를 무작위로 선택합니다.
         /// </summary>
         /// <param name="totalWeight">꽝 포함 전체 가중치 합입니다.</param>
         /// <returns>추첨된 항목입니다. 꽝이면 null입니다.</returns>

@@ -110,7 +110,7 @@ namespace EchoesOfAsh.EditorTools
             SetupStyle();
             LoadSettings();
 
-            // 탭: 목록형 4 + 단일 2 + 설정 1
+            // 관리 데이터, 단일 설정과 도구 설정에 필요한 탭을 모두 만듭니다.
             tabNames = new string[ManagedTypes.Length + SingletonTypes.Length + 1];
 
             for (int index = 0; index < ManagedTypes.Length; ++index)
@@ -278,7 +278,7 @@ namespace EchoesOfAsh.EditorTools
                 return;
             }
 
-            // 단일 에셋 탭 (파티 / 밸런스)
+            // 파티 또는 전투 수치처럼 하나만 존재하는 데이터를 표시합니다.
             if (tabIndex >= ManagedTypes.Length)
             {
                 DrawSingletonTab(tabIndex - ManagedTypes.Length);
@@ -292,7 +292,7 @@ namespace EchoesOfAsh.EditorTools
 
         #region 목록형 탭
         /// <summary>
-        /// 유형별 데이터 탭(좌측 목록 + 우측 인스펙터)을 그립니다.
+        /// 왼쪽에는 데이터 목록을, 오른쪽에는 선택한 데이터의 편집 화면을 표시합니다.
         /// </summary>
         private void DrawDataTab(Type dataType, int typeIndex)
         {
@@ -405,7 +405,7 @@ namespace EchoesOfAsh.EditorTools
         {
             sortMode = newSortMode;
 
-            foreach (var type in ManagedTypes)
+            foreach (Type type in ManagedTypes)
             {
                 SortAssets(type);
             }
@@ -445,7 +445,7 @@ namespace EchoesOfAsh.EditorTools
 
             float rowHeight = GetListDrawRowHeight();
 
-            foreach (var asset in assets)
+            foreach (SWIdentifiedObject asset in assets)
             {
                 if (asset == null)
                 {
@@ -472,7 +472,7 @@ namespace EchoesOfAsh.EditorTools
                     continue;
                 }
 
-                // 행 클릭 = 선택 토글 (삭제 버튼 영역 제외)
+                // 삭제 버튼을 제외한 행을 클릭하면 선택 상태가 바뀝니다.
                 Rect clickRect = new(rowRect.x, rowRect.y, deleteRect.x - rowRect.x, rowRect.height);
 
                 if (GUI.Button(clickRect, GUIContent.none, GUIStyle.none))
@@ -728,15 +728,15 @@ namespace EchoesOfAsh.EditorTools
             for (int index = 0; index < SingletonTypes.Length; ++index)
             {
                 Type dataType = SingletonTypes[index];
-                string[] guids = AssetDatabase.FindAssets($"t:{dataType.Name}");
+                string[] assetGuids = AssetDatabase.FindAssets($"t:{dataType.Name}");
 
-                singletonAssets[index] = guids.Length > 0
-                    ? AssetDatabase.LoadAssetAtPath<ScriptableObject>(AssetDatabase.GUIDToAssetPath(guids[0]))
+                singletonAssets[index] = assetGuids.Length > 0
+                    ? AssetDatabase.LoadAssetAtPath<ScriptableObject>(AssetDatabase.GUIDToAssetPath(assetGuids[0]))
                     : null;
 
-                if (guids.Length > 1)
+                if (assetGuids.Length > 1)
                 {
-                    SWLog.LogWarning($"[EoA Data Editor] {dataType.Name} 에셋이 {guids.Length}개 발견되었습니다. 첫 번째 에셋을 표시합니다.");
+                    SWLog.LogWarning($"[EoA Data Editor] {dataType.Name} 에셋이 {assetGuids.Length}개 발견되었습니다. 첫 번째 에셋을 표시합니다.");
                 }
             }
         }
@@ -756,7 +756,7 @@ namespace EchoesOfAsh.EditorTools
 
             EnsureFolderExists(folderPath);
 
-            var asset = CreateInstance(SingletonTypes[singletonIndex]);
+            ScriptableObject asset = CreateInstance(SingletonTypes[singletonIndex]);
             string assetPath = AssetDatabase.GenerateUniqueAssetPath(
                 $"{folderPath.TrimEnd('/')}/{SingletonDefaultNames[singletonIndex]}.asset");
 
@@ -875,12 +875,12 @@ namespace EchoesOfAsh.EditorTools
             List<SWIdentifiedObject> assets = assetsByType[dataType];
             assets.Clear();
 
-            string[] guids = AssetDatabase.FindAssets($"t:{dataType.Name}");
+            string[] assetGuids = AssetDatabase.FindAssets($"t:{dataType.Name}");
 
-            foreach (string guid in guids)
+            foreach (string assetGuid in assetGuids)
             {
-                string path = AssetDatabase.GUIDToAssetPath(guid);
-                var asset = AssetDatabase.LoadAssetAtPath<SWIdentifiedObject>(path);
+                string path = AssetDatabase.GUIDToAssetPath(assetGuid);
+                SWIdentifiedObject asset = AssetDatabase.LoadAssetAtPath<SWIdentifiedObject>(path);
 
                 if (asset != null)
                 {
@@ -934,12 +934,12 @@ namespace EchoesOfAsh.EditorTools
 
             EnsureFolderExists(createPath);
 
-            var guid = Guid.NewGuid();
-            var newData = CreateInstance(dataType) as SWIdentifiedObject;
+            Guid uniqueIdentifier = Guid.NewGuid();
+            SWIdentifiedObject newData = CreateInstance(dataType) as SWIdentifiedObject;
 
             // SerializedObject로 비공개 필드(codeName, id)를 설정
             SerializedObject serializedData = new(newData);
-            serializedData.FindProperty("codeName").stringValue = guid.ToString();
+            serializedData.FindProperty("codeName").stringValue = uniqueIdentifier.ToString();
 
             if (useAutoId)
             {
@@ -972,7 +972,7 @@ namespace EchoesOfAsh.EditorTools
             int maxId = 0;
             List<SWIdentifiedObject> assets = assetsByType[dataType];
 
-            foreach (var asset in assets)
+            foreach (SWIdentifiedObject asset in assets)
             {
                 if (asset != null && asset.ID > maxId)
                 {
@@ -1003,7 +1003,7 @@ namespace EchoesOfAsh.EditorTools
                 return;
             }
 
-            var duplicated = AssetDatabase.LoadAssetAtPath<SWIdentifiedObject>(newPath);
+            SWIdentifiedObject duplicated = AssetDatabase.LoadAssetAtPath<SWIdentifiedObject>(newPath);
 
             if (duplicated != null)
             {

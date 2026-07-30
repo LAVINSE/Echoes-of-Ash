@@ -7,7 +7,7 @@ using UnityEngine;
 namespace EchoesOfAsh.View
 {
     /// <summary>
-    /// 캐릭터 View
+    /// 캐릭터의 전투 외형과 상태를 표시합니다.
     /// </summary>
     public class CharacterView : SWMonoBehaviour
     {

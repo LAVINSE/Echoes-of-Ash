@@ -11,7 +11,7 @@ namespace EchoesOfAsh.View
     /// <summary>
     /// 대상 지정 화살표 뷰입니다.
     /// 시작 지점에서 지정 지점까지 베지어 곡선 화살표를 표시합니다.
-    /// 입력을 직접 읽지 않으며, 드래그 핸들러가 BeginAiming / UpdateAiming / EndAiming으로 구동합니다.
+    /// 카드 드래그 기능에서 조준 시작, 위치 변경과 종료를 전달받아 표시를 갱신합니다.
     /// </summary>
     public class BezierArrowsView : SWMonoBehaviour
     {
@@ -261,7 +261,7 @@ namespace EchoesOfAsh.View
 
         #region 표시
         /// <summary>
-        /// 생성된 모든 화살표 요소의 표시 여부를 변경합니다. 같은 상태면 순회하지 않습니다.
+        /// 생성된 모든 화살표 요소를 표시하거나 숨깁니다. 이미 같은 상태면 다시 확인하지 않습니다.
         /// </summary>
         /// <param name="isVisible">표시 여부입니다.</param>
         private void SetArrowVisible(bool isVisible)
@@ -289,7 +289,7 @@ namespace EchoesOfAsh.View
         {
             if (!isSelfAimingTest)
             {
-                // 테스트를 '끈 순간'에만 정리 — 외부(드래그 컨트롤러) 조준은 건드리지 않는다
+                // 자체 시험을 막 끝낸 경우에만 시험용 화살표를 정리합니다.
                 if (wasSelfAimingTest)
                 {
                     wasSelfAimingTest = false;

@@ -9,8 +9,8 @@ using UnityEngine.UI;
 namespace EchoesOfAsh.View.UI
 {
     /// <summary>
-    /// 마을 화면 부착 HUD입니다 (BattleHUDView 전례). 자원 요약과 던전 출발/이어하기 버튼을 표시합니다.
-    /// 건물 상호작용은 월드 계층(TownBuildingView) 소관이며, 이 뷰는 화면 고정 요소만 담당합니다.
+    /// 마을의 자원 요약과 던전 출발 및 이어하기 버튼을 표시합니다.
+    /// 건물 클릭은 TownBuildingView가 처리하며, 이 화면은 자원과 던전 출발 버튼만 표시합니다.
     /// </summary>
     public class TownHUDView : SWMonoBehaviour
     {
@@ -46,7 +46,7 @@ namespace EchoesOfAsh.View.UI
         #endregion // 초기화
 
         /// <summary>
-        /// 콜백을 연결합니다. 표시 내용은 Refresh로 갱신합니다.
+        /// 던전 출발과 이어하기 버튼이 실행할 동작을 연결합니다.
         /// </summary>
         /// <param name="onEnterDungeon">던전 출발 요청 시 호출됩니다.</param>
         /// <param name="onResumeDungeon">던전 이어하기 요청 시 호출됩니다.</param>
@@ -54,7 +54,7 @@ namespace EchoesOfAsh.View.UI
         {
             if (onEnterDungeon == null)
             {
-                SWLog.LogError("[TownHudView] Show 실패: 출발 콜백이 없습니다.");
+                SWLog.LogError("[TownHudView] Show 실패: 출발 동작이 없습니다.");
                 return;
             }
 
@@ -63,7 +63,7 @@ namespace EchoesOfAsh.View.UI
         }
 
         /// <summary>
-        /// 콜백 연결을 해제합니다.
+        /// 버튼에 연결된 동작을 해제합니다.
         /// </summary>
         public void Hide()
         {
@@ -75,7 +75,7 @@ namespace EchoesOfAsh.View.UI
         /// 표시 내용을 갱신합니다.
         /// </summary>
         /// <param name="resourceSummary">자원 요약 문구입니다.</param>
-        /// <param name="hasDungeonSave">진행 중인 던전 스냅샷이 있는지 여부입니다.</param>
+        /// <param name="hasDungeonSave">이어서 진행할 던전 저장 데이터가 있는지 여부입니다.</param>
         public void Refresh(string resourceSummary, bool hasDungeonSave)
         {
             if (resourceText != null)

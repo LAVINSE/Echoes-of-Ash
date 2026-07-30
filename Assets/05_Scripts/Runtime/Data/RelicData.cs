@@ -9,7 +9,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Data
 {
     /// <summary>
-    /// 유물 데이터
+    /// 유물의 기본 정보와 발동 효과를 보관합니다.
     /// </summary>
     [CreateAssetMenu(fileName = "Relic_", menuName = "EchoesOfAsh/Data/Relic")]
     public class RelicData : SWIdentifiedObject

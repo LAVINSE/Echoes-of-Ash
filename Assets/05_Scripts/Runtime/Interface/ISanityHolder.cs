@@ -5,7 +5,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Interface
 {
     /// <summary>
-    /// 정신력 값과 정신력 유형을 관리하는 대상의 계약을 정의합니다.
+    /// 정신력 값과 현재 정신력 상태를 관리하는 대상의 기능을 정의합니다.
     /// </summary>
     public interface ISanityHolder
     {

@@ -5,7 +5,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Save
 {
     /// <summary>
-    /// 아이템 수량 저장 항목입니다. codeName 기준으로 복원합니다.
+    /// 아이템의 코드 이름과 보유 수량을 저장합니다.
     /// </summary>
     [Serializable]
     public class ItemCountSaveData
@@ -17,41 +17,41 @@ namespace EchoesOfAsh.Save
     }
 
     /// <summary>
-    /// 건물 레벨 저장 항목
+    /// 건물 코드명과 현재 레벨을 보관하는 저장 항목입니다.
     /// </summary>
     [System.Serializable]
     public class BuildingLevelSaveData
     {
         /// <summary>건물 식별 코드 이름입니다.</summary>
         public string codeName;
-        /// <summary>현재 레벨입니다 (0 = 미승급).</summary>
+        /// <summary>현재 레벨입니다. 0이면 아직 승급하지 않은 상태입니다.</summary>
         public int level;
     }
 
     /// <summary>
-    /// 마을 누적 진행(기획 용어: 메타 진행)의 저장 스키마입니다. GameSaveData의 마을 구획으로 저장됩니다.
-    /// v1 = 자원 보유량 + 건물 레벨 + 보유 캐릭터. 신규 항목은 필드 추가로 편입하고,
-    /// 구버전 강제 폐기가 필요할 때만 버전을 인상합니다 (개정 19 규칙 - 필드 추가는 버전 유지 무해).
+    /// 마을에서 계속 유지할 아이템, 건물, 캐릭터와 카드 해금 정보를 보관합니다.
+    /// 버전 1에는 자원 보유량, 건물 레벨과 보유 캐릭터가 포함됩니다. 새로운 항목은 필드를 추가하고,
+    /// 기존 저장 데이터와 호환되지 않는 변경이 있을 때만 버전을 올립니다.
     /// </summary>
     [Serializable]
     public class TownSaveData
     {
-        /// <summary>현재 스키마 버전입니다.</summary>
+        /// <summary>현재 마을 저장 데이터의 형식 버전입니다.</summary>
         public const int CurrentVersion = 1;
 
-        /// <summary>저장 당시 스키마 버전입니다.</summary>
+        /// <summary>파일을 저장할 때 사용한 마을 데이터의 형식 버전입니다.</summary>
         public int version = CurrentVersion;
 
         /// <summary>보유 아이템 목록입니다.</summary>
         public List<ItemCountSaveData> items = new();
 
-        /// <summary>건물 레벨 목록입니다 (P2-M6 6-1).</summary>
+        /// <summary>건물별 현재 레벨 목록입니다.</summary>
         public List<BuildingLevelSaveData> buildingLevels = new();
 
-        /// <summary>보유 캐릭터 코드명 목록입니다. 등록 순서 = 영입 순서입니다 (P2-M6 6-1 - 막사 영입).</summary>
+        /// <summary>보유 캐릭터 코드명 목록입니다. 영입한 순서대로 저장합니다.</summary>
         public List<string> ownedCharacterCodeNames = new();
 
-        /// <summary>해금된 카드 코드명 목록입니다. 발견형/제작형 공용 원장이며, 기본 해금 카드는 기록하지 않습니다 (P2-M7 7-5).</summary>
+        /// <summary>해금된 카드 코드명 목록입니다. 처음부터 해금된 카드는 기록하지 않습니다.</summary>
         public List<string> unlockedCardCodeNames = new();
     }
 }

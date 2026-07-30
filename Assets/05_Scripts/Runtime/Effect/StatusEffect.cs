@@ -25,7 +25,7 @@ namespace EchoesOfAsh.Effect
         /// <inheritdoc />
         public override void Apply(EffectContext context)
         {
-            foreach (var target in context.Targets)
+            foreach (ITargetable target in context.Targets)
             {
                 if (target is IStatusReceiver receiver)
                 {

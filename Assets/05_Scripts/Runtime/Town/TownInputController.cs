@@ -7,15 +7,15 @@ using UnityEngine;
 namespace EchoesOfAsh.Town
 {
     /// <summary>
-    /// 마을 월드 입력의 단일 주체입니다 (CardDragController 전례 - 포인터 폴링 + OverlapPoint).
-    /// 건물 콜라이더 위 호버 하이라이트와 클릭 알림만 담당하며, 클릭의 의미는 건물 뷰에 주입된 콜백이 결정합니다.
-    /// 팝업이 열리는 동안은 조립 지점이 입력을 끕니다 (팝업 = 모달).
+    /// 마우스 위치의 건물을 찾고 강조 표시와 클릭 입력을 처리합니다.
+    /// 마우스가 건물 위에 있을 때 강조 표시하고 클릭된 건물에 입력을 전달합니다.
+    /// 다른 화면이 열려 있으면 외부에서 입력을 끌 수 있습니다.
     /// </summary>
     public class TownInputController : SWMonoBehaviour
     {
         #region 필드
         [SWGroup("판정")]
-        [Tooltip("월드 좌표 변환에 사용할 카메라입니다. 미배선이면 메인 카메라를 사용합니다.")]
+        [Tooltip("화면 좌표를 게임 공간의 좌표로 바꿀 때 사용할 카메라입니다. 지정하지 않으면 메인 카메라를 사용합니다.")]
         [SerializeField] private Camera worldCamera;
         [Tooltip("건물 콜라이더가 속한 물리 레이어입니다.")]
         [SerializeField] private LayerMask buildingLayerMask;
@@ -26,7 +26,7 @@ namespace EchoesOfAsh.Town
 
         #region 유니티 이벤트 함수
         /// <summary>
-        /// 매 프레임 포인터 위치의 건물을 판정해 호버와 클릭을 처리합니다.
+        /// 매 프레임 마우스 아래의 건물을 찾아 강조 표시와 클릭을 처리합니다.
         /// </summary>
         private void Update()
         {
@@ -57,7 +57,7 @@ namespace EchoesOfAsh.Town
         }
 
         /// <summary>
-        /// 비활성화될 때 호버 상태를 정리합니다.
+        /// 비활성화될 때 건물 강조 표시를 해제합니다.
         /// </summary>
         private void OnDisable()
         {
@@ -67,7 +67,7 @@ namespace EchoesOfAsh.Town
 
         #region 입력
         /// <summary>
-        /// 월드 입력을 켜거나 끕니다. 끌 때는 호버 상태도 정리합니다 (팝업 모달 처리용).
+        /// 마을 건물 입력을 켜거나 끕니다. 입력을 끄면 건물 강조 표시도 해제합니다.
         /// </summary>
         /// <param name="isEnabled">입력 활성 여부입니다.</param>
         public void SetInputEnabled(bool isEnabled)
@@ -81,9 +81,9 @@ namespace EchoesOfAsh.Town
         }
 
         /// <summary>
-        /// 호버 대상 변화를 반영합니다. 이전 대상의 하이라이트를 끄고 새 대상을 켭니다.
+        /// 마우스가 가리키는 건물이 바뀌면 이전 강조를 끄고 새 건물을 강조합니다.
         /// </summary>
-        /// <param name="pointedView">현재 포인터가 가리키는 건물 뷰입니다. 없으면 null입니다.</param>
+        /// <param name="pointedView">현재 마우스가 가리키는 건물 화면입니다. 없으면 <see langword="null"/>입니다.</param>
         private void RefreshHover(TownBuildingView pointedView)
         {
             if (hoveredBuildingView == pointedView)

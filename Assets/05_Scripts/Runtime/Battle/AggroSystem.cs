@@ -84,7 +84,7 @@ namespace EchoesOfAsh.Battle
 
         /// <summary>
         /// 후보 중 어그로가 가장 높은 파티원을 반환합니다.
-        /// 동률이면 목록 앞(파티 순서) 사람이며, 전원 0이면 null입니다 (호출부 무작위 폴백).
+        /// 어그로가 같으면 파티 목록에서 앞에 있는 대상을 반환합니다. 모든 어그로가 0이면 null을 반환합니다.
         /// </summary>
         /// <param name="candidates">대상 지정 가능한 파티원 목록입니다.</param>
         /// <returns>최고 어그로 파티원입니다. 유효 어그로가 없으면 null입니다.</returns>
@@ -114,7 +114,7 @@ namespace EchoesOfAsh.Battle
         #endregion // 조회
 
         /// <summary>
-        /// 피해 귀속을 시작합니다. 이후 적이 받는 피해는 지정한 시전자의 어그로로 누적됩니다.
+        /// 이후 적이 받는 피해를 지정한 시전자의 어그로에 더하도록 설정합니다.
         /// </summary>
         /// <param name="caster">카드 시전자입니다.</param>
         public void BeginAttribution(CharacterEntity caster)
@@ -123,7 +123,7 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 피해 귀속을 종료합니다. 이후 적이 받는 피해(상태이상 틱 등)는 어그로에 반영되지 않습니다.
+        /// 피해와 시전자의 연결을 해제합니다. 이후 발생하는 피해는 어그로에 반영하지 않습니다.
         /// </summary>
         public void EndAttribution()
         {
@@ -131,8 +131,8 @@ namespace EchoesOfAsh.Battle
         }
 
         /// <summary>
-        /// 적 피격 시 원본 피해량을 시전자의 어그로로 누적하는 콜백입니다.
-        /// 방어막 흡수분 포함 기여로 인정합니다 (잠정 — 가중치는 Balance 소유).
+        /// 적이 피해를 받으면 해당 피해량만큼 시전자의 어그로를 높입니다.
+        /// 방어막으로 막힌 피해도 원래 피해량을 기준으로 어그로에 반영합니다.
         /// </summary>
         /// <param name="healthPointLoss">실제 HP 손실량입니다.</param>
         /// <param name="amount">원본 피해량입니다.</param>
@@ -151,7 +151,7 @@ namespace EchoesOfAsh.Battle
 
         /// <summary>
         /// 라운드 종료 시점의 어그로 감쇠를 처리합니다.
-        /// 순서 계약: 상태이상 감소 → 어그로 감쇠 → 의도 재평가입니다.
+        /// 상태 이상 감소 후 어그로를 줄이고 적의 다음 행동을 다시 계산합니다.
         /// </summary>
         public void TickRound()
         {
@@ -162,7 +162,7 @@ namespace EchoesOfAsh.Battle
 
             float decayRate = balanceData != null ? balanceData.AggroRoundDecayRate : 0.5f;
 
-            // 순회 중 제거가 일어나므로 버퍼로 순회합니다
+            // 목록을 확인하는 동안 항목을 안전하게 제거하기 위해 키를 복사합니다.
             tickBuffer.Clear();
             tickBuffer.AddRange(aggroValues.Keys);
 

@@ -3,7 +3,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Interface
 {
     /// <summary>
-    /// 전투 효과의 대상으로 선택될 수 있는 객체의 계약을 정의합니다.
+    /// 전투 효과의 대상으로 선택될 수 있는 객체의 기능을 정의합니다.
     /// </summary>
     public interface ITargetable
     {

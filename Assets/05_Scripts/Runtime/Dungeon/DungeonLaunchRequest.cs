@@ -4,7 +4,7 @@ using UnityEngine;
 namespace EchoesOfAsh.Dungeon
 {
     /// <summary>
-    /// 거점 씬이 던전 씬으로 전환할 때 요청
+    /// 거점 장면에서 던전 장면으로 전환할 때 출발 방식을 전달합니다.
     /// </summary>
     public static class DungeonLaunchRequest
     {

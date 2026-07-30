@@ -8,9 +8,9 @@ using UnityEngine;
 namespace EchoesOfAsh.Data
 {
     /// <summary>
-    /// 전투 승리 보상 구성 데이터입니다 (기획서 14-6).
+    /// 전투 승리 후 지급할 골드와 카드 보상을 설정합니다.
     /// 골드 보상 범위와 카드 보상 굴림 규칙(선택지 수·등급 가중치·발견형 등장 확률)을 소유합니다.
-    /// 굴림 로직은 SO가 소유하고 (DropTableData 전례), 해금 확정과 풀 수집은 호출자(조립 지점) 소관입니다.
+    /// 보상 수치와 카드 등급을 선택하며, 카드 해금 처리는 호출하는 쪽에서 담당합니다.
     /// </summary>
     [CreateAssetMenu(fileName = "RewardConfig_", menuName = "EchoesOfAsh/Data/RewardConfig")]
     public class RewardConfigData : SWIdentifiedObject
@@ -31,7 +31,7 @@ namespace EchoesOfAsh.Data
         [SerializeField, Min(0)] private int bossGoldMax = 80;
 
         [SWGroup("카드 보상")]
-        [Tooltip("카드 보상 선택지 수입니다 (기획서 14-6 - 3장 중 1택)")]
+        [Tooltip("한 번에 보여줄 카드 보상 수입니다.")]
         [SerializeField, Min(1)] private int choiceCount = 3;
         [Tooltip("일반 등급 등장 가중치입니다")]
         [SerializeField, Min(0f)] private float commonWeight = 70f;
@@ -39,7 +39,7 @@ namespace EchoesOfAsh.Data
         [SerializeField, Min(0f)] private float rareWeight = 25f;
         [Tooltip("에픽 등급 등장 가중치입니다")]
         [SerializeField, Min(0f)] private float epicWeight = 5f;
-        [Tooltip("선택지 한 칸에 미해금 발견형 카드가 섞여 등장할 확률입니다 (기획서 5-3 - 등장 = 즉시 영구 해금)")]
+        [Tooltip("아직 발견하지 않은 카드가 보상에 나올 확률입니다. 등장한 카드는 즉시 영구 해금됩니다.")]
         [SerializeField, Range(0f, 1f)] private float discoveryChance = 0.1f;
         #endregion // 필드
 
@@ -74,8 +74,8 @@ namespace EchoesOfAsh.Data
         /// <summary>
         /// 카드 보상 선택지를 굴려 결과 목록에 추가합니다. 선택지는 서로 중복되지 않습니다.
         /// 칸마다 발견형 등장 판정을 먼저 하고, 아니면 등급 가중치로 해금 풀에서 추첨합니다.
-        /// 잠정 규칙: 전설/고유 등급은 보상 풀에서 제외합니다 (확장 예약분 - 기획서 5-1).
-        /// 발견형 카드의 해금 확정은 호출자 소관입니다 (원장과 소비처 분리 - CardUnlockService 전례).
+        /// 전설과 고유 등급 카드는 일반 보상에서 제외합니다.
+        /// 발견형 카드는 보상에 등장했을 때 호출하는 쪽에서 해금합니다.
         /// </summary>
         /// <param name="unlockedPool">해금된 카드 풀입니다 (CardUnlockService.CollectUnlockedCards 결과).</param>
         /// <param name="discoveryCandidates">미해금 발견형 후보입니다 (CollectDiscoveryCandidates 결과).</param>
@@ -121,12 +121,12 @@ namespace EchoesOfAsh.Data
                     picked = PickByRarity(commonBucket, rareBucket, epicBucket);
                 }
 
-                // 해금 풀이 고갈되면 발견형 후보로 폴백합니다 (첫 런 풀 공백 완충)
+                // 해금된 카드가 부족하면 아직 발견하지 않은 카드도 후보에 추가합니다.
                 if (picked == null && workingDiscovery.Count > 0)
                 {
-                    int fallbackIndex = SWRandom.Range(0, workingDiscovery.Count);
-                    picked = workingDiscovery[fallbackIndex];
-                    workingDiscovery.RemoveAt(fallbackIndex);
+                    int discoveryIndex = SWRandom.Range(0, workingDiscovery.Count);
+                    picked = workingDiscovery[discoveryIndex];
+                    workingDiscovery.RemoveAt(discoveryIndex);
                 }
 
                 if (picked == null)
@@ -142,7 +142,7 @@ namespace EchoesOfAsh.Data
 
         #region 내부
         /// <summary>
-        /// 해금 풀을 등급별 작업 목록으로 분류합니다. 전설/고유 등급은 제외합니다 (잠정 규칙).
+        /// 해금된 카드를 등급별 목록으로 나눕니다. 전설과 고유 등급은 제외합니다.
         /// </summary>
         /// <param name="unlockedPool">해금된 카드 풀입니다.</param>
         /// <param name="commonBucket">일반 등급 목록입니다.</param>
@@ -184,11 +184,11 @@ namespace EchoesOfAsh.Data
         }
 
         /// <summary>
-        /// 비어 있지 않은 등급 버킷을 가중치로 추첨한 뒤 버킷 안에서 균등 추첨합니다. 뽑힌 카드는 버킷에서 제거됩니다.
+        /// 카드 등급을 확률에 따라 정한 뒤 해당 등급에서 카드 한 장을 뽑습니다. 같은 카드가 다시 뽑히지 않도록 후보에서 제거합니다.
         /// </summary>
-        /// <param name="commonBucket">일반 등급 목록입니다.</param>
-        /// <param name="rareBucket">희귀 등급 목록입니다.</param>
-        /// <param name="epicBucket">에픽 등급 목록입니다.</param>
+        /// <param name="commonBucket">일반 등급 카드 목록입니다.</param>
+        /// <param name="rareBucket">희귀 등급 카드 목록입니다.</param>
+        /// <param name="epicBucket">에픽 등급 카드 목록입니다.</param>
         /// <returns>추첨된 카드입니다. 후보가 없으면 null입니다.</returns>
         private CardData PickByRarity(List<CardData> commonBucket, List<CardData> rareBucket, List<CardData> epicBucket)
         {
@@ -231,7 +231,7 @@ namespace EchoesOfAsh.Data
                 selectedBucket = epicBucket;
             }
 
-            // 부동소수 오차 보정 - 마지막 유효 버킷 폴백
+            // 소수점 계산 오차가 있으면 마지막 유효 등급을 반환합니다.
             if (selectedBucket == null)
             {
                 if (epicBucket.Count > 0) selectedBucket = epicBucket;

@@ -5,9 +5,8 @@ using SW.Util;
 namespace EchoesOfAsh.Save
 {
     /// <summary>
-    /// 마을 누적 진행(기획 용어: 메타 진행) 구획의 접근 창구입니다.
-    /// 파일 입출력은 GameSaveService에 위임하며, 이 클래스는 마을 구획의 조작만 담당합니다.
-    /// 변경 API는 파일을 쓰지 않습니다 - 저장은 호출자가 일괄 수행합니다 (AddItem 계약과 대칭).
+    /// 마을에서 유지할 아이템, 건물과 캐릭터 정보를 변경합니다.
+    /// 실제 파일 저장은 GameSaveService에 맡기며, 변경 후 저장 시점은 호출하는 쪽에서 결정합니다.
     /// </summary>
     public static class TownSaveService
     {
@@ -228,7 +227,7 @@ namespace EchoesOfAsh.Save
         }
 
         /// <summary>
-        /// 캐릭터를 보유 목록에 추가합니다. 등록 순서 = 영입 순서이며, 중복은 무시합니다.
+        /// 캐릭터를 보유 목록에 영입한 순서대로 추가하며, 이미 있는 캐릭터는 무시합니다.
         /// 저장은 호출자가 일괄 수행합니다.
         /// </summary>
         /// <param name="codeName">캐릭터 코드 이름입니다.</param>

@@ -43,7 +43,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ea06a6fff047fb84c98c1f81e193f6bd, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BezierArrows
+  m_EditorClassIdentifier: Assembly-CSharp::EchoesOfAsh.View.BezierArrowsView
   arrowHeadPrefab: {fileID: 5167985912891050469, guid: ced9ac6e893eee94292b82fb79487d08, type: 3}
   arrowNodePrefab: {fileID: 969452447191428774, guid: 6d7ebf0570b372048bf5a6de6f9e128a, type: 3}
   arrowNodeCount: 12
