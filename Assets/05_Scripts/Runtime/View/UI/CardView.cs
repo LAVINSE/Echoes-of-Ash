@@ -5,6 +5,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Serialization;
+using EchoesOfAsh.Enum;
+using EchoesOfAsh.Data;
 
 namespace EchoesOfAsh.View.UI
 {
@@ -113,6 +115,9 @@ namespace EchoesOfAsh.View.UI
             {
                 sanityMarker.SetActive(cardInstance.IsSanityEffect);
             }
+
+            ECardType cardType = cardInstance.CardData.CardType;
+            frameImage.sprite = DataManager.Instance.SpriteData.GetCardSprite(cardType);
 
             ApplyPlayableTint();
         }
