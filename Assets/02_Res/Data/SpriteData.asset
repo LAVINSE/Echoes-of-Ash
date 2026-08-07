@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EchoesOfAsh.Data.SpriteData
   cardSpriteDatas:
   - cardType: 0
-    cardSprite: {fileID: -290646150, guid: 9cdecf45188f07c488dfa2ebb3b8b445, type: 3}
+    cardSprite: {fileID: 1901238780, guid: 6cb948047bf6bc2438e7db4b5fee9fbc, type: 3}
   - cardType: 1
-    cardSprite: {fileID: -290646150, guid: 9cdecf45188f07c488dfa2ebb3b8b445, type: 3}
+    cardSprite: {fileID: 1901238780, guid: 6cb948047bf6bc2438e7db4b5fee9fbc, type: 3}
   - cardType: 2
-    cardSprite: {fileID: -290646150, guid: 9cdecf45188f07c488dfa2ebb3b8b445, type: 3}
+    cardSprite: {fileID: 2028195112, guid: 55ea8828a83be0f48bd60b7de39c6485, type: 3}
   - cardType: 3
-    cardSprite: {fileID: -290646150, guid: 9cdecf45188f07c488dfa2ebb3b8b445, type: 3}
+    cardSprite: {fileID: 2028195112, guid: 55ea8828a83be0f48bd60b7de39c6485, type: 3}
   - cardType: 4
-    cardSprite: {fileID: -290646150, guid: 9cdecf45188f07c488dfa2ebb3b8b445, type: 3}
+    cardSprite: {fileID: 1550894649, guid: f1efd4be329ae1844b9318c6a418a393, type: 3}
