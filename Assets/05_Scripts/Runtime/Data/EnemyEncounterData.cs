@@ -30,6 +30,17 @@ namespace EchoesOfAsh.Data
             public EnemyData EnemyData => enemyData;
             /// <summary>배치 위치 (enemyRoot 기준 로컬 좌표)입니다.</summary>
             public Vector2 SpawnPosition => spawnPosition;
+
+#if UNITY_EDITOR
+            /// <summary>
+            /// 배치 위치를 저장합니다 (EnemyFormation 배치 도구 전용).
+            /// </summary>
+            /// <param name="spawnPosition">저장할 배치 위치 (enemyRoot 기준 로컬 좌표)입니다.</param>
+            public void SetSpawnPosition(Vector2 spawnPosition)
+            {
+                this.spawnPosition = spawnPosition;
+            }
+#endif // UNITY_EDITOR
         }
 
         /// <summary>

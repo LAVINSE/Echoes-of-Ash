@@ -31,6 +31,7 @@ namespace EchoesOfAsh.Data
 
         [SWGroup("표시")]
         [SerializeField] private Sprite characterPortraitSprite;
+        [SerializeField] private Sprite characterProfileSprite;
         [SerializeField] private AnimatorController animatorController;
         #endregion // 필드
 
@@ -48,6 +49,7 @@ namespace EchoesOfAsh.Data
 
         /// <summary>캐릭터 초상화 스프라이트입니다.</summary>
         public Sprite CharacterPortraitSprite => characterPortraitSprite;
+        public Sprite CharacterProfileSprite => characterProfileSprite;
         public AnimatorController AnimatorController => animatorController;
         #endregion // 프로퍼티
 
