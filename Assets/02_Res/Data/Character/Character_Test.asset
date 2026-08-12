@@ -26,7 +26,8 @@ MonoBehaviour:
   optionalStats: []
   exclusiveCards: []
   passives: []
-  characterPortraitSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  characterPortraitSprite: {fileID: 21300000, guid: c14c37ee0d9021d4889da83c7d7afc7e, type: 3}
+  animatorController: {fileID: 9100000, guid: 8a833b6b9945415439fb3ae1dbb3c5b3, type: 2}
   references:
     version: 2
     RefIds: []

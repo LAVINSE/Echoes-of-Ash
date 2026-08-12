@@ -4,6 +4,7 @@ using SW.Attributes;
 using SW.Base;
 using SW.Stat;
 using SW.Util;
+using UnityEditor.Animations;
 using UnityEngine;
 
 namespace EchoesOfAsh.Data
@@ -30,6 +31,7 @@ namespace EchoesOfAsh.Data
 
         [SWGroup("표시")]
         [SerializeField] private Sprite characterPortraitSprite;
+        [SerializeField] private AnimatorController animatorController;
         #endregion // 필드
 
         #region 프로퍼티
@@ -46,6 +48,7 @@ namespace EchoesOfAsh.Data
 
         /// <summary>캐릭터 초상화 스프라이트입니다.</summary>
         public Sprite CharacterPortraitSprite => characterPortraitSprite;
+        public AnimatorController AnimatorController => animatorController;
         #endregion // 프로퍼티
 
         #region 에디터

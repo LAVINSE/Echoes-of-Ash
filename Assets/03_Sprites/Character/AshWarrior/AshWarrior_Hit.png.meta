@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: f8c15039e890eb847a404df43f5a274b
+guid: 8e6e795601d21494e8fe798abc6ff998
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -110,13 +110,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: AshPriest_Idle_0
+      name: AshWarrior_Hit_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 256
-        width: 128
-        height: 128
+        y: 192
+        width: 96
+        height: 96
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -125,20 +125,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6b0ec3f3443cb9f43a290f650819d66d
-      internalID: 150258013
+      spriteID: f3b3f6724b2c9244190fb722cf6d0a5d
+      internalID: 46514238
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: AshPriest_Idle_1
+      name: AshWarrior_Hit_1
       rect:
         serializedVersion: 2
-        x: 128
-        y: 256
-        width: 128
-        height: 128
+        x: 96
+        y: 192
+        width: 96
+        height: 96
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -147,20 +147,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 2652b9b2b1663e841b0e1b4a96a35903
-      internalID: 208343749
+      spriteID: 2527d0ae1968eaf4282f7cf4aa793dee
+      internalID: 1105856627
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: AshPriest_Idle_2
+      name: AshWarrior_Hit_2
       rect:
         serializedVersion: 2
-        x: 256
-        y: 256
-        width: 128
-        height: 128
+        x: 192
+        y: 192
+        width: 96
+        height: 96
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -169,20 +169,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 4c231df6da05e0b459db5add4a53863c
-      internalID: 697560308
+      spriteID: 544178b1874df7b4bb4a708b12b6bcf0
+      internalID: -620109913
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: AshPriest_Idle_3
+      name: AshWarrior_Hit_3
       rect:
         serializedVersion: 2
         x: 0
-        y: 128
-        width: 128
-        height: 128
+        y: 96
+        width: 96
+        height: 96
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -191,20 +191,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 069a690d9aa6e8c4fbcdfff2378c7115
-      internalID: -360856975
+      spriteID: 8d781adb144f2ef4ca93f67e3d577380
+      internalID: -1334086938
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: AshPriest_Idle_4
+      name: AshWarrior_Hit_4
       rect:
         serializedVersion: 2
-        x: 128
-        y: 128
-        width: 128
-        height: 128
+        x: 96
+        y: 96
+        width: 96
+        height: 96
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -213,20 +213,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 10acf1d5dd1b3944eb23c47bbb021d1a
-      internalID: -115846803
+      spriteID: 7313979e55b16594b8424d4e6ad1aa86
+      internalID: 1902916239
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: AshPriest_Idle_5
+      name: AshWarrior_Hit_5
       rect:
         serializedVersion: 2
-        x: 256
-        y: 128
-        width: 128
-        height: 128
+        x: 192
+        y: 96
+        width: 96
+        height: 96
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -235,20 +235,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 3569082c0cb87f94583f2cb6b15d4f7f
-      internalID: -792079699
+      spriteID: 19c62a2de9e6a2e4c840f1abb3743a15
+      internalID: -377630252
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: AshPriest_Idle_6
+      name: AshWarrior_Hit_6
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 128
-        height: 128
+        width: 96
+        height: 96
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -257,8 +257,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: fb90b9f6971e60a468d36d8653e1fcc4
-      internalID: 1694830145
+      spriteID: d8ab4b1eb13926648bc9618d9f9309fa
+      internalID: 1421273843
       vertices: []
       indices: 
       edges: []
@@ -267,7 +267,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 054c03bf9948e1f42a7fd7021abee069
+    spriteID: eb1f509df94a23349b49865bef025bbf
     internalID: 0
     vertices: []
     indices: 
@@ -277,15 +277,15 @@ TextureImporter:
     spriteCustomMetadata:
       entries:
       - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":128.0,"y":128.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":96.0,"y":96.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      AshPriest_Idle_0: 150258013
-      AshPriest_Idle_1: 208343749
-      AshPriest_Idle_2: 697560308
-      AshPriest_Idle_3: -360856975
-      AshPriest_Idle_4: -115846803
-      AshPriest_Idle_5: -792079699
-      AshPriest_Idle_6: 1694830145
+      AshWarrior_Hit_0: 46514238
+      AshWarrior_Hit_1: 1105856627
+      AshWarrior_Hit_2: -620109913
+      AshWarrior_Hit_3: -1334086938
+      AshWarrior_Hit_4: 1902916239
+      AshWarrior_Hit_5: -377630252
+      AshWarrior_Hit_6: 1421273843
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
